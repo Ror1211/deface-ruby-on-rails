@@ -71,12 +71,10 @@ module Deface
       elsif @args.key? :text
         @args[:text]
       end
-
-      Deface::Parser.erb_markup!(erb)
     end
 
     def source_element
-      @converted_source ||= Deface::Parser.convert(source.clone).to_s
+      Deface::Parser.convert(source.clone)
     end
 
     def disabled?

@@ -39,11 +39,11 @@ module Deface
     describe "with :text" do
 
       before(:each) do
-        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>")
       end
 
-      it "should return text as source" do
-        @override.source.should == "<h1>Argh!</h1>"
+      it "should return un-convert text as source" do
+        @override.source.should == "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>"
       end
     end
 
@@ -56,8 +56,8 @@ module Deface
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :partial => "shared/post")
       end
 
-      it "should return partial contents as source" do
-        @override.source.should == "<p>I'm from shared/post partial</p>\n"
+      it "should return un-convert partial contents as source" do
+        @override.source.should == "<p>I'm from shared/post partial</p>\n<%= \"And I've got ERB\" %>\n"
       end
 
     end
@@ -71,20 +71,22 @@ module Deface
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :template => "shared/person")
       end
 
-      it "should return template contents as source" do
-        @override.source.should == "<p>I'm from shared/person template</p>\n"
+      it "should return un-convert template contents as source" do
+        @override.source.should == "<p>I'm from shared/person template</p>\n<%= \"I've got ERB too\" %>\n"
       end
 
     end
 
     describe "#source_element" do
       before(:each) do
-        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<%= method 'x' & 'y' %>")
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<%= method :opt => 'x' & 'y' %>")
       end
 
-      it "should return memoized escaped source" do
-        @override.source_element
-        @override.source_element.should == "<code erb-loud> method 'x' &amp;amp; 'y' </code>"
+      it "should return escaped source" do
+        @override.source_element.should be_an_instance_of Nokogiri::HTML::DocumentFragment 
+        @override.source_element.to_s.should == "<code erb-loud> method :opt =&gt; 'x' &amp; 'y' </code>"
+        #do it twice to ensure it doesn't change as it's destructive
+        @override.source_element.to_s.should == "<code erb-loud> method :opt =&gt; 'x' &amp; 'y' </code>"
       end
     end
 

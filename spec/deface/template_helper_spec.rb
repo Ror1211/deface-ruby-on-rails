@@ -11,11 +11,11 @@ module Deface
       end
 
       it "should return source for partial" do
-        load_template_source("shared/_post", false).should == "<p>I'm from shared/post partial</p>\n"
+        load_template_source("shared/_post", false).should == "<p>I'm from shared/post partial</p>\n<%= \"And I've got ERB\" %>\n"
       end
 
       it "should return source for template" do
-        load_template_source("shared/person", false).should == "<p>I'm from shared/person template</p>\n"
+        load_template_source("shared/person", false).should == "<p>I'm from shared/person template</p>\n<%= \"I've got ERB too\" %>\n"
       end
 
       it "should return source for namespaced template" do
