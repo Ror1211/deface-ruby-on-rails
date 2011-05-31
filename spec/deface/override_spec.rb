@@ -17,6 +17,37 @@ module Deface
       @override.selector.should == "h1"
     end
 
+    describe "#original_source" do
+      it "should return nil with not specified" do
+        @override.original_source.should be_nil
+      end
+
+      it "should return parsed nokogiri document when present" do
+        @original = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>", :original => "<p><%= something %></p>")
+        @original.original_source.should be_an_instance_of Nokogiri::HTML::DocumentFragment
+        @original.original_source.to_s.should == "<p><code erb-loud> something </code></p>"
+      end
+    end
+
+    describe "#validate_original" do
+      before(:each) do
+        @original = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>", :original => "<p><%= something %></p>")
+      end
+
+      it "should return true when :original is not present" do
+        @override.validate_original("").should be_true
+      end
+
+      it "should return true when :original present, and input contains similar (ignoring whitespace)" do
+        @original.validate_original("<p><code erb-loud> something </code></p>").should be_true
+        @original.validate_original("<p><code erb-loud>something\n</code>  </p>").should be_true
+      end
+
+      it "should return false when :original present, and input contains different string" do
+        @original.validate_original("wrong").should be_false
+      end
+    end
+
     describe "#find" do
       it "should find by virtual_path" do
         Deface::Override.find({:virtual_path => "posts/index"}).size.should == 1

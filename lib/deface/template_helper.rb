@@ -17,5 +17,14 @@ module Deface
 
       @lookup_context.find(name, prefix, partial).source
     end
+
+    #gets source erb for an element
+    def element_source(template_source, selector)
+      doc = Deface::Parser.convert(template_source)
+
+      doc.css(selector).inject([]) do |result, match|
+        result << Deface::Parser.undo_erb_markup!(match.to_s.dup)
+      end
+    end
   end
 end

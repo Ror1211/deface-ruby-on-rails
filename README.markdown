@@ -41,9 +41,14 @@ Source
 
 * <tt>:template</tt> - Relative path to a template
 
+
 Optional
 --------
 * <tt>:name</tt> - Unique name for override so it can be identified and modified later. This needs to be unique within the same `:virtual_path`
+
+* <tt>:disabled</tt> - When set to true the override will not be applied.
+
+* <tt>:original</tt> - String containing original markup that is being overridden. If supplied Deface will log when the original markup changes, which helps highlight overrides that need attention when upgrading versions of the source application. Only really warranted for :replace overrides. NB: All whitespace is stripped before comparsion.
 
 Examples
 ========
@@ -69,11 +74,12 @@ Inserts the contents of `shared/_comment.html.erb` after all instances of `div` 
                           :insert_after => "div#comment_21", 
                           :partial => "shared/comment")
 
-Removes any instance of `<%= helper_method %>` in the `posts/new.html.erb" template:
+Removes any ERB block containing the string `helper_method` in the `posts/new.html.erb` template, will also log if markup being removed does not match `<%= helper_method %>`
 
      Deface::Override.new(:virtual_path => "posts/new", 
                           :name => "example-4", 
-                          :remove => "code[erb-loud]:contains('helper_method')" )
+                          :remove => "code[erb-loud]:contains('helper_method')",
+                          :original => "<%= helper_method %>")
 
 
 Implementation
@@ -107,12 +113,12 @@ Deface overrides have full access to all variables accessible to the view being 
 
 Caveats
 ======
+Deface uses the amazing Nokogiri library (and in turn libxml) for parsing HTML / view files, in some circumstances either Deface's own pre-parser or libxml's will fail to correctly parse a template. You can avoid such issues by ensuring your templates contain valid HTML. Some other caveats include:
 
-Due to the use of the Nokogiri library for parsing HTML / view files you need to ensure that your layout views include doctype, html, head and body tags in a single file, as Nokogiri will create such elements if it detects any of these tags have been incorrectly nested.
+1. Ensure that your layout views include doctype, html, head and body tags in a single file, as Nokogiri will create such elements if it detects any of these tags have been incorrectly nested.
 
-Parsing will fail and result in invalid output if ERB blocks are responsible for closing a HTML tag what was opened normally, i.e. don't do this:
+2. Parsing will fail and result in invalid output if ERB blocks are responsible for closing a HTML tag what was opened normally, i.e. don't do this:
 
 
       <div <%= ">" %>
-
 

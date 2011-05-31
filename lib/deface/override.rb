@@ -37,6 +37,10 @@ module Deface
     # * <tt>:name</tt> - Unique name for override so it can be identified and modified later.
     #   This needs to be unique within the same :virtual_path
     # * <tt>:disabled</tt> - When set to true the override will not be applied.
+    # * <tt>:original</tt> - String containing original markup that is being overridden.
+    #   If supplied Deface will log when the original markup changes, which helps highlight overrides that need 
+    #   attention when upgrading versions of the source application. Only really warranted for :replace overrides.
+    #   NB: All whitespace is stripped before comparsion.
 
 
     def initialize(args)
@@ -77,6 +81,25 @@ module Deface
       Deface::Parser.convert(source.clone)
     end
 
+    def original_source
+      return nil unless @args[:original].present?
+
+      Deface::Parser.convert(@args[:original].clone)
+    end
+
+    # logs if original source has changed
+    def validate_original(match)
+      return true if self.original_source.nil?
+
+      valid = self.original_source.to_s.gsub(/\s/, '') == match.to_s.gsub(/\s/, '')
+
+      if !valid && defined?(Rails) == "constant"
+        Rails.logger.error "\e[1;32mDeface: [WARNING]\e[0m The original source for '#{self.name}' has changed, this override should be reviewed to ensure it's still valid."
+      end
+
+      valid
+    end
+
     def disabled?
       @args.key?(:disabled) ? @args[:disabled] : false
     end
@@ -89,10 +112,10 @@ module Deface
     #
     def self.apply(source, details)
       overrides = find(details)
-      @enable_logging ||= (defined?(Rails) == "constant" ? true : false)
+      @enable_logging ||= defined?(Rails) == "constant"
 
       if @enable_logging && overrides.size > 0
-        Rails.logger.info "\e[1;32mDeface:\e[0m #{overrides.size} overrides found for #{details[:virtual_path]}"
+        Rails.logger.info "\e[1;32mDeface:\e[0m #{overrides.size} overrides found for '#{details[:virtual_path]}'"
       end
 
       unless overrides.empty?
@@ -100,9 +123,7 @@ module Deface
 
         overrides.each do |override|
           if override.disabled?
-            if @enable_logging
-              Rails.logger.info "\e[1;32mDeface:\e[0m #{override.name} is disabled"
-            end
+            Rails.logger.info("\e[1;32mDeface:\e[0m '#{override.name}' is disabled") if @enable_logging
             next
           end
 
@@ -112,10 +133,12 @@ module Deface
             matches = doc.css(override.selector)
 
             if @enable_logging
-              Rails.logger.info "\e[1;32mDeface:\e[0m #{override.name} matched #{matches.size} times with #{override.selector}"
+              Rails.logger.send(matches.size == 0 ? :error : :info, "\e[1;32mDeface:\e[0m '#{override.name}' matched #{matches.size} times with '#{override.selector}'")
             end
 
             matches.each do |match|
+              override.validate_original(match)
+
               case override.action
                 when :remove
                   match.replace ""
