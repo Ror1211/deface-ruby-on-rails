@@ -1,6 +1,6 @@
 namespace :deface do
   desc 'Gets source of html element from template.'
-  task :get_source, :template_path, :selector, :needs => :environment do |t, args|
+  task :get_source, [:template_path, :selector] => [:environment] do |t, args|
     include Deface::TemplateHelper
 
     begin

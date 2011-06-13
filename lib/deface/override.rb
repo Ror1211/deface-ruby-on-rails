@@ -191,9 +191,10 @@ module Deface
     def self.find(details)
       return [] if @@all.empty? || details.empty?
 
-      result = []
-
       virtual_path = details[:virtual_path]
+      return [] if virtual_path.nil?
+
+      result = []
       result << @@all[virtual_path.to_sym].try(:values)
 
       result.flatten.compact
