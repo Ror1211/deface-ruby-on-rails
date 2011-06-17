@@ -178,6 +178,9 @@ module Deface
 
         end
 
+        #prevents any caching by rails in development mode
+        details[:updated_at] = Time.now
+
         source = doc.to_s
 
         Deface::Parser.undo_erb_markup!(source)
