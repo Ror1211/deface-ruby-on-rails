@@ -29,6 +29,12 @@ module Deface
         parsed.should == "<html><body><p>test</p></body></html>".split("\n") #ignore doctype added by noko
       end
 
+      it "should parse body tag" do
+        parsed = Deface::Parser.convert("<body id=\"body\" <%= something %>>test</body>")
+        parsed.should be_an_instance_of(Nokogiri::XML::Element)
+        parsed.to_s.should == "<body id=\"body\" data-erb-0=\"&lt;%= something %&gt;\">test</body>"
+      end
+
       it "should convert <% ... %>" do
         Deface::Parser.convert("<% method_name %>").to_s.should == "<code erb-silent> method_name </code>"
       end

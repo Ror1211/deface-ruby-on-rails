@@ -76,8 +76,10 @@ module Deface
     def self.convert(source)
       erb_markup!(source)
 
-      if source =~ /(<html.*?)((?:(?!>)[\s\S])*)(>)/
+      if source =~ /<html.*?(?:(?!>)[\s\S])*>/
         Nokogiri::HTML::Document.parse(source)
+      elsif source =~ /<body.*?(?:(?!>)[\s\S])*>/
+        Nokogiri::HTML::Document.parse(source).css('body').first
       else
         Nokogiri::HTML::DocumentFragment.parse(source)
       end

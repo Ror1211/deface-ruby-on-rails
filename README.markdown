@@ -126,6 +126,4 @@ Deface uses the amazing Nokogiri library (and in turn libxml) for parsing HTML /
 
 2. Parsing will fail and result in invalid output if ERB blocks are responsible for closing an HTML tag that was opened normally, i.e. don't do this:
 
-
-      <div <%= ">" %>
-
+      &lt;div <%= ">" %>
