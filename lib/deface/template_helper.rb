@@ -18,7 +18,7 @@ module Deface
       source = @lookup_context.find(name, prefix, partial).source
 
       if include_overrides
-        Deface::Override.apply(source, {:virtual_path => virtual_path})
+        Deface::Override.apply(source, {:virtual_path => virtual_path}, false)
       else
         source
       end
