@@ -154,9 +154,14 @@ module Deface
 
     # applies all applicable overrides to given source
     #
-    def self.apply(source, details)
+    def self.apply(source, details, log=true)
       overrides = find(details)
-      @enable_logging ||= defined?(Rails) == "constant"
+
+      if log
+        @enable_logging ||= defined?(Rails) 
+      else
+        @enable_logging = false
+      end
 
       if @enable_logging && overrides.size > 0
         Rails.logger.info "\e[1;32mDeface:\e[0m #{overrides.size} overrides found for '#{details[:virtual_path]}'"
