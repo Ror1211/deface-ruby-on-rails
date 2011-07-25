@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "deface"
-  s.version = "0.5.7"
+  s.version = "0.6.0"
 
   s.authors = ["Brian D Quinn"]
   s.description = "Deface is a library that allows you to customize ERB views in a Rails application without editing the underlying view."
@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.summary = "Deface is a library that allows you to customize ERB views in Rails"
 
   s.add_dependency('nokogiri', '~> 1.5.0')
-  s.add_dependency('rails', '>= 3.1.0.rc4')
+  s.add_dependency('rails', '>= 3.0.9')
 
   s.add_development_dependency('rspec', '>= 2.6.0')
 end
