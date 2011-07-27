@@ -33,6 +33,8 @@ Action
 
 * <tt>:insert_bottom</tt> - Inserts inside all elements that match the supplied selector, as the last child.
 
+* <tt>:set_attributes</tt> - Sets (or adds) attributes to all elements that match the supplied selector, expects :attributes option to be passed.
+
 Source
 ------
 * <tt>:text</tt> - String containing markup
@@ -56,6 +58,8 @@ Optional
                                               same virutal_path, the current override will be appplied before 
                                               the named override passed.
   * <tt>:sequence => {:after => "*override_name*")</tt> - the current override will be applied after the named override passed.
+
+* <tt>:attributes</tt> - A hash containing all the attributes to be set on the matched elements, eg: :attributes => {:class => "green", :title => "some string"}
 
 Examples
 ========
@@ -88,6 +92,12 @@ Removes any ERB block containing the string `helper_method` in the `posts/new.ht
                           :remove => "code[erb-loud]:contains('helper_method')",
                           :original => "<%= helper_method %>")
 
+Sets (or adds if not present) the `class` and `title` attributes to all instances of `a` with an id of `link` in `posts/index.html.erb` 
+
+    Deface::Override.new(:virtual_path => 'posts/index',
+                        :name => 'add_attrs_to_a_link',
+                        :set_attributes => 'a#link',
+                        :attributes => {:class => 'pretty', :title => 'This is a link'})
 
 Implementation
 ==============

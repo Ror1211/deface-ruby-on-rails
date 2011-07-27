@@ -121,6 +121,21 @@ module ActionView
       end
     end
 
+    describe "with a single set_attributes override defined" do
+      before(:all) do
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :set_attributes => 'img', 
+                                      :attributes => {:class => 'pretty', :alt => 'something interesting'})
+
+        @template = ActionView::Template.new("<div><img class=\"button\" src=\"path/to/button.png\"></div>",
+                                             "/path/to/file.erb",
+                                             ActionView::Template::Handlers::ERB,
+                                             {:virtual_path=>"posts/index", :format=>:html})
+      end
+
+      it "should return modified source" do
+        @template.source.gsub("\n", "").should == "<div><img class=\"pretty\" src=\"path/to/button.png\" alt=\"something interesting\"></div>"
+      end
+    end
 
     describe "with a single disabled override defined" do
       before(:all) do

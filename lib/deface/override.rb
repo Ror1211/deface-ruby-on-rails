@@ -6,7 +6,7 @@ module Deface
     attr_accessor :args
 
     @@all ||= {}
-    @@actions = [:remove, :replace, :insert_after, :insert_before, :insert_top, :insert_bottom]
+    @@actions = [:remove, :replace, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes]
 
     # Initializes new override, you must supply only one Target, Action & Source
     # parameter for each override (and any number of Optional parameters).
@@ -25,6 +25,7 @@ module Deface
     # * <tt>:insert_before</tt> - Inserts before all elements that match the supplied selector
     # * <tt>:insert_top</tt> - Inserts inside all elements that match the supplied selector, before all existing child
     # * <tt>:insert_bottom</tt> - Inserts inside all elements that match the supplied selector, after all existing child
+    # * <tt>:set_attributes</tt> - Sets (or adds) attributes to all elements that match the supplied selector, expects :attributes option to be passed.
     #
     # ==== Source
     #
@@ -49,6 +50,7 @@ module Deface
     #                                               same virutal_path, the current override will be appplied before 
     #                                               the named override passed.
     #   :sequence => {:after => "override_name") - the current override will be applied after the named override passed.
+    # * <tt>:attributes</tt> - A hash containing all the attributes to be set on the matched elements, eg: :attributes => {:class => "green", :title => "some string"}
     #
     def initialize(args)
       @args = args
@@ -152,6 +154,10 @@ module Deface
       @args[:closing_selector]
     end
 
+    def attributes
+      @args[:attributes] || []
+    end
+
     # applies all applicable overrides to given source
     #
     def self.apply(source, details, log=true)
@@ -201,6 +207,10 @@ module Deface
                   match.children.before(override.source_element)
                 when :insert_bottom
                   match.children.after(override.source_element)
+                when :set_attributes
+                  override.attributes.each do |name, value|
+                    match.set_attribute(name.to_s, value.to_s)
+                  end
               end
 
             end
