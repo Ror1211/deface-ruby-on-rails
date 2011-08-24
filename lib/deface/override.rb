@@ -2,10 +2,9 @@ module Deface
   class Override
     include Deface::TemplateHelper
 
-    cattr_accessor :all, :actions
+    cattr_accessor :actions
     attr_accessor :args
 
-    @@all ||= {}
     @@actions = [:remove, :replace, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes]
 
     # Initializes new override, you must supply only one Target, Action & Source
@@ -53,6 +52,11 @@ module Deface
     # * <tt>:attributes</tt> - A hash containing all the attributes to be set on the matched elements, eg: :attributes => {:class => "green", :title => "some string"}
     #
     def initialize(args)
+      unless Rails.application.try(:config).try(:deface)
+        puts "[WARNING] Deface railtie has not initialized yet, override '#{args[:name]}' is being declared too early."
+        return false
+      end
+
       @args = args
 
       raise(ArgumentError, "Invalid action") if self.action.nil?
@@ -60,8 +64,8 @@ module Deface
 
       key = args[:virtual_path].to_sym
 
-      @@all[key] ||= {}
-      @@all[key][args[:name].to_s.parameterize] = self
+      self.class.all[key] ||= {}
+      self.class.all[key][args[:name].to_s.parameterize] = self
     end
 
     def selector
@@ -80,16 +84,16 @@ module Deface
         if @args[:sequence].key? :before
           ref_name = @args[:sequence][:before]
 
-          if @@all[key].key? ref_name.to_s
-            return @@all[key][ref_name.to_s].sequence - 1
+          if self.class.all[key].key? ref_name.to_s
+            return self.class.all[key][ref_name.to_s].sequence - 1
           else
             return 100
           end
         elsif @args[:sequence].key? :after
           ref_name = @args[:sequence][:after]
 
-          if @@all[key].key? ref_name.to_s
-            return @@all[key][ref_name.to_s].sequence + 1
+          if self.class.all[key].key? ref_name.to_s
+            return self.class.all[key][ref_name.to_s].sequence + 1
           else
             return 100
           end
@@ -139,7 +143,7 @@ module Deface
 
       valid = self.original_source.to_s.gsub(/\s/, '') == match.to_s.gsub(/\s/, '')
 
-      if !valid && defined?(Rails) == "constant"
+      if !valid && defined?(Rails.logger) == "constant"
         Rails.logger.error "\e[1;32mDeface: [WARNING]\e[0m The original source for '#{self.name}' has changed, this override should be reviewed to ensure it's still valid."
       end
 
@@ -164,7 +168,7 @@ module Deface
       overrides = find(details)
 
       if log
-        log = defined?(Rails) 
+        log = defined?(Rails.logger) 
       end
 
       if log && overrides.size > 0
@@ -249,15 +253,20 @@ module Deface
     # finds all applicable overrides for supplied template
     #
     def self.find(details)
-      return [] if @@all.empty? || details.empty?
+      return [] if self.all.empty? || details.empty?
 
       virtual_path = details[:virtual_path]
       return [] if virtual_path.nil?
 
       result = []
-      result << @@all[virtual_path.to_sym].try(:values)
+      result << self.all[virtual_path.to_sym].try(:values)
 
       result.flatten.compact.sort_by &:sequence
+    end
+
+
+    def self.all
+      Rails.application.config.deface.overrides.all
     end
 
     private

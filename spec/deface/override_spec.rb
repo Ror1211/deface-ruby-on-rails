@@ -2,6 +2,8 @@ require 'spec_helper'
 
 module Deface
   describe Override do
+    include_context "mock Rails.application"
+
     before(:each) do
       @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
     end

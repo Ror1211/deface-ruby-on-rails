@@ -2,9 +2,7 @@ require 'spec_helper'
 
 module ActionView
   describe Template do
-    before(:all) do
-      Deface::Override.all.clear
-    end
+    include_context "mock Rails.application"
 
     describe "with no overrides defined" do
       before(:each) do
@@ -51,7 +49,7 @@ module ActionView
     end
 
     describe "with a single replace override defined" do
-      before(:all) do
+      before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "p", :text => "<h1>Argh!</h1>")
         @template = ActionView::Template.new("<p>test</p>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
       end
@@ -62,7 +60,7 @@ module ActionView
     end
 
     describe "with a single insert_after override defined" do
-      before(:all) do
+      before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "img.button", :text => "<% help %>")
 
         @template = ActionView::Template.new("<div><img class=\"button\" src=\"path/to/button.png\"></div>",
@@ -77,7 +75,7 @@ module ActionView
     end
 
     describe "with a single insert_before override defined" do
-      before(:all) do
+      before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "ul li:last", :text => "<%= help %>")
 
         @template = ActionView::Template.new("<ul><li>first</li><li>second</li><li>third</li></ul>",
@@ -92,7 +90,7 @@ module ActionView
     end
 
     describe "with a single insert_top override defined" do
-      before(:all) do
+      before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_top => "ul", :text => "<li>me first</li>")
 
         @template = ActionView::Template.new("<ul><li>first</li><li>second</li><li>third</li></ul>",
@@ -107,7 +105,7 @@ module ActionView
     end
 
     describe "with a single insert_bottom override defined" do
-      before(:all) do
+      before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_bottom => "ul", :text => "<li>I'm always last</li>")
 
         @template = ActionView::Template.new("<ul><li>first</li><li>second</li><li>third</li></ul>",
@@ -122,7 +120,7 @@ module ActionView
     end
 
     describe "with a single set_attributes override defined" do
-      before(:all) do
+      before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :set_attributes => 'img', 
                                       :attributes => {:class => 'pretty', :alt => 'something interesting'})
 
@@ -138,7 +136,7 @@ module ActionView
     end
 
     describe "with a single disabled override defined" do
-      before(:all) do
+      before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :remove => "p", :text => "<h1>Argh!</h1>", :disabled => true)
         @template = ActionView::Template.new("<p>test</p><%= raw(text) %>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
       end
@@ -148,9 +146,8 @@ module ActionView
       end
     end
 
-
     describe "with mulitple sequenced overrides defined" do
-      before(:all) do
+      before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "third", :insert_after => "li:contains('second')", :text => "<li>third</li>", :sequence => {:after => "second"})
         Deface::Override.new(:virtual_path => "posts/index", :name => "second", :insert_after => "li", :text => "<li>second</li>", :sequence => {:after => "first"})
         Deface::Override.new(:virtual_path => "posts/index", :name => "first", :replace => "li", :text => "<li>first</li>")

@@ -2,6 +2,7 @@ require 'spec_helper'
 
 module Deface
   describe TemplateHelper do
+    include_context "mock Rails.application"
     include Deface::TemplateHelper
 
     describe "load_template_source" do
@@ -30,8 +31,9 @@ module Deface
       end
 
       describe "with overrides defined" do
-        before(:all) do
-          Deface::Override.all.clear
+        include_context "mock Rails.application"
+
+        before(:each) do
           Deface::Override.new(:virtual_path => "shared/_post", :name => "shared#post", :remove => "p")
           Deface::Override.new(:virtual_path => "shared/person", :name => "shared#person", :replace => "p", :text => "<h1>Argh!</h1>")
           Deface::Override.new(:virtual_path => "admin/posts/index", :name => "admin#posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
