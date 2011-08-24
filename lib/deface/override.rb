@@ -164,12 +164,10 @@ module Deface
       overrides = find(details)
 
       if log
-        @enable_logging ||= defined?(Rails) 
-      else
-        @enable_logging = false
+        log = defined?(Rails) 
       end
 
-      if @enable_logging && overrides.size > 0
+      if log && overrides.size > 0
         Rails.logger.info "\e[1;32mDeface:\e[0m #{overrides.size} overrides found for '#{details[:virtual_path]}'"
       end
 
@@ -178,7 +176,7 @@ module Deface
 
         overrides.each do |override|
           if override.disabled?
-            Rails.logger.info("\e[1;32mDeface:\e[0m '#{override.name}' is disabled") if @enable_logging
+            Rails.logger.info("\e[1;32mDeface:\e[0m '#{override.name}' is disabled") if log
             next
           end
 
@@ -187,7 +185,7 @@ module Deface
 
             matches = doc.css(override.selector)
 
-            if @enable_logging
+            if log
               Rails.logger.send(matches.size == 0 ? :error : :info, "\e[1;32mDeface:\e[0m '#{override.name}' matched #{matches.size} times with '#{override.selector}'")
             end
 
