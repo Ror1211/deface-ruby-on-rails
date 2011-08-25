@@ -14,19 +14,27 @@ module Deface
       it "should parse html document" do
         parsed = Deface::Parser.convert("<html><head><title>Hello</title></head><body>test</body>")
         parsed.should be_an_instance_of(Nokogiri::HTML::Document)
-        parsed = parsed.to_s.split("\n")[1..-1]
-        parsed.should == "<html>\n<head><title>Hello</title></head>\n<body>test</body>\n</html>".split("\n") #ignore doctype added by noko
+        parsed = parsed.to_s.split("\n")[1..-1] #ignore doctype added by noko
+
+        if RUBY_VERSION < "1.9"
+          parsed.should == "<html>\n<head><title>Hello</title></head>\n<body>test</body>\n</html>".split("\n")
+        else
+          parsed.should == "<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=US-ASCII\">\n<title>Hello</title>\n</head>\n<body>test</body>\n</html>".split("\n")
+        end
 
         parsed = Deface::Parser.convert("<html><title>test</title></html>")
         parsed.should be_an_instance_of(Nokogiri::HTML::Document)
-        parsed = parsed.to_s.split("\n")[1..-1]
-        parsed.should == "<html><head><title>test</title></head></html>".split("\n") #ignore doctype added by noko
-
+        parsed = parsed.to_s.split("\n")[1..-1] #ignore doctype added by noko
+        if RUBY_VERSION < "1.9"
+          parsed.should == ["<html><head><title>test</title></head></html>"]
+        else
+          parsed.should == "<html><head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=US-ASCII\">\n<title>test</title>\n</head></html>".split("\n")
+        end
 
         parsed = Deface::Parser.convert("<html><p>test</p></html>")
         parsed.should be_an_instance_of(Nokogiri::HTML::Document)
-        parsed = parsed.to_s.split("\n")[1..-1]
-        parsed.should == "<html><body><p>test</p></body></html>".split("\n") #ignore doctype added by noko
+        parsed = parsed.to_s.split("\n")[1..-1] #ignore doctype added by noko
+        parsed.should == "<html><body><p>test</p></body></html>".split("\n") 
       end
 
       it "should parse body tag" do
