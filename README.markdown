@@ -1,8 +1,6 @@
-<div style="float:right;">
-  <a href="http://travis-ci.org/#!/railsdog/deface">
-    <img src="http://travis-ci.org/railsdog/deface.png">
-  </a>
-</div>
+<a href="http://travis-ci.org/#!/railsdog/deface" style="float:right;">
+  <img src="http://travis-ci.org/railsdog/deface.png">
+</a>
 
 Deface
 ======
