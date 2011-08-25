@@ -57,15 +57,24 @@ module Deface
         return false
       end
 
-      @args = args
-
-      raise(ArgumentError, "Invalid action") if self.action.nil?
+      raise(ArgumentError, ":name must be defined") unless args.key? :name
       raise(ArgumentError, ":virtual_path must be defined") if args[:virtual_path].blank?
 
-      key = args[:virtual_path].to_sym
+      virtual_key = args[:virtual_path].to_sym
+      name_key = args[:name].to_s.parameterize 
 
-      self.class.all[key] ||= {}
-      self.class.all[key][args[:name].to_s.parameterize] = self
+      self.class.all[virtual_key] ||= {}
+
+      if self.class.all[virtual_key].has_key? name_key
+        #updating exisiting override
+        @args = self.class.all[virtual_key][name_key].args.merge(args)
+      else
+        #initializing new override
+        @args = args
+        raise(ArgumentError, ":action is invalid") if self.action.nil?
+      end
+
+      self.class.all[virtual_key][name_key] = self
     end
 
     def selector

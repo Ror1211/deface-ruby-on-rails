@@ -99,6 +99,24 @@ Sets (or adds if not present) the `class` and `title` attributes to all instance
                         :set_attributes => 'a#link',
                         :attributes => {:class => 'pretty', :title => 'This is a link'})
 
+Rake Tasks
+==========
+
+Deface includes a couple of rake tasks that can be helpful when defining or debugging overrides.
+
+**deface:get_result** - Will list the original contents of a partial or template, the overrides that have been defined for a that file, and the resulting markup. *get_result* takes a single argument which is the virtual path of the template / partial:
+
+    rake deface:get_result[shared/_head]
+
+    rake deface:get_result['admin/products/index']
+
+**deface:test_selector** - Applies a given CSS selector against a parital or template and outputs the markup for each match (if any). *test_selector* requires two arguments, the first is the virtual_path for the partial / template, the second is the CSS selector to apply:
+
+    rake deface:test_selector[shared/_head,title]
+
+    rake deface:test_selector['admin/products/index','div.toolbar']
+
+
 Implementation
 ==============
 

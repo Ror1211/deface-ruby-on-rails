@@ -10,6 +10,7 @@ module Deface
 
     it "should return correct action" do
       Deface::Override.actions.each do |action|
+        Rails.application.config.deface.overrides.all.clear
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", action => "h1", :text => "<h1>Argh!</h1>")
         @override.action.should == action
       end
@@ -125,13 +126,15 @@ module Deface
 
     describe "when redefining an existing virutal_path and name" do
       before(:each) do
-        @replacement = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Arrrr!</h1>")
+        Rails.application.config.deface.overrides.all.clear
+        @override    = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :text => "<h1>Argh!</h1>", :replace => "h1")
+        @replacement = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :text => "<h1>Arrrr!</h1>")
       end
 
       it "should not increase all#size by 1" do
         expect {
-          Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Arrrr!</h1>")
-        }.to change{Deface::Override.all.size}.by(0)
+          Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :text => "<h1>Arrrr!</h1>")
+        }.to change{Rails.application.config.deface.overrides.all.size}.by(0)
 
       end
 
