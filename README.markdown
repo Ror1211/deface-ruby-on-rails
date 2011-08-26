@@ -1,6 +1,8 @@
-<a href="http://travis-ci.org/#!/railsdog/deface" style="float:right;">
-  <img src="http://travis-ci.org/railsdog/deface.png">
-</a>
+<p style="float:right;">
+  <a href="http://travis-ci.org/#!/railsdog/deface">
+    <img src="http://travis-ci.org/railsdog/deface.png">
+  </a>
+</p>
 
 Deface
 ======
@@ -102,6 +104,22 @@ Sets (or adds if not present) the `class` and `title` attributes to all instance
                         :name => 'add_attrs_to_a_link',
                         :set_attributes => 'a#link',
                         :attributes => {:class => 'pretty', :title => 'This is a link'})
+
+
+Scope
+=====
+
+Deface scopes overrides by virtual_path (or partial / template file), that means all override names only need to be unique within that single file.
+
+Redefining Overrides
+====================
+
+You can redefine an existing override by simply declaring a new override with the same <tt>:virtual_path</tt> and <tt>:name</tt> that was originally used.
+You do not need to resupply all the values originally used, just the ones you want to change:
+
+   Deface::Override.new(:virtual_path => 'posts/index',
+                        :name => 'add_attrs_to_a_link',
+                        :disabled => true)
 
 Rake Tasks
 ==========

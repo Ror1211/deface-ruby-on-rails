@@ -67,7 +67,15 @@ module Deface
 
       if self.class.all[virtual_key].has_key? name_key
         #updating exisiting override
-        @args = self.class.all[virtual_key][name_key].args.merge(args)
+
+        @args = self.class.all[virtual_key][name_key].args
+
+        #check if the action is being redefined, and reject old action
+        if (@@actions & args.keys).present?
+          @args.reject!{|key, value| (@@actions & @args.keys).include? key }
+        end
+
+        @args.merge!(args)
       else
         #initializing new override
         @args = args

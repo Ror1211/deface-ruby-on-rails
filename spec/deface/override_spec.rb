@@ -32,21 +32,28 @@ module Deface
       end
     end
 
-    describe "#validate_original" do
+    describe "#validate_original when :original is not present" do
+      before(:each) do
+        @original = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
+      end
+
+      it "should not validate" do
+        @override.validate_original("<p>this gets ignored</p>").should be_true
+      end
+
+    end
+
+    describe "#validate_original when :original is present" do
       before(:each) do
         @original = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>", :original => "<p><%= something %></p>")
       end
 
-      it "should return true when :original is not present" do
-        @override.validate_original("").should be_true
-      end
-
-      it "should return true when :original present, and input contains similar (ignoring whitespace)" do
+      it "should return true when input contains similar (ignoring whitespace)" do
         @original.validate_original("<p><code erb-loud> something </code></p>").should be_true
         @original.validate_original("<p><code erb-loud>something\n</code>  </p>").should be_true
       end
 
-      it "should return false when :original present, and input contains different string" do
+      it "should return false when and input contains different string" do
         @original.validate_original("wrong").should be_false
       end
     end
@@ -124,26 +131,41 @@ module Deface
       end
     end
 
-    describe "when redefining an existing virutal_path and name" do
+    describe "when redefining an override without changing action" do
       before(:each) do
         Rails.application.config.deface.overrides.all.clear
         @override    = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :text => "<h1>Argh!</h1>", :replace => "h1")
-        @replacement = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :text => "<h1>Arrrr!</h1>")
-      end
-
-      it "should not increase all#size by 1" do
         expect {
-          Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :text => "<h1>Arrrr!</h1>")
+          @replacement = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :text => "<h1>Arrrr!</h1>")
         }.to change{Rails.application.config.deface.overrides.all.size}.by(0)
-
       end
 
       it "should return new source" do
-        @replacement.source.should_not == @override.source
+        @replacement.source.should_not == "<h1>Argh!</h1>"
         @replacement.source.should == "<h1>Arrrr!</h1>"
       end
 
     end
+
+    describe "when redefining an override when changing action" do
+      before(:each) do
+        Rails.application.config.deface.overrides.all.clear
+        @override    = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1")
+        expect {
+          @replacement = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1")
+        }.to change{Rails.application.config.deface.overrides.all.size}.by(0)
+      end
+
+      it "should return new action" do
+        @replacement.action.should == :insert_after
+      end
+
+      it "should remove old action" do
+        @replacement.args.has_key?(:replace).should be_false
+      end
+
+    end
+
 
     describe "#sequence" do
       it "should calculate correct after sequences" do
@@ -162,17 +184,14 @@ module Deface
 
         @second.sequence.should == 99
         @first.sequence.should == 98
-
       end
 
-      
       it "should calculate correct sequences with invalid hash" do
         @second = Deface::Override.new(:virtual_path => "posts/index", :name => "second", :insert_after => "li", :text => "<li>second</li>", :sequence => {})
         @first = Deface::Override.new(:virtual_path => "posts/show", :name => "first", :replace => "li", :text => "<li>first</li>", :sequence => {:before => "second"})
 
         @second.sequence.should == 100
         @first.sequence.should == 100
-
       end
 
     end
