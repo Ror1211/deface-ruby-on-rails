@@ -59,6 +59,39 @@ module ActionView
       end
     end
 
+    describe "with a single replace override with closing_selector defined" do
+      before(:each) do
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :closing_selector => "h2", :text => "<span>Argh!</span>")
+        @template = ActionView::Template.new("<h1>start</h1><p>some junk</p><div>more junk</div><h2>end</h2>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
+      end
+
+      it "should return modified source" do
+        @template.source.should == "<span>Argh!</span>"
+      end
+    end
+
+    describe "with a single replace_contents override defined" do
+      before(:each) do
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace_contents => "p", :text => "<h1>Argh!</h1>")
+        @template = ActionView::Template.new("<p><span>Hello</span>I am not a <em>pirate</em></p>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
+      end
+
+      it "should return modified source" do
+        @template.source.should == "<p><h1>Argh!</h1></p>"
+      end
+    end
+
+    describe "with a single replace_contents override with closing_selector defined" do
+      before(:each) do
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace_contents => "h1", :closing_selector => "h2", :text => "<span>Argh!</span>")
+        @template = ActionView::Template.new("<h1>start</h1><p>some junk</p><div>more junk</div><h2>end</h2>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
+      end
+
+      it "should return modified source" do
+        @template.source.should == "<h1>start</h1><span>Argh!</span><h2>end</h2>"
+      end
+    end
+
     describe "with a single insert_after override defined" do
       before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "img.button", :text => "<% help %>")

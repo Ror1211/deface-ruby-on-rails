@@ -5,7 +5,7 @@ module Deface
     cattr_accessor :actions
     attr_accessor :args
 
-    @@actions = [:remove, :replace, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes]
+    @@actions = [:remove, :replace, :replace_contents, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes]
 
     # Initializes new override, you must supply only one Target, Action & Source
     # parameter for each override (and any number of Optional parameters).
@@ -20,6 +20,7 @@ module Deface
     #
     # * <tt>:remove</tt> - Removes all elements that match the supplied selector
     # * <tt>:replace</tt> - Replaces all elements that match the supplied selector
+    # * <tt>:replace_contents</tt> - Replaces the contents of all elements that match the supplied selector
     # * <tt>:insert_after</tt> - Inserts after all elements that match the supplied selector
     # * <tt>:insert_before</tt> - Inserts before all elements that match the supplied selector
     # * <tt>:insert_top</tt> - Inserts inside all elements that match the supplied selector, before all existing child
@@ -218,6 +219,9 @@ module Deface
                   match.replace ""
                 when :replace
                   match.replace override.source_element
+                when :replace_contents
+                  match.children.remove 
+                  match.add_child(override.source_element)
                 when :insert_before
                   match.before override.source_element
                 when :insert_after
@@ -245,12 +249,15 @@ module Deface
             if starting && ending
               elements = select_range(starting, ending)
 
-              if override.action == :replace
-                starting.before(override.source_element)
+              case override.action
+                when :replace
+                  starting.before(override.source_element)
+                  elements.map &:remove
+                when :replace_contents
+                  elements[1..-2].map &:remove
+                  starting.after(override.source_element)
               end
 
-              #now remove all matched elements
-              elements.map &:remove
             end
           end
 
