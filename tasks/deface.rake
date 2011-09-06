@@ -31,7 +31,8 @@ namespace :deface do
   desc 'Get the resulting markup for a partial/template'
   task :get_result, [:virtual_path] => [:environment] do |t,args|
     puts "---------------- Before ----------------"
-    puts load_template_source(args[:virtual_path], false, false)
+    before = load_template_source(args[:virtual_path], false, false).dup
+    puts before
     puts ""
 
     overrides = Deface::Override.find(:virtual_path => args[:virtual_path])
@@ -42,7 +43,16 @@ namespace :deface do
     puts ""
 
     puts "---------------- After ----------------"
-    puts load_template_source(args[:virtual_path], false, true)
+    after = load_template_source(args[:virtual_path], false, true).dup
+    puts after
+
+    begin
+      puts ""
+      puts "---------------- Diff -----------------"
+      puts Diffy::Diff.new(before, after).to_s(:color)
+    rescue
+      puts "Add 'diffy' to your Gemfile to see the diff."
+    end
 
   end
 
