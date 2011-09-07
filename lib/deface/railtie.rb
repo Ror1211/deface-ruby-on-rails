@@ -6,6 +6,7 @@ module Deface
 
     initializer "deface.environment" do |app|
       app.config.deface = Deface::Environment.new
+      app.config.deface.overrides.early_check
     end
   end
 end

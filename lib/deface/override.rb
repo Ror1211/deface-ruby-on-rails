@@ -2,9 +2,10 @@ module Deface
   class Override
     include Deface::TemplateHelper
 
-    cattr_accessor :actions
+    cattr_accessor :actions, :_early
     attr_accessor :args
 
+    @@_early = []
     @@actions = [:remove, :replace, :replace_contents, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes]
 
     # Initializes new override, you must supply only one Target, Action & Source
@@ -54,8 +55,9 @@ module Deface
     #
     def initialize(args)
       unless Rails.application.try(:config).try(:deface)
-        puts "[WARNING] Deface railtie has not initialized yet, override '#{args[:name]}' is being declared too early."
-        return false
+        @@_early << args
+        warn "[WARNING] Deface railtie has not initialized yet, override '#{args[:name]}' is being declared too early."
+        return
       end
 
       raise(ArgumentError, ":name must be defined") unless args.key? :name

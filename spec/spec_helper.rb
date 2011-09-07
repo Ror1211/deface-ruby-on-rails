@@ -8,7 +8,7 @@ RSpec.configure do |config|
   config.mock_framework = :rspec
 end
 
-shared_context "mock Rails.application" do
+shared_context "mock Rails" do
   before(:each) do
     unless defined? Rails
       Rails = mock 'Rails'
@@ -16,6 +16,14 @@ shared_context "mock Rails.application" do
     Rails.stub :application => mock('application')
     Rails.application.stub :config => mock('config')
     Rails.application.config.stub :cache_classes => true
+    Rails.application.config.stub :deface => nil
+  end
+end
+
+shared_context "mock Rails.application" do
+  include_context "mock Rails"
+
+  before(:each) do
     Rails.application.config.stub :deface => Deface::Environment.new
   end
 end
