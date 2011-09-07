@@ -131,7 +131,7 @@ module Deface
       end
     end
 
-    describe "when redefining an override without changing action" do
+    describe "when redefining an override without changing action or source type" do
       before(:each) do
         Rails.application.config.deface.overrides.all.clear
         @override    = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :text => "<h1>Argh!</h1>", :replace => "h1")
@@ -162,6 +162,24 @@ module Deface
 
       it "should remove old action" do
         @replacement.args.has_key?(:replace).should be_false
+      end
+
+    end
+
+    describe "when redefining an override when changing source type" do
+      before(:each) do
+        #stub view paths to be local spec/assets directory
+        ActionController::Base.stub(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
+
+        Rails.application.config.deface.overrides.all.clear
+        @override    = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :partial => "shared/post", :replace => "h1")
+        expect {
+          @replacement = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :text => "<p>I do be a pirate!</p>")
+        }.to change{Rails.application.config.deface.overrides.all.size}.by(0)
+      end
+
+      it "should return new source" do
+        @override.source.should == "<p>I do be a pirate!</p>"
       end
 
     end

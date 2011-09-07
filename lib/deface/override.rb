@@ -7,6 +7,7 @@ module Deface
 
     @@_early = []
     @@actions = [:remove, :replace, :replace_contents, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes]
+    @@sources = [:text, :partial, :template]
 
     # Initializes new override, you must supply only one Target, Action & Source
     # parameter for each override (and any number of Optional parameters).
@@ -76,6 +77,11 @@ module Deface
         #check if the action is being redefined, and reject old action
         if (@@actions & args.keys).present?
           @args.reject!{|key, value| (@@actions & @args.keys).include? key }
+        end
+
+        #check if the source is being redefined, and reject old action
+        if (@@sources & args.keys).present?
+          @args.reject!{|key, value| (@@sources & @args.keys).include? key }
         end
 
         @args.merge!(args)
