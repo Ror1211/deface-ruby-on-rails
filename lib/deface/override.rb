@@ -235,9 +235,17 @@ module Deface
                 when :insert_after
                   match.after override.source_element
                 when :insert_top
-                  match.children.before(override.source_element)
+                  if match.children.size == 0
+                    match.children = override.source_element
+                  else
+                    match.children.before(override.source_element)
+                  end
                 when :insert_bottom
-                  match.children.after(override.source_element)
+                  if match.children.size == 0
+                    match.children = override.source_element
+                  else
+                    match.children.after(override.source_element)
+                  end
                 when :set_attributes
                   override.attributes.each do |name, value|
                     match.set_attribute(name.to_s, value.to_s)
