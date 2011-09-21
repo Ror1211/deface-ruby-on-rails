@@ -263,15 +263,27 @@ module Deface
             end
 
             if starting && ending
+              if log
+                Rails.logger.info("\e[1;32mDeface:\e[0m '#{override.name}' matched starting with '#{override.selector}' and ending with '#{override.end_selector}'")
+              end
+
               elements = select_range(starting, ending)
 
               case override.action
+                when :remove
+                  elements.map &:remove
                 when :replace
                   starting.before(override.source_element)
                   elements.map &:remove
                 when :replace_contents
                   elements[1..-2].map &:remove
                   starting.after(override.source_element)
+              end
+            else
+              if starting.nil?
+                Rails.logger.info("\e[1;32mDeface:\e[0m '#{override.name}' failed to match with starting selector '#{override.selector}'")
+              else
+                Rails.logger.info("\e[1;32mDeface:\e[0m '#{override.name}' failed to match with end selector '#{override.end_selector}'")
               end
 
             end
