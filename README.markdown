@@ -7,7 +7,7 @@
 Deface
 ======
 
-Deface is a library that allows you to customize ERB views in a Rails application without editing the underlying view.
+Deface is a library that allows you to customize HTML ERB views in a Rails application without editing the underlying view.
 
 It allows you to easily target html & erb elements as the hooks for customization using CSS selectors as supported by Nokogiri.
 
@@ -56,7 +56,9 @@ Optional
 
 * <tt>:disabled</tt> - When set to true the override will not be applied.
 
-* <tt>:original</tt> - String containing original markup that is being overridden. If supplied Deface will log when the original markup changes, which helps highlight overrides that need attention when upgrading versions of the source application. Only really warranted for :replace overrides. NB: All whitespace is stripped before comparsion.
+* <tt>:original</tt> - String containing original markup that is being overridden. If supplied Deface will log when the original markup changes, which helps highlight overrides that need attention when upgrading versions of the source application. Only really warranted for :replace overrides. NB: All whitespace is stripped before comparison.
+
+* <tt>:closing_selector</tt> - A second css selector targeting an end element, allowing you to select a range of elements to apply an action against. The :closing_selector only supports the :replace, :remove and :replace_contents actions, and the end element must be a sibling of the first/starting element. Note the CSS general sibling selector (~) is used to match the first element after the opening selector (see below for an example).
 
 * <tt>:sequence</tt> - Used to order the application of an override for a specific virtual path, helpful when an override depends on another override being applied first, supports:
   * <tt>:sequence => n</tt> - where n is a positive or negative integer (lower numbers get applied first, default 100).
@@ -91,7 +93,7 @@ Inserts the contents of `shared/_comment.html.erb` after all instances of `div` 
                           :insert_after => "div#comment_21", 
                           :partial => "shared/comment")
 
-Removes any ERB block containing the string `helper_method` in the `posts/new.html.erb` template, will also log if markup being removed does not match `<%= helper_method %>`
+Removes any ERB block containing the string `helper_method` in the `posts/new.html.erb` template, will also log if markup being removed does not exactly match `<%= helper_method %>`
 
      Deface::Override.new(:virtual_path => "posts/new", 
                           :name => "example-4", 
@@ -105,6 +107,12 @@ Sets (or adds if not present) the `class` and `title` attributes to all instance
                         :set_attributes => 'a#link',
                         :attributes => {:class => 'pretty', :title => 'This is a link'})
 
+Remove an entire ERB if statement (and all it's contents) in the 'admin/products/index.html.erb' template, using the :closing_selector.
+
+    Deface::Override.new(:virtual_path => 'admin/products/index',
+                         :name => "remove_if_statement",
+                         :remove => "code[:erb-silent]:contains('if @product.sold?')",
+                         :closing_selector => "code[:erb-silent]:contains('end')"
 
 Scope
 =====

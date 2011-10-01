@@ -44,6 +44,10 @@ module Deface
     #   If supplied Deface will log when the original markup changes, which helps highlight overrides that need 
     #   attention when upgrading versions of the source application. Only really warranted for :replace overrides.
     #   NB: All whitespace is stripped before comparsion.
+    # * <tt>:closing_selector</tt> - A second css selector targeting an end element, allowing you to select a range 
+    #   of elements to apply an action against. The :closing_selector only supports the :replace, :remove and 
+    #   :replace_contents actions, and the end element must be a sibling of the first/starting element. Note the CSS
+    #   general sibling selector (~) is used to match the first element after the opening selector.
     # * <tt>:sequence</tt> - Used to order the application of an override for a specific virtual path, helpful when
     #   an override depends on another override being applied first.
     #   Supports:
