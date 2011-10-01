@@ -214,6 +214,28 @@ module Deface
 
     end
 
+
+    describe "#end_selector" do
+      it "should return nil when closing_selector is not defined" do
+        @override.end_selector.should be_nil
+      end
+
+      it "should return nil when closing_selector is an empty string" do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :closing_selector => "", :text => "<h1>Argh!</h1>")
+        @override.end_selector.should be_nil
+      end
+
+      it "should return nil when closing_selector is nil" do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :closing_selector => nil, :text => "<h1>Argh!</h1>")
+        @override.end_selector.should be_nil
+      end
+
+      it "should return combined sibling selector when closing_selector is present" do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :closing_selector => "h4", :text => "<h1>Argh!</h1>")
+        @override.end_selector.should == "h1 ~ h4"
+      end
+    end
+
   end
 
 end

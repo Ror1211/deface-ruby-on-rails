@@ -181,7 +181,8 @@ module Deface
     end
 
     def end_selector
-      @args[:closing_selector]
+      return nil if @args[:closing_selector].blank?
+      "#{self.selector} ~ #{@args[:closing_selector]}"
     end
 
     def attributes
@@ -256,6 +257,7 @@ module Deface
           else
             # targeting range of elements as end_selector is present
             starting    = doc.css(override.selector).first
+
             if starting && starting.parent
               ending = starting.parent.css(override.end_selector).first
             else

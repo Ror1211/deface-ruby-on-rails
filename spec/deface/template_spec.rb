@@ -51,11 +51,11 @@ module ActionView
     describe "with a single remove override with closing_selector defined" do
       before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :remove => "h1", :closing_selector => "h2")
-        @template = ActionView::Template.new("<span>Before!</span><h1>start</h1><p>some junk</p><div>more junk</div><h2>end</h2><span>After!</span>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
+        @template = ActionView::Template.new("<h2>I should be safe</h2><span>Before!</span><h1>start</h1><p>some junk</p><div>more junk</div><h2>end</h2><span>After!</span>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
       end
 
       it "should return modified source" do
-        @template.source.should == "<span>Before!</span><span>After!</span>"
+        @template.source.should == "<h2>I should be safe</h2><span>Before!</span><span>After!</span>"
       end
     end
 
