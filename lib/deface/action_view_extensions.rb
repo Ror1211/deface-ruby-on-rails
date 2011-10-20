@@ -2,7 +2,9 @@ ActionView::Template.class_eval do
   alias_method :rails_initialize, :initialize
 
   def initialize(source, identifier, handler, details)
-    source = Deface::Override.apply(source, details)
+    if Rails.application.config.deface.enabled
+      source = Deface::Override.apply(source, details)
+    end
 
     rails_initialize(source, identifier, handler, details)
   end

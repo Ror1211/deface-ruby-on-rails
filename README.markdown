@@ -12,12 +12,26 @@ Deface is a library that allows you to customize HTML ERB views in a Rails appli
 It allows you to easily target html & erb elements as the hooks for customization using CSS selectors as supported by Nokogiri.
 
 Demo & Testing
----------------
+--------------
 You can play with Deface and see its parsing in action at [deface.heroku.com](http://deface.heroku.com)
 
 
+Production & Precompiling
+------------------------
+
+Deface now supports precompiling where all overrides are loaded and applied to the original views and the resulting templates are then saved to your application's `app/compiled_views` directory. To precompile run:
+
+     bundle exec rake deface:precompile
+
+It's important to disable Deface once precompiling is used to prevent overrides getting applied twice. To disable add the following line to your application's `production.rb` file:
+
+     config.deface.enabled = false
+
+NOTE: You can also use precompiling in development mode.
+
+
 Deface::Override
-=======
+================
 
 A new instance of the Deface::Override class is initialized for each customization you wish to define. When initializing a new override you must supply only one Target, Action & Source parameter and any number of Optional parameters. Note: the source parameter is not required when the "remove" action is specified.
 
@@ -145,6 +159,10 @@ Deface includes a couple of rake tasks that can be helpful when defining or debu
     rake deface:test_selector[shared/_head,title]
 
     rake deface:test_selector['admin/products/index','div.toolbar']
+
+**deface:precompile** - Generates compiled views that contain all overrides applied. See `Production & Precompiling` section above for more.
+
+    rake deface:precompile
 
 
 Implementation

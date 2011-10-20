@@ -59,7 +59,7 @@ module Deface
     # * <tt>:attributes</tt> - A hash containing all the attributes to be set on the matched elements, eg: :attributes => {:class => "green", :title => "some string"}
     #
     def initialize(args)
-      unless Rails.application.try(:config).try(:deface)
+      unless Rails.application.try(:config).respond_to?(:deface) and Rails.application.try(:config).deface.try(:overrides)
         @@_early << args
         warn "[WARNING] Deface railtie has not initialized yet, override '#{args[:name]}' is being declared too early."
         return
@@ -92,6 +92,7 @@ module Deface
       else
         #initializing new override
         @args = args
+
         raise(ArgumentError, ":action is invalid") if self.action.nil?
       end
 

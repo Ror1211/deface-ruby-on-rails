@@ -16,7 +16,8 @@ shared_context "mock Rails" do
     Rails.stub :application => mock('application')
     Rails.application.stub :config => mock('config')
     Rails.application.config.stub :cache_classes => true
-    Rails.application.config.stub :deface => nil
+    Rails.application.config.stub :deface => ActiveSupport::OrderedOptions.new
+    Rails.application.config.deface.enabled = true
   end
 end
 

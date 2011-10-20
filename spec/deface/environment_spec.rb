@@ -29,6 +29,73 @@ module Deface
       it "should find overrides" do
         Rails.application.config.deface.overrides.find(:virtual_path => "posts/new").size.should == 1
       end
+
+      describe "load_all" do
+
+        before do
+          Rails.application.stub :root => Pathname.new(File.join(File.dirname(__FILE__), '..', "assets"))
+          Rails.application.stub :paths => {}
+          Rails.application.stub_chain :railties, :all => [] 
+        end
+
+        it "should enumerate_and_load nil when app has no app/overrides path set" do
+          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, Rails.application.root)
+          Rails.application.config.deface.overrides.load_all(Rails.application)
+        end
+
+        it "should enumerate_and_load path when app has app/overrides path set" do
+          Rails.application.stub :paths => {"app/overrides" => ["app/some_path"] }
+          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(["app/some_path"] , Rails.application.root)
+          Rails.application.config.deface.overrides.load_all(Rails.application)
+        end
+
+        it "should enumerate_and_load nil when railtie has no app/overrides path set" do
+          Rails.application.stub_chain :railties, :all => [mock('railtie', :root => "/some/path")]
+
+          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, Rails.application.root)
+          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, "/some/path")
+          Rails.application.config.deface.overrides.load_all(Rails.application)
+        end
+
+        it "should enumerate_and_load path when railtie has  app/overrides path set" do
+          Rails.application.stub_chain :railties, :all => [ mock('railtie', :root => "/some/path", :paths => {"app/overrides" => ["app/some_path"] } )]
+
+          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, Rails.application.root)
+          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(["app/some_path"] , "/some/path")
+          Rails.application.config.deface.overrides.load_all(Rails.application)
+        end
+
+        it "should ignore railtie with no root" do
+          railtie = mock('railtie')
+          Rails.application.stub_chain :railties, :all => [railtie]
+
+          railtie.should_receive(:respond_to?).with(:root)
+          railtie.should_not_receive(:respond_to?).with(:paths)
+          Rails.application.config.deface.overrides.load_all(Rails.application)
+        end
+
+      end
+
+      describe "enumerate_and_load" do
+        let(:root) { Pathname.new("/some/path") }
+
+        it "should be enumerate default path when none supplied" do
+          Dir.should_receive(:glob).with(root.join "app/overrides", "*.rb")
+          Rails.application.config.deface.overrides.send(:enumerate_and_load, nil, root)
+        end
+
+        it "should be enumerate supplied path" do
+          Dir.should_receive(:glob).with(root.join "app/junk", "*.rb")
+          Rails.application.config.deface.overrides.send(:enumerate_and_load, ["app/junk"], root)
+        end
+
+        it "should be enumerate supplied paths" do
+          Dir.should_receive(:glob).with(root.join "app/junk", "*.rb" )
+          Dir.should_receive(:glob).with(root.join "app/gold", "*.rb" )
+          Rails.application.config.deface.overrides.send(:enumerate_and_load, ["app/junk", "app/gold"], root)
+        end
+
+      end
     end
 
     describe "#_early" do
