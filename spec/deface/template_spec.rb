@@ -210,25 +210,47 @@ module ActionView
     end
 
 
-    describe "with a single surround override defined" do
+    describe "with a single html surround override defined" do
       before(:each) do
-        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :surround => "p", :text => "<div></div>")
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :surround => "p", :text => "<h1>It's behind you!</h1><div><%= render_original %></div>")
         @template = ActionView::Template.new("<p>test</p>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
       end
 
       it "should return modified source" do
-        @template.source.should == "<div><p>test</p></div>"
+        @template.source.should == "<h1>It's behind you!</h1><div><p>test</p></div>"
       end
     end
 
-    describe "with a single surround_contents override defined" do
+    describe "with a single erb surround override defined" do
       before(:each) do
-        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :surround_contents => "p", :text => "<span></span>")
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :surround => "p", :text => "<% some_method('test') do %><%= render_original %><% end %>")
+        @template = ActionView::Template.new("<span><p>test</p></span>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
+      end
+
+      it "should return modified source" do
+        @template.source.gsub("\n", '').should == "<span><% some_method('test') do %><p>test</p><% end %></span>"
+      end
+    end
+
+    describe "with a single html surround_contents override defined" do
+      before(:each) do
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :surround_contents => "div", :text => "<span><%= render_original %></span>")
+        @template = ActionView::Template.new("<h4>yay!</h4><div><p>test</p></div>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
+      end
+
+      it "should return modified source" do
+        @template.source.should == "<h4>yay!</h4><div><span><p>test</p></span></div>"
+      end
+    end
+
+    describe "with a single erb surround_contents override defined" do
+      before(:each) do
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :surround_contents => "p", :text => "<% if 1==1 %><%= render_original %><% end %>")
         @template = ActionView::Template.new("<p>test</p>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html})
       end
 
       it "should return modified source" do
-        @template.source.should == "<p><span>test</span></p>"
+        @template.source.should == "<p><% if 1==1 %>test<% end %></p>"
       end
     end
 

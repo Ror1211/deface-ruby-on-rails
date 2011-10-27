@@ -23,8 +23,8 @@ module Deface
     # * <tt>:remove</tt> - Removes all elements that match the supplied selector
     # * <tt>:replace</tt> - Replaces all elements that match the supplied selector
     # * <tt>:replace_contents</tt> - Replaces the contents of all elements that match the supplied selector
-    # * <tt>:surround</tt> - Surrounds all elements that match the supplied selector
-    # * <tt>:surround_contents</tt> - Surrounds the contents of all elements that match the supplied selector
+    # * <tt>:surround</tt> - Surrounds all elements that match the supplied selector, expects replacement markup to contain <%= render_original %> placeholder
+    # * <tt>:surround_contents</tt> - Surrounds the contents of all elements that match the supplied selector, expects replacement markup to contain <%= render_original %> placeholder
     # * <tt>:insert_after</tt> - Inserts after all elements that match the supplied selector
     # * <tt>:insert_before</tt> - Inserts before all elements that match the supplied selector
     # * <tt>:insert_top</tt> - Inserts inside all elements that match the supplied selector, before all existing child
@@ -238,19 +238,23 @@ module Deface
                 when :replace_contents
                   match.children.remove 
                   match.add_child(override.source_element)
-                when :surround
-                  element = match.clone(1)
-                  element.unlink
-                  ore = override.source_element.children.first.clone(1)
-                  ore.add_child element
-                  match.replace ore
-                when :surround_contents
-                  children = match.children
-                  match.children.remove
-                  match.add_child(override.source_element)
-                  children.each do |child|
-                    match.children.first.add_child(child)
+                when :surround, :surround_contents
+
+                  new_source = override.source_element.clone(1)
+
+                  if original = new_source.css("code:contains('render_original')").first
+                    if override.action == :surround
+                      original.replace match.clone(1)
+                      match.replace new_source
+                    elsif override.action == :surround_contents
+                      original.replace match.children
+                      match.children.remove
+                      match.add_child new_source
+                    end
+                  else
+                    #maybe we should log that the original wasn't found.
                   end
+
                 when :insert_before
                   match.before override.source_element
                 when :insert_after

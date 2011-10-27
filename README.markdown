@@ -45,6 +45,12 @@ Action
 
 * <tt>:replace</tt> - Replaces all elements that match the supplied selector
 
+* <tt>:replace_contents</tt> - Replaces the contents of all elements that match the supplied selector
+
+* <tt>:surround</tt> - Surrounds all elements that match the supplied selector, expects replacement markup to contain <%= render_original %> placeholder
+
+* <tt>:surround_contents</tt> - Surrounds the contents of all elements that match the supplied selector, expects replacement markup to contain <%= render_original %> placeholder
+
 * <tt>:insert_after</tt> - Inserts after all elements that match the supplied selector
 
 * <tt>:insert_before</tt> - Inserts before all elements that match the supplied selector
@@ -86,7 +92,7 @@ Optional
 Examples
 ========
 
-Replaces all instances of _h1_ in the `posts/_form.html.erb` partial with `<h1>New Post</h1>`
+Replaces all instances of `h1` in the `posts/_form.html.erb` partial with `<h1>New Post</h1>`
 
      Deface::Override.new(:virtual_path => "posts/_form", 
                           :name => "example-1", 
@@ -113,6 +119,13 @@ Removes any ERB block containing the string `helper_method` in the `posts/new.ht
                           :name => "example-4", 
                           :remove => "code[erb-loud]:contains('helper_method')",
                           :original => "<%= helper_method %>")
+
+Wraps the `div` with id of `products` in ruby if statement, the <%= render_original %> in the `text` indicates where the matching content should be re-included.
+
+     Deface::Override.new(:virtual_path => "posts/new", 
+                          :name => "example-5", 
+                          :surround => "div#products",
+                          :text => "<% if @product.present? %><%= render_original %><% end %>")
 
 Sets (or adds if not present) the `class` and `title` attributes to all instances of `a` with an id of `link` in `posts/index.html.erb` 
 
