@@ -2,7 +2,7 @@ module Deface
   module TemplateHelper
 
     # used to find source for a partial or template using virutal_path
-    def load_template_source(virtual_path, partial, include_overrides=true)
+    def load_template_source(virtual_path, partial, apply_overrides=true)
       parts = virtual_path.split("/")
       prefix = []
       if parts.size == 2
@@ -13,15 +13,9 @@ module Deface
         name = parts.join("/")
       end
 
+      Rails.application.config.deface.enabled = apply_overrides
       @lookup_context ||= ActionView::LookupContext.new(ActionController::Base.view_paths, {:formats => [:html]})
-
-      source = @lookup_context.find(name, prefix, partial).source
-
-      if include_overrides
-        Deface::Override.apply(source, {:virtual_path => virtual_path}, false)
-      else
-        source
-      end
+      @lookup_context.find(name, prefix, partial).source
     end
 
     #gets source erb for an element

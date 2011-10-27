@@ -13,7 +13,7 @@ module Deface
 
       describe "with no overrides defined" do
         it "should return source for partial" do
-          load_template_source("shared/_post", false).should == "<p>I'm from shared/post partial</p>\n<%= \"And I've got ERB\" %>\n"
+          load_template_source("shared/post", true).should == "<p>I'm from shared/post partial</p>\n<%= \"And I've got ERB\" %>\n"
         end
 
         it "should return source for template" do
@@ -25,7 +25,7 @@ module Deface
         end
 
         it "should raise exception for non-existing file" do
-          lambda { load_template_source("tester/_post", false) }.should raise_error(ActionView::MissingTemplate)
+          lambda { load_template_source("tester/post", true) }.should raise_error(ActionView::MissingTemplate)
         end
 
       end
@@ -40,11 +40,11 @@ module Deface
         end
 
         it "should return source for partial including overrides" do
-          load_template_source("shared/_post", false).should == "\n<%= \"And I've got ERB\" %>"
+          load_template_source("shared/post", true).should == "\n<%= \"And I've got ERB\" %>"
         end
 
         it "should return source for partial excluding overrides" do
-          load_template_source("shared/_post", false, false).should == "<p>I'm from shared/post partial</p>\n<%= \"And I've got ERB\" %>\n"
+          load_template_source("shared/post", true, false).should == "<p>I'm from shared/post partial</p>\n<%= \"And I've got ERB\" %>\n"
         end
 
         it "should return source for template including overrides" do

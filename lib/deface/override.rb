@@ -336,6 +336,8 @@ module Deface
       virtual_path = details[:virtual_path]
       return [] if virtual_path.nil?
 
+      virtual_path = virtual_path[1..-1] if virtual_path.first == '/'
+
       result = []
       result << self.all[virtual_path.to_sym].try(:values)
 
