@@ -16,7 +16,7 @@ module Deface
 
     config.to_prepare &method(:activate).to_proc
 
-    # configures basic deface environment, with gets replaced
+    # configures basic deface environment, which gets replaced
     # with real environment if deface is not disabled
     #
     initializer "deface.add_configuration", :before => :load_environment_config do |app|
