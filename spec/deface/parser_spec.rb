@@ -1,3 +1,5 @@
+# encoding: UTF-8
+ 
 require 'spec_helper'
 
 module Deface
@@ -19,7 +21,7 @@ module Deface
         if RUBY_VERSION < "1.9"
           parsed.should == "<html>\n<head><title>Hello</title></head>\n<body>test</body>\n</html>".split("\n")
         else
-          parsed.should == "<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=US-ASCII\">\n<title>Hello</title>\n</head>\n<body>test</body>\n</html>".split("\n")
+          parsed.should == "<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>Hello</title>\n</head>\n<body>test</body>\n</html>".split("\n")
         end
 
         parsed = Deface::Parser.convert("<html><title>test</title></html>")
@@ -28,7 +30,7 @@ module Deface
         if RUBY_VERSION < "1.9"
           parsed.should == ["<html><head><title>test</title></head></html>"]
         else
-          parsed.should == "<html><head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=US-ASCII\">\n<title>test</title>\n</head></html>".split("\n")
+          parsed.should == "<html><head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>test</title>\n</head></html>".split("\n")
         end
 
         parsed = Deface::Parser.convert("<html><p>test</p></html>")
@@ -84,6 +86,27 @@ module Deface
       it "should escape contents code tags" do
         Deface::Parser.convert("<% method_name(:key => 'value') %>").to_s.should == "<code erb-silent> method_name(:key =&gt; 'value') </code>"
       end
+
+      if "".encoding_aware?
+        it "should respect valid encoding tag" do
+          source = %q{<%# encoding: ISO-8859-1 %>Can you say ümlaut?}
+          Deface::Parser.convert(source)
+          source.encoding.name.should == 'ISO-8859-1'
+        end
+
+        it "should force default encoding" do
+          source = %q{Can you say ümlaut?}
+          source.force_encoding('ISO-8859-1')
+          Deface::Parser.convert(source)
+          source.encoding.should == Encoding.default_external
+        end
+
+        it "should force default encoding" do
+          source = %q{<%# encoding: US-ASCII %>Can you say ümlaut?}
+          lambda { Deface::Parser.convert(source) }.should raise_error(ActionView::WrongEncodingError)
+        end
+      end
+
     end
 
     describe "#undo_erb_markup" do

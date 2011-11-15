@@ -74,6 +74,21 @@ module Deface
     end
 
     def self.convert(source)
+      if source.encoding_aware?
+        # Look for # encoding: *. If we find one, we'll encode the
+        # String in that encoding, otherwise, we'll use the
+        # default external encoding.
+        encoding = source.scan(/#{ActionView::Template::Handlers::ERB.const_get(:ENCODING_TAG)}/).first.try(:last) || Encoding.default_external
+
+        # Tag the source with the default external encoding
+        # or the encoding specified in the file
+        source.force_encoding(encoding)
+
+        unless source.valid_encoding?
+          raise ActionView::WrongEncodingError.new(source, encoding)
+        end
+      end
+
       erb_markup!(source)
 
       if source =~ /<html.*?(?:(?!>)[\s\S])*>/
@@ -81,7 +96,6 @@ module Deface
       elsif source =~ /<body.*?(?:(?!>)[\s\S])*>/
         Nokogiri::HTML::Document.parse(source).css('body').first
       else
-        source = source.force_encoding('utf-8') if source.respond_to?(:force_encoding)
         Nokogiri::HTML::DocumentFragment.parse(source)
       end
     end
