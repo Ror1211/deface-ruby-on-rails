@@ -229,7 +229,6 @@ module Deface
 
     end
 
-
     describe "#end_selector" do
       it "should return nil when closing_selector is not defined" do
         @override.end_selector.should be_nil
@@ -248,6 +247,100 @@ module Deface
       it "should return combined sibling selector when closing_selector is present" do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :closing_selector => "h4", :text => "<h1>Argh!</h1>")
         @override.end_selector.should == "h1 ~ h4"
+      end
+    end
+
+    describe "#digest" do
+      before { @digest = @override.digest }
+
+      it "should return hex digest based on override's args" do
+        @override.digest.should =~ /[a-f0-9]{32}/
+      end
+
+      it "should change the digest when any args change" do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h2", :text => "<h1>Argh!</h1>")
+        @override.digest.should_not == @digest
+
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
+        @override.digest.should == @digest
+
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h2", :text => "<h1>I'm a pirate!</h1>")
+        @override.digest.should_not == @digest
+      end
+    end
+
+    describe "self#digest" do
+      before do
+        @second = Deface::Override.new(:virtual_path => "posts/index", :name => "second", :insert_after => "p", :text => "<pre>this is code?</pre>")
+
+        @digest = Deface::Override.digest(:virtual_path =>  "posts/index") 
+      end
+
+      it "should return hex digest based on all applicable overrides" do
+        Deface::Override.digest(:virtual_path =>  "posts/index").should =~ /[a-f0-9]{32}/
+      end
+
+      it "should change the digest when any args change for any override" do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h2", :text => "<h1>Argh!</h1>")
+        Deface::Override.digest(:virtual_path =>  "posts/index").should_not == @digest
+
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
+        Deface::Override.digest(:virtual_path =>  "posts/index").should == @digest
+
+        @second = Deface::Override.new(:virtual_path => "posts/index", :name => "2nd", :insert_after => "p", :text => "<pre>this is code?</pre>")
+        Deface::Override.digest(:virtual_path =>  "posts/index").should_not == @digest
+      end
+
+      it "should change the digest when overrides are removed / added" do
+        Deface::Override.all.clear 
+
+        @new_digest = Deface::Override.digest(:virtual_path =>  "posts/index")
+        @new_digest.should_not == @digest
+
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
+        Deface::Override.digest(:virtual_path =>  "posts/index").should_not == @new_digest
+      end
+    end
+
+    describe "#expire_compiled_template" do
+      before do
+        @compiled_templates = ActionView::CompiledTemplates 
+
+        ActionView::CompiledTemplates.instance_methods.each do |method_name|
+          ActionView::CompiledTemplates.send :remove_method, method_name
+        end
+      end
+
+      it "should remove compiled method when method name matches virtual path but not digest" do
+        module ActionView::CompiledTemplates 
+          def _e235fa404c3c2281d4f6791162b1c638_posts_index_123123123
+            true #not a real method
+          end
+
+          def _f34556de606cec51d4f6791163fab456_posts_edit_123123123
+            true #not a real method
+          end
+
+        end
+
+        ActionView::CompiledTemplates.instance_methods.size.should == 2
+        @override.send(:expire_compiled_template)
+        ActionView::CompiledTemplates.instance_methods.size.should == 1
+      end
+
+      it "should not remove compiled method when virtual path and digest matach" do
+
+        module ActionView::CompiledTemplates 
+          def _e235fa404c3c2281d4f6791162b1c638_posts_index_123123123
+            true #not a real method
+          end
+        end
+
+        Deface::Override.should_receive(:digest).and_return('e235fa404c3c2281d4f6791162b1c638')
+
+        ActionView::CompiledTemplates.instance_methods.size.should == 1
+        @override.send(:expire_compiled_template)
+        ActionView::CompiledTemplates.instance_methods.size.should == 1
       end
     end
 
