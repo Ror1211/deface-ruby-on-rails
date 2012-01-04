@@ -43,19 +43,19 @@ module Deface
     #   This needs to be unique within the same :virtual_path
     # * <tt>:disabled</tt> - When set to true the override will not be applied.
     # * <tt>:original</tt> - String containing original markup that is being overridden.
-    #   If supplied Deface will log when the original markup changes, which helps highlight overrides that need 
+    #   If supplied Deface will log when the original markup changes, which helps highlight overrides that need
     #   attention when upgrading versions of the source application. Only really warranted for :replace overrides.
     #   NB: All whitespace is stripped before comparsion.
-    # * <tt>:closing_selector</tt> - A second css selector targeting an end element, allowing you to select a range 
-    #   of elements to apply an action against. The :closing_selector only supports the :replace, :remove and 
+    # * <tt>:closing_selector</tt> - A second css selector targeting an end element, allowing you to select a range
+    #   of elements to apply an action against. The :closing_selector only supports the :replace, :remove and
     #   :replace_contents actions, and the end element must be a sibling of the first/starting element. Note the CSS
     #   general sibling selector (~) is used to match the first element after the opening selector.
     # * <tt>:sequence</tt> - Used to order the application of an override for a specific virtual path, helpful when
     #   an override depends on another override being applied first.
     #   Supports:
     #   :sequence => n - where n is a positive or negative integer (lower numbers get applied first, default 100).
-    #   :sequence => {:before => "override_name"} - where "override_name" is the name of an override defined for the 
-    #                                               same virutal_path, the current override will be appplied before 
+    #   :sequence => {:before => "override_name"} - where "override_name" is the name of an override defined for the
+    #                                               same virutal_path, the current override will be appplied before
     #                                               the named override passed.
     #   :sequence => {:after => "override_name") - the current override will be applied after the named override passed.
     # * <tt>:attributes</tt> - A hash containing all the attributes to be set on the matched elements, eg: :attributes => {:class => "green", :title => "some string"}
@@ -73,7 +73,7 @@ module Deface
       args[:text] = content.call if block_given?
 
       virtual_key = args[:virtual_path].to_sym
-      name_key = args[:name].to_s.parameterize 
+      name_key = args[:name].to_s.parameterize
 
       self.class.all[virtual_key] ||= {}
 
@@ -138,10 +138,10 @@ module Deface
         end
 
       else
-        return @args[:sequence].to_i 
+        return @args[:sequence].to_i
       end
     rescue SystemStackError
-      if defined?(Rails) 
+      if defined?(Rails)
         Rails.logger.error "\e[1;32mDeface: [WARNING]\e[0m Circular sequence dependency includes override named: '#{self.name}' on '#{@args[:virtual_path]}'."
       end
 
@@ -204,7 +204,7 @@ module Deface
       overrides = find(details)
 
       if log
-        log = defined?(Rails.logger) 
+        log = defined?(Rails.logger)
       end
 
       if log && overrides.size > 0
@@ -238,7 +238,7 @@ module Deface
                 when :replace
                   match.replace override.source_element
                 when :replace_contents
-                  match.children.remove 
+                  match.children.remove
                   match.add_child(override.source_element)
                 when :surround, :surround_contents
 
