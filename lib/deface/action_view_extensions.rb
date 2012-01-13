@@ -3,10 +3,20 @@ ActionView::Template.class_eval do
 
   def initialize(source, identifier, handler, details)
     if Rails.application.config.deface.enabled
-      source = Deface::Override.apply(source, details)
+      if handler.to_s == "Haml::Plugin"
+        haml = true
+      end
+
+      processed_source = Deface::Override.apply(source, details, true, haml )
+
+      if haml && processed_source != source
+        handler = ActionView::Template::Handlers::ERB
+      end
+    else
+      processed_source = source
     end
 
-    rails_initialize(source, identifier, handler, details)
+    rails_initialize(processed_source, identifier, handler, details)
   end
 end
 

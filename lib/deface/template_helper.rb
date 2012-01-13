@@ -18,10 +18,8 @@ module Deface
       view = @lookup_context.find(name, prefix, partial)
 
       if view.handler.to_s == "Haml::Plugin"
-        _source = %Q{
-          <% haml_engine = Haml::Engine.new("#{view.source.gsub('"', '\"')}") %>
-          <%= haml_engine.render binding %>
-        }
+        haml_engine = Deface::HamlConverter.new(view.source)
+        haml_engine.render
       else
         view.source
       end

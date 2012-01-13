@@ -159,7 +159,14 @@ module Deface
         load_template_source(@args[:template], false)
       elsif @args.key? :text
         @args[:text]
+      elsif @args.key? :erb
+        @args[:erb]
+      elsif @args.key?(:haml) && Rails.application.config.deface.haml_support
+        haml_engine = Deface::HamlConverter.new(@args[:haml])
+        haml_engine.render
       end
+
+      erb
     end
 
     def source_element
@@ -200,7 +207,7 @@ module Deface
 
     # applies all applicable overrides to given source
     #
-    def self.apply(source, details, log=true)
+    def self.apply(source, details, log=true, haml=false)
       overrides = find(details)
 
       if log
@@ -212,6 +219,12 @@ module Deface
       end
 
       unless overrides.empty?
+        if haml
+          #convert haml to erb before parsing before
+          haml_engine = Deface::HamlConverter.new(source)
+          source = haml_engine.render
+        end
+
         doc = Deface::Parser.convert(source)
 
         overrides.each do |override|

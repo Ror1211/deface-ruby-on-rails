@@ -1,7 +1,7 @@
 module Deface
   class Railtie < Rails::Railtie
     # include rake tasks.
-    # 
+    #
     rake_tasks do
       %w{utils precompile}.each { |r| load File.join([File.dirname(__FILE__) , "../../tasks/#{r}.rake"]) }
     end
@@ -54,6 +54,12 @@ module Deface
 
       #setup real env object
       app.config.deface = Deface::Environment.new
+
+      #checks if haml is loaded and enables support
+      if defined?(Haml)
+        app.config.deface.haml_support = true
+        require 'deface/haml_converter'
+      end
 
       #catchs any overrides that we required manually
       app.config.deface.overrides.early_check
