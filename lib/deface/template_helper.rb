@@ -13,6 +13,7 @@ module Deface
         name = parts.join("/")
       end
 
+      #this needs to be reviewed for production mode, overrides not present
       Rails.application.config.deface.enabled = apply_overrides
       @lookup_context ||= ActionView::LookupContext.new(ActionController::Base.view_paths, {:formats => [:html]})
       view = @lookup_context.find(name, prefix, partial)

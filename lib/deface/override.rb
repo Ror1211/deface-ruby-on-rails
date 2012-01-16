@@ -101,6 +101,10 @@ module Deface
       end
 
       self.class.all[virtual_key][name_key] = self
+
+      expire_compiled_template
+
+      self
     end
 
     def selector
@@ -203,6 +207,10 @@ module Deface
 
     def attributes
       @args[:attributes] || []
+    end
+
+    def digest
+      Digest::MD5.new.update(@args.to_s).hexdigest
     end
 
     # applies all applicable overrides to given source
@@ -364,11 +372,32 @@ module Deface
       Rails.application.config.deface.overrides.all
     end
 
+    def self.digest(details)
+      overrides = self.find(details)
+
+      Digest::MD5.new.update(overrides.inject('') { |digest, override| digest << override.digest }).hexdigest
+    end
+
     private
       # finds all elements upto closing sibling in nokgiri document
       #
       def self.select_range(first, last)
         first == last ? [first] : [first, *select_range(first.next, last)]
+      end
+
+      # check if method is compiled for the current virtual path
+      #
+      def expire_compiled_template
+        if compiled_method_name = ActionView::CompiledTemplates.instance_methods.detect { |name| name =~ /#{args[:virtual_path].gsub(/[^a-z_]/, '_')}/ }
+          #if the compiled method does not contain the current deface digest
+          #then remove the old method - this will allow the template to be 
+          #recompiled the next time it is rendered (showing the latest changes)
+
+          unless compiled_method_name =~ /\A_#{self.class.digest(:virtual_path => @args[:virtual_path])}_/
+            ActionView::CompiledTemplates.send :remove_method, compiled_method_name
+          end
+        end
+
       end
 
   end
