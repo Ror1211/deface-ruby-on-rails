@@ -88,7 +88,31 @@ module Deface
       end
     end
 
-    describe "with :partial" do
+    describe "with :erb" do
+
+      before(:each) do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>")
+      end
+
+      it "should return un-convert text as source" do
+        @override.source.should == "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>"
+      end
+    end
+
+    describe "with :haml" do
+
+      before(:each) do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1",
+                                         :haml => %q{%strong{:class => "code", :id => "message"}= 'Hello, World!'})
+      end
+
+      it "should return erb converted from haml as source" do
+        @override.source.should == "<strong class='code' id='message'><%= 'Hello, World!' %>\n</strong>\n"
+      end
+    end
+
+
+    describe "with :partial containing erb" do
 
       before(:each) do
         #stub view paths to be local spec/assets directory
@@ -139,7 +163,7 @@ module Deface
       end
 
       it "should return escaped source" do
-        @override.source_element.should be_an_instance_of Nokogiri::HTML::DocumentFragment 
+        @override.source_element.should be_an_instance_of Nokogiri::HTML::DocumentFragment
         @override.source_element.to_s.should == "<code erb-loud> method :opt =&gt; 'x' &amp; 'y' </code>"
         #do it twice to ensure it doesn't change as it's destructive
         @override.source_element.to_s.should == "<code erb-loud> method :opt =&gt; 'x' &amp; 'y' </code>"

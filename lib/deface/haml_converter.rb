@@ -1,5 +1,9 @@
 module Deface
   class HamlConverter < Haml::Engine
+    def result
+      Deface::Parser.undo_erb_markup! String.new(render)
+    end
+
     def push_script(text, preserve_script, in_tag = false, preserve_tag = false,
                     escape_html = false, nuke_inner_whitespace = false)
       push_text "<%= #{text.strip} %>"
@@ -34,7 +38,6 @@ module Deface
         attrs.gsub! /\{|\}/, ''
         attrs = attrs.split(',')
 
-        debugger
         if attrs.join.include? "=>"
           attrs.map!{|a| a.split("=>").map(&:strip) }
         else

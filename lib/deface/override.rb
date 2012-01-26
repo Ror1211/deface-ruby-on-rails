@@ -7,7 +7,7 @@ module Deface
 
     @@_early = []
     @@actions = [:remove, :replace, :replace_contents, :surround, :surround_contents, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes]
-    @@sources = [:text, :partial, :template]
+    @@sources = [:text, :erb, :haml, :partial, :template]
 
     # Initializes new override, you must supply only one Target, Action & Source
     # parameter for each override (and any number of Optional parameters).
@@ -229,8 +229,7 @@ module Deface
       unless overrides.empty?
         if haml
           #convert haml to erb before parsing before
-          haml_engine = Deface::HamlConverter.new(source)
-          source = haml_engine.render
+          source = Deface::HamlConverter.new(source).result
         end
 
         doc = Deface::Parser.convert(source)
@@ -390,7 +389,7 @@ module Deface
       def expire_compiled_template
         if compiled_method_name = ActionView::CompiledTemplates.instance_methods.detect { |name| name =~ /#{args[:virtual_path].gsub(/[^a-z_]/, '_')}/ }
           #if the compiled method does not contain the current deface digest
-          #then remove the old method - this will allow the template to be 
+          #then remove the old method - this will allow the template to be
           #recompiled the next time it is rendered (showing the latest changes)
 
           unless compiled_method_name =~ /\A_#{self.class.digest(:virtual_path => @args[:virtual_path])}_/

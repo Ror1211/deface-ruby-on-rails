@@ -3,6 +3,11 @@ require 'rspec'
 require 'action_view'
 require 'action_controller'
 require 'deface'
+#have to manually require following two for testing purposes
+require 'haml'
+require 'deface/haml_converter'
+
+Haml.init_rails(nil)
 
 RSpec.configure do |config|
   config.mock_framework = :rspec
@@ -30,5 +35,6 @@ shared_context "mock Rails.application" do
 
   before(:each) do
     Rails.application.config.stub :deface => Deface::Environment.new
+    Rails.application.config.deface.haml_support = true
   end
 end

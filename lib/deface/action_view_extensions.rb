@@ -3,9 +3,7 @@ ActionView::Template.class_eval do
 
   def initialize(source, identifier, handler, details)
     if Rails.application.config.deface.enabled
-      if handler.to_s == "Haml::Plugin"
-        haml = true
-      end
+      haml = handler.to_s == "Haml::Plugin"
 
       processed_source = Deface::Override.apply(source, details, true, haml )
 
