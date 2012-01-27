@@ -61,6 +61,9 @@ module Deface
     describe "#find" do
       it "should find by virtual_path" do
         Deface::Override.find({:virtual_path => "posts/index"}).size.should == 1
+        Deface::Override.find({:virtual_path => "/posts/index"}).size.should == 1
+        Deface::Override.find({:virtual_path => "/posts/index.html"}).size.should == 1
+        Deface::Override.find({:virtual_path => "posts/index.html"}).size.should == 1
       end
 
       it "should return empty array when no details hash passed" do
@@ -297,7 +300,7 @@ module Deface
       before do
         @second = Deface::Override.new(:virtual_path => "posts/index", :name => "second", :insert_after => "p", :text => "<pre>this is code?</pre>")
 
-        @digest = Deface::Override.digest(:virtual_path =>  "posts/index") 
+        @digest = Deface::Override.digest(:virtual_path =>  "posts/index")
       end
 
       it "should return hex digest based on all applicable overrides" do
@@ -316,7 +319,7 @@ module Deface
       end
 
       it "should change the digest when overrides are removed / added" do
-        Deface::Override.all.clear 
+        Deface::Override.all.clear
 
         @new_digest = Deface::Override.digest(:virtual_path =>  "posts/index")
         @new_digest.should_not == @digest
@@ -328,7 +331,7 @@ module Deface
 
     describe "#expire_compiled_template" do
       before do
-        @compiled_templates = ActionView::CompiledTemplates 
+        @compiled_templates = ActionView::CompiledTemplates
 
         ActionView::CompiledTemplates.instance_methods.each do |method_name|
           ActionView::CompiledTemplates.send :remove_method, method_name
@@ -336,7 +339,7 @@ module Deface
       end
 
       it "should remove compiled method when method name matches virtual path but not digest" do
-        module ActionView::CompiledTemplates 
+        module ActionView::CompiledTemplates
           def _e235fa404c3c2281d4f6791162b1c638_posts_index_123123123
             true #not a real method
           end
@@ -354,7 +357,7 @@ module Deface
 
       it "should not remove compiled method when virtual path and digest matach" do
 
-        module ActionView::CompiledTemplates 
+        module ActionView::CompiledTemplates
           def _e235fa404c3c2281d4f6791162b1c638_posts_index_123123123
             true #not a real method
           end
