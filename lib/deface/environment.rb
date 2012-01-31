@@ -21,9 +21,10 @@ module Deface
     end
 
     def load_all(app)
+      #clear overrides before reloading them
+      app.config.deface.overrides.all.clear
+
       # check application for specified overrides paths
-      #
-      #
       override_paths = app.paths["app/overrides"]
       enumerate_and_load(override_paths, app.root)
 
@@ -57,4 +58,3 @@ module Deface
       end
   end
 end
-

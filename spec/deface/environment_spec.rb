@@ -4,7 +4,7 @@ module Deface
   describe Environment do
     include_context "mock Rails"
 
-    before(:each) do 
+    before(:each) do
       #declare this override (early) before Rails.application.deface is present
       silence_warnings do
         Deface::Override._early.clear
@@ -23,7 +23,7 @@ module Deface
 
       it "should return all overrides" do
         Rails.application.config.deface.overrides.all.size.should == 2
-        Rails.application.config.deface.overrides.all.should == Deface::Override.all 
+        Rails.application.config.deface.overrides.all.should == Deface::Override.all
       end
 
       it "should find overrides" do
@@ -35,7 +35,7 @@ module Deface
         before do
           Rails.application.stub :root => Pathname.new(File.join(File.dirname(__FILE__), '..', "assets"))
           Rails.application.stub :paths => {}
-          Rails.application.stub_chain :railties, :all => [] 
+          Rails.application.stub_chain :railties, :all => []
         end
 
         it "should enumerate_and_load nil when app has no app/overrides path set" do
@@ -71,6 +71,11 @@ module Deface
 
           railtie.should_receive(:respond_to?).with(:root)
           railtie.should_not_receive(:respond_to?).with(:paths)
+          Rails.application.config.deface.overrides.load_all(Rails.application)
+        end
+
+        it "should clear any previously loaded overrides" do
+          Rails.application.config.deface.overrides.all.should_receive(:clear)
           Rails.application.config.deface.overrides.load_all(Rails.application)
         end
 
