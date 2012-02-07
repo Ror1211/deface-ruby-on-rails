@@ -61,9 +61,14 @@ module Deface
     # * <tt>:attributes</tt> - A hash containing all the attributes to be set on the matched elements, eg: :attributes => {:class => "green", :title => "some string"}
     #
     def initialize(args, &content)
-      unless Rails.application.try(:config).respond_to?(:deface) and Rails.application.try(:config).deface.try(:overrides)
-        @@_early << args
-        warn "[WARNING] Deface railtie has not initialized yet, override '#{args[:name]}' is being declared too early."
+      if Rails.application.try(:config).try(:deface).try(:enabled)
+        unless Rails.application.config.deface.try(:overrides)
+          @@_early << args
+          warn "[WARNING] You no longer need to manually require overrides, remove require for '#{args[:name]}'."
+          return
+        end
+      else
+        warn "[WARNING] You no longer need to manually require overrides, remove require for '#{args[:name]}'."
         return
       end
 

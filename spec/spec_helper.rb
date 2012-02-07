@@ -3,7 +3,8 @@ require 'rspec'
 require 'action_view'
 require 'action_controller'
 require 'deface'
-#have to manually require following two for testing purposes
+#have to manually require following three for testing purposes
+require 'deface/action_view_extensions'
 require 'haml'
 require 'deface/haml_converter'
 
