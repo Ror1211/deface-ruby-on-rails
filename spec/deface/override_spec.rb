@@ -37,8 +37,9 @@ module Deface
         @original = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
       end
 
-      it "should not validate" do
-        @override.validate_original("<p>this gets ignored</p>").should be_true
+      it "should warn but not validate" do
+        Rails.logger.should_receive(:info).once
+        @override.validate_original("<p>this gets ignored</p>").should be_nil
       end
 
     end

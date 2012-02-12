@@ -1,6 +1,7 @@
 module Deface
   class Override
-    include Deface::TemplateHelper
+    include TemplateHelper
+    include OriginalValidator
 
     cattr_accessor :actions, :_early
     attr_accessor :args
@@ -182,25 +183,6 @@ module Deface
       Deface::Parser.convert(source.clone)
     end
 
-    def original_source
-      return nil unless @args[:original].present?
-
-      Deface::Parser.convert(@args[:original].clone)
-    end
-
-    # logs if original source has changed
-    def validate_original(match)
-      return true if self.original_source.nil?
-
-      valid = self.original_source.to_s.gsub(/\s/, '') == match.to_s.gsub(/\s/, '')
-
-      if !valid && defined?(Rails.logger) == "constant"
-        Rails.logger.error "\e[1;32mDeface: [WARNING]\e[0m The original source for '#{self.name}' has changed, this override should be reviewed to ensure it's still valid."
-      end
-
-      valid
-    end
-
     def disabled?
       @args.key?(:disabled) ? @args[:disabled] : false
     end
@@ -222,10 +204,6 @@ module Deface
     #
     def self.apply(source, details, log=true, haml=false)
       overrides = find(details)
-
-      if log
-        log = defined?(Rails.logger)
-      end
 
       if log && overrides.size > 0
         Rails.logger.info "\e[1;32mDeface:\e[0m #{overrides.size} overrides found for '#{details[:virtual_path]}'"

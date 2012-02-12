@@ -1,6 +1,7 @@
 require "action_view"
 require "action_controller"
 require "deface/template_helper"
+require "deface/original_validator"
 require "deface/override"
 require "deface/parser"
 require "deface/environment"

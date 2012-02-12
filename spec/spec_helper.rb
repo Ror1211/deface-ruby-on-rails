@@ -23,11 +23,17 @@ shared_context "mock Rails" do
     unless defined? Rails
       Rails = mock 'Rails'
     end
+
     Rails.stub :application => mock('application')
     Rails.application.stub :config => mock('config')
     Rails.application.config.stub :cache_classes => true
     Rails.application.config.stub :deface => ActiveSupport::OrderedOptions.new
     Rails.application.config.deface.enabled = true
+
+    Rails.stub :logger => mock('logger')
+    Rails.logger.stub(:error)
+    Rails.logger.stub(:warning)
+    Rails.logger.stub(:info)
   end
 end
 
