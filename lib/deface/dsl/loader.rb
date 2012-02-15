@@ -15,7 +15,7 @@ module Deface
       end
 
       def self.register
-        Polyglot.register('deface', self)
+        Polyglot.register('deface', Deface::DSL::Loader)
       end
     end
   end

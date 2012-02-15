@@ -55,10 +55,9 @@ module Deface
             Rails.application.config.cache_classes ? require(c) : load(c)
           end
           Dir.glob(root.join path, "*.deface") do |c|
-            Rails.application.config.cache_classes ? require(c) : load(c)
+            Rails.application.config.cache_classes ? require(c) : Deface::DSL::Loader.load(c)
           end
         end
-
       end
   end
 end
