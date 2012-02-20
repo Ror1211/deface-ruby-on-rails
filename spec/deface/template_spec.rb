@@ -193,7 +193,7 @@ module ActionView
       end
     end
 
-    describe "with a single set_attributes override defined" do
+    describe "with a single set_attributes override (containing only text) defined" do
       before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :set_attributes => 'img', 
                                       :attributes => {:class => 'pretty', :alt => 'something interesting'})
@@ -205,9 +205,61 @@ module ActionView
       end
 
       it "should return modified source" do
-        @template.source.gsub("\n", "").should == "<div><img class=\"pretty\" src=\"path/to/button.png\" alt=\"something interesting\"></div>"
+        @template.source.gsub("\n", "").should == "<div><img src=\"path/to/button.png\" class=\"pretty\" alt=\"something interesting\"></div>"
       end
     end
+
+    describe "with a single set_attributes override (containing erb) defined" do
+      before(:each) do
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :set_attributes => 'img', 
+                                      :attributes => {:class => 'pretty', :alt => '<%= something_interesting %>'})
+
+        @template = ActionView::Template.new("<div><img class=\"button\" src=\"path/to/button.png\"></div>",
+                                             "/path/to/file.erb",
+                                             ActionView::Template::Handlers::ERB,
+                                             {:virtual_path=>"posts/index", :format=>:html})
+      end
+
+      it "should return modified source" do
+        @template.source.gsub("\n", "").should == "<div><img src=\"path/to/button.png\" class=\"pretty\" alt=\"<%= something_interesting %>\"></div>"
+      end
+    end
+
+
+    describe "with a single set_attributes override (containing erb) defined targetting an existing pseudo attribute" do
+      before(:each) do
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :set_attributes => 'img', 
+                                      :attributes => {:class => '<%= get_some_other_class %>', :alt => 'something interesting'})
+
+        @template = ActionView::Template.new("<div><img class=\"<%= get_class %>\" src=\"path/to/button.png\"></div>",
+                                             "/path/to/file.erb",
+                                             ActionView::Template::Handlers::ERB,
+                                             {:virtual_path=>"posts/index", :format=>:html})
+      end
+
+      it "should return modified source" do
+        @template.source.gsub("\n", "").should == "<div><img src=\"path/to/button.png\" class=\"<%= get_some_other_class %>\" alt=\"something interesting\"></div>"
+      end
+    end
+
+    describe "with a single set_attributes override (containing a pseudo attribute with erb) defined targetting an existing pseudo attribute" do
+      before(:each) do
+        Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :set_attributes => 'img', 
+                                      :attributes => {'data-erb-class' => '<%= hello_world %>'})
+
+        @template = ActionView::Template.new("<div><img class=\"<%= hello_moon %>\" src=\"path/to/button.png\"></div>",
+                                             "/path/to/file.erb",
+                                             ActionView::Template::Handlers::ERB,
+                                             {:virtual_path=>"posts/index", :format=>:html})
+      end
+
+      it "should return modified source" do
+        @template.source.gsub("\n", "").should == "<div><img src=\"path/to/button.png\" class=\"<%= hello_world %>\"></div>"
+      end
+    end
+
+
+
 
 
     describe "with a single html surround override defined" do
