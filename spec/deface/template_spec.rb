@@ -245,7 +245,7 @@ module ActionView
     describe "with a single set_attributes override (containing a pseudo attribute with erb) defined targetting an existing pseudo attribute" do
       before(:each) do
         Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :set_attributes => 'img', 
-                                      :attributes => {'data-erb-class' => '<%= hello_world %>'})
+                                      :attributes => {'class' => '<%= hello_world %>'})
 
         @template = ActionView::Template.new("<div><img class=\"<%= hello_moon %>\" src=\"path/to/button.png\"></div>",
                                              "/path/to/file.erb",

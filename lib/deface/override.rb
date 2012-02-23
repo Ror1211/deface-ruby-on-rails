@@ -278,10 +278,12 @@ module Deface
                   end
                 when :set_attributes
                   override.attributes.each do |name, value|
-                    match.remove_attribute(name.to_s)
+                    name = name.to_s.gsub("\"", '').gsub("'", '')
+
+                    match.remove_attribute(name)
                     match.remove_attribute("data-erb-#{name}")
 
-                    if /\Adata-erb-/ =~ name.to_s
+                    if /\Adata-erb-/ =~ name
                       match.set_attribute(name, value.to_s)
                     else
                       match.set_attribute("data-erb-#{name}", value.to_s)
