@@ -7,6 +7,11 @@ module Deface
     def push_script(text, preserve_script, in_tag = false, preserve_tag = false,
                     escape_html = false, nuke_inner_whitespace = false)
       push_text "<%= #{text.strip} %>"
+
+      if block_given?
+        yield
+        push_silent('end')
+      end
     end
 
     def push_silent(text, can_suppress = false)
