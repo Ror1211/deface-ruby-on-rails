@@ -2,12 +2,14 @@ module Deface
   class Override
     include TemplateHelper
     include OriginalValidator
+    extend Applicator::ClassMethods
+    extend Search::ClassMethods
 
     cattr_accessor :actions, :_early
     attr_accessor :args
 
     @@_early = []
-    @@actions = [:remove, :replace, :replace_contents, :surround, :surround_contents, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes]
+    @@actions = [:remove, :replace, :replace_contents, :surround, :surround_contents, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes, :add_to_attributes, :remove_from_attributes]
     @@sources = [:text, :erb, :haml, :partial, :template]
 
     # Initializes new override, you must supply only one Target, Action & Source
@@ -30,7 +32,9 @@ module Deface
     # * <tt>:insert_before</tt> - Inserts before all elements that match the supplied selector
     # * <tt>:insert_top</tt> - Inserts inside all elements that match the supplied selector, before all existing child
     # * <tt>:insert_bottom</tt> - Inserts inside all elements that match the supplied selector, after all existing child
-    # * <tt>:set_attributes</tt> - Sets (or adds) attributes to all elements that match the supplied selector, expects :attributes option to be passed.
+    # * <tt>:set_attributes</tt> - Sets attributes on all elements that match the supplied selector, replacing existing attribute value if present or adding if not. Expects :attributes option to be passed.
+    # * <tt>:add_to_attributes</tt> - Appends value to attributes on all elements that match the supplied selector, adds attribute if not present. Expects :attributes option to be passed.
+    # * <tt>:remove_from_attributes</tt> - Removes value from attributes on all elements that match the supplied selector. Expects :attributes option to be passed.
     #
     # ==== Source
     #
@@ -200,165 +204,6 @@ module Deface
       Digest::MD5.new.update(@args.to_s).hexdigest
     end
 
-    # applies all applicable overrides to given source
-    #
-    def self.apply(source, details, log=true, haml=false)
-      overrides = find(details)
-
-      if log && overrides.size > 0
-        Rails.logger.info "\e[1;32mDeface:\e[0m #{overrides.size} overrides found for '#{details[:virtual_path]}'"
-      end
-
-      unless overrides.empty?
-        if haml
-          #convert haml to erb before parsing before
-          source = Deface::HamlConverter.new(source).result
-        end
-
-        doc = Deface::Parser.convert(source)
-
-        overrides.each do |override|
-          if override.disabled?
-            Rails.logger.info("\e[1;32mDeface:\e[0m '#{override.name}' is disabled") if log
-            next
-          end
-
-          if override.end_selector.blank?
-            # single css selector
-
-            matches = doc.css(override.selector)
-
-            if log
-              Rails.logger.send(matches.size == 0 ? :error : :info, "\e[1;32mDeface:\e[0m '#{override.name}' matched #{matches.size} times with '#{override.selector}'")
-            end
-
-            matches.each do |match|
-              override.validate_original(match)
-
-              case override.action
-                when :remove
-                  match.replace ""
-                when :replace
-                  match.replace override.source_element
-                when :replace_contents
-                  match.children.remove
-                  match.add_child(override.source_element)
-                when :surround, :surround_contents
-
-                  new_source = override.source_element.clone(1)
-
-                  if original = new_source.css("code:contains('render_original')").first
-                    if override.action == :surround
-                      original.replace match.clone(1)
-                      match.replace new_source
-                    elsif override.action == :surround_contents
-                      original.replace match.children
-                      match.children.remove
-                      match.add_child new_source
-                    end
-                  else
-                    #maybe we should log that the original wasn't found.
-                  end
-
-                when :insert_before
-                  match.before override.source_element
-                when :insert_after
-                  match.after override.source_element
-                when :insert_top
-                  if match.children.size == 0
-                    match.children = override.source_element
-                  else
-                    match.children.before(override.source_element)
-                  end
-                when :insert_bottom
-                  if match.children.size == 0
-                    match.children = override.source_element
-                  else
-                    match.children.after(override.source_element)
-                  end
-                when :set_attributes
-                  override.attributes.each do |name, value|
-                    name = name.to_s.gsub("\"", '').gsub("'", '')
-
-                    match.remove_attribute(name)
-                    match.remove_attribute("data-erb-#{name}")
-
-                    if /\Adata-erb-/ =~ name
-                      match.set_attribute(name, value.to_s)
-                    else
-                      match.set_attribute("data-erb-#{name}", value.to_s)
-                    end
-                  end
-              end
-
-            end
-          else
-            # targeting range of elements as end_selector is present
-            starting    = doc.css(override.selector).first
-
-            if starting && starting.parent
-              ending = starting.parent.css(override.end_selector).first
-            else
-              ending = doc.css(override.end_selector).first
-            end
-
-            if starting && ending
-              if log
-                Rails.logger.info("\e[1;32mDeface:\e[0m '#{override.name}' matched starting with '#{override.selector}' and ending with '#{override.end_selector}'")
-              end
-
-              elements = select_range(starting, ending)
-
-              case override.action
-                when :remove
-                  elements.map &:remove
-                when :replace
-                  starting.before(override.source_element)
-                  elements.map &:remove
-                when :replace_contents
-                  elements[1..-2].map &:remove
-                  starting.after(override.source_element)
-              end
-            else
-              if starting.nil?
-                Rails.logger.info("\e[1;32mDeface:\e[0m '#{override.name}' failed to match with starting selector '#{override.selector}'")
-              else
-                Rails.logger.info("\e[1;32mDeface:\e[0m '#{override.name}' failed to match with end selector '#{override.end_selector}'")
-              end
-
-            end
-          end
-
-        end
-
-        #prevents any caching by rails in development mode
-        details[:updated_at] = Time.now
-
-        source = doc.to_s
-
-        Deface::Parser.undo_erb_markup!(source)
-      end
-
-      source
-    end
-
-    # finds all applicable overrides for supplied template
-    #
-    def self.find(details)
-      return [] if self.all.empty? || details.empty?
-
-      virtual_path = details[:virtual_path]
-      return [] if virtual_path.nil?
-
-      [/^\//, /\.\w+\z/].each { |regex| virtual_path.gsub!(regex, '') }
-
-      result = []
-      result << self.all[virtual_path.to_sym].try(:values)
-
-      result.flatten.compact.sort_by &:sequence
-    end
-
-
     def self.all
       Rails.application.config.deface.overrides.all
     end
@@ -370,11 +215,6 @@ module Deface
     end
 
     private
-      # finds all elements upto closing sibling in nokgiri document
-      #
-      def self.select_range(first, last)
-        first == last ? [first] : [first, *select_range(first.next, last)]
-      end
 
       # check if method is compiled for the current virtual path
       #

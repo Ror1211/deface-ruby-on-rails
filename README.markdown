@@ -59,7 +59,11 @@ Action
 
 * <tt>:insert_bottom</tt> - Inserts inside all elements that match the supplied selector, as the last child.
 
-* <tt>:set_attributes</tt> - Sets (or adds) attributes to all elements that match the supplied selector, expects :attributes option to be passed.
+* <tt>:set_attributes</tt> - Sets attributes on all elements that match the supplied selector, replacing existing attribute value if present or adding if not. Expects :attributes option to be passed.
+
+* <tt>:add_to_attributes</tt> - Appends value to attributes on all elements that match the supplied selector, adds attribute if not present. Expects :attributes option to be passed.
+
+* <tt>:remove_from_attributes</tt> - Removes value from attributes on all elements that match the supplied selector. Expects :attributes option to be passed.
 
 Source
 ------
