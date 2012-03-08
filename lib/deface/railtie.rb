@@ -1,7 +1,7 @@
 module Deface
   class Railtie < Rails::Railtie
     # include rake tasks.
-    # 
+    #
     rake_tasks do
       %w{utils precompile}.each { |r| load File.join([File.dirname(__FILE__) , "../../tasks/#{r}.rake"]) }
     end
@@ -50,16 +50,26 @@ module Deface
     # overrides if deface is enabled.
     #
     initializer "deface.environment", :after => :load_environment_config do |app|
-      next unless app.config.deface.enabled
+      if app.config.deface.enabled
+        # only decorate ActionView if deface is enabled
+        require "deface/action_view_extensions"
 
-      #setup real env object
-      app.config.deface = Deface::Environment.new
+        # setup real env object
+        app.config.deface = Deface::Environment.new
 
-      #catchs any overrides that we required manually
-      app.config.deface.overrides.early_check
+        # checks if haml is loaded and enables support
+        if defined?(Haml)
+          app.config.deface.haml_support = true
+          require 'deface/haml_converter'
+        end
 
-      if Dir.glob(app.root.join("app/compiled_views", "**/*.erb")).present?
-        puts "[WARNING] Precompiled views present and Deface is enabled, this can result in overrides being applied twice."
+        # catchs any overrides that we required manually
+        app.config.deface.overrides.early_check
+      else
+        # deface is disabled so clear any overrides
+        # that might have been manually required
+        # won't get loaded but just in case
+        Deface::Override._early.clear
       end
     end
 

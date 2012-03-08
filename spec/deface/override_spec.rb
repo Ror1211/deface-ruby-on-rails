@@ -37,8 +37,9 @@ module Deface
         @original = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
       end
 
-      it "should not validate" do
-        @override.validate_original("<p>this gets ignored</p>").should be_true
+      it "should warn but not validate" do
+        Rails.logger.should_receive(:info).once
+        @override.validate_original("<p>this gets ignored</p>").should be_nil
       end
 
     end
@@ -61,6 +62,9 @@ module Deface
     describe "#find" do
       it "should find by virtual_path" do
         Deface::Override.find({:virtual_path => "posts/index"}).size.should == 1
+        Deface::Override.find({:virtual_path => "/posts/index"}).size.should == 1
+        Deface::Override.find({:virtual_path => "/posts/index.html"}).size.should == 1
+        Deface::Override.find({:virtual_path => "posts/index.html"}).size.should == 1
       end
 
       it "should return empty array when no details hash passed" do
@@ -88,7 +92,31 @@ module Deface
       end
     end
 
-    describe "with :partial" do
+    describe "with :erb" do
+
+      before(:each) do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>")
+      end
+
+      it "should return un-convert text as source" do
+        @override.source.should == "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>"
+      end
+    end
+
+    describe "with :haml" do
+
+      before(:each) do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1",
+                                         :haml => %q{%strong{:class => "code", :id => "message"}= 'Hello, World!'})
+      end
+
+      it "should return erb converted from haml as source" do
+        @override.source.should == "<strong class='code' id='message'><%= 'Hello, World!' %>\n</strong>\n"
+      end
+    end
+
+
+    describe "with :partial containing erb" do
 
       before(:each) do
         #stub view paths to be local spec/assets directory
@@ -139,7 +167,7 @@ module Deface
       end
 
       it "should return escaped source" do
-        @override.source_element.should be_an_instance_of Nokogiri::HTML::DocumentFragment 
+        @override.source_element.should be_an_instance_of Nokogiri::HTML::DocumentFragment
         @override.source_element.to_s.should == "<code erb-loud> method :opt =&gt; 'x' &amp; 'y' </code>"
         #do it twice to ensure it doesn't change as it's destructive
         @override.source_element.to_s.should == "<code erb-loud> method :opt =&gt; 'x' &amp; 'y' </code>"
@@ -273,7 +301,7 @@ module Deface
       before do
         @second = Deface::Override.new(:virtual_path => "posts/index", :name => "second", :insert_after => "p", :text => "<pre>this is code?</pre>")
 
-        @digest = Deface::Override.digest(:virtual_path =>  "posts/index") 
+        @digest = Deface::Override.digest(:virtual_path =>  "posts/index")
       end
 
       it "should return hex digest based on all applicable overrides" do
@@ -292,7 +320,7 @@ module Deface
       end
 
       it "should change the digest when overrides are removed / added" do
-        Deface::Override.all.clear 
+        Deface::Override.all.clear
 
         @new_digest = Deface::Override.digest(:virtual_path =>  "posts/index")
         @new_digest.should_not == @digest
@@ -304,7 +332,7 @@ module Deface
 
     describe "#expire_compiled_template" do
       before do
-        @compiled_templates = ActionView::CompiledTemplates 
+        @compiled_templates = ActionView::CompiledTemplates
 
         ActionView::CompiledTemplates.instance_methods.each do |method_name|
           ActionView::CompiledTemplates.send :remove_method, method_name
@@ -312,7 +340,7 @@ module Deface
       end
 
       it "should remove compiled method when method name matches virtual path but not digest" do
-        module ActionView::CompiledTemplates 
+        module ActionView::CompiledTemplates
           def _e235fa404c3c2281d4f6791162b1c638_posts_index_123123123
             true #not a real method
           end
@@ -330,7 +358,7 @@ module Deface
 
       it "should not remove compiled method when virtual path and digest matach" do
 
-        module ActionView::CompiledTemplates 
+        module ActionView::CompiledTemplates
           def _e235fa404c3c2281d4f6791162b1c638_posts_index_123123123
             true #not a real method
           end

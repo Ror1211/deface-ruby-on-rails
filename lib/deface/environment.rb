@@ -1,10 +1,11 @@
 module Deface
 
   class Environment
-    attr_accessor :overrides, :enabled
+    attr_accessor :overrides, :enabled, :haml_support
     def initialize
-      @overrides = Overrides.new
-      @enabled   = true
+      @overrides    = Overrides.new
+      @enabled      = true
+      @haml_support = false
     end
   end
 
@@ -20,9 +21,10 @@ module Deface
     end
 
     def load_all(app)
+      #clear overrides before reloading them
+      app.config.deface.overrides.all.clear
+
       # check application for specified overrides paths
-      #
-      #
       override_paths = app.paths["app/overrides"]
       enumerate_and_load(override_paths, app.root)
 
@@ -43,7 +45,7 @@ module Deface
       Deface::Override._early.clear
     end
 
-    private 
+    private
       def enumerate_and_load(paths, root)
         paths ||= ["app/overrides"]
 
@@ -56,4 +58,3 @@ module Deface
       end
   end
 end
-
