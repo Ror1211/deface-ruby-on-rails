@@ -23,7 +23,14 @@ ActionView::Template.class_eval do
   # view needs to be recompiled
   #
   def render(view, locals, buffer=nil, &block)
-    if @compiled && !view.respond_to?(method_name)
+
+    if view.is_a?(ActionView::CompiledTemplates)
+      mod = ActionView::CompiledTemplates
+    else
+      mod = view.singleton_class
+    end
+
+    if @compiled && !mod.instance_methods.map(&:to_s).include?(method_name)
       @compiled = false
       @source = refresh(view).source
     end
@@ -38,7 +45,9 @@ ActionView::Template.class_eval do
   #
   def method_name
     deface_hash = Deface::Override.digest(:virtual_path => @virtual_path)
-    "_#{deface_hash}_#{method_name_without_deface}"
+
+    #we digest the whole method name as if it gets too long there's problems
+    "_#{Digest::MD5.new.update("#{deface_hash}_#{method_name_without_deface}").hexdigest}"
   end
 end
 
