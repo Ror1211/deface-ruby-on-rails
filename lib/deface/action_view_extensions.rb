@@ -37,18 +37,19 @@ ActionView::Template.class_eval do
     render_without_deface(view, locals, buffer, &block)
   end
 
+  protected
 
-  alias_method :method_name_without_deface, :method_name
+    alias_method :method_name_without_deface, :method_name
 
-  # inject deface hash into compiled view method name
-  # used to determine if recompilation is needed
-  #
-  def method_name
-    deface_hash = Deface::Override.digest(:virtual_path => @virtual_path)
+    # inject deface hash into compiled view method name
+    # used to determine if recompilation is needed
+    #
+    def method_name
+      deface_hash = Deface::Override.digest(:virtual_path => @virtual_path)
 
-    #we digest the whole method name as if it gets too long there's problems
-    "_#{Digest::MD5.new.update("#{deface_hash}_#{method_name_without_deface}").hexdigest}"
-  end
+      #we digest the whole method name as if it gets too long there's problems
+      "_#{Digest::MD5.new.update("#{deface_hash}_#{method_name_without_deface}").hexdigest}"
+    end
 end
 
 #fix for Rails 3.1 not setting virutal_path anymore (BOO!)
