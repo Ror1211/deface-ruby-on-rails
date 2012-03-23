@@ -6,7 +6,7 @@ describe Deface::DSL::Loader do
   context '.load' do
     it 'should create a Deface::DSL::Context and ask it to create a Deface::Override' do
       file = mock('deface file')
-      filename = 'example_name.deface'
+      filename = 'app/overrides/example_name.deface'
       File.should_receive(:open).with(filename).and_yield(file)
 
       override_name = 'example_name'
@@ -25,7 +25,7 @@ describe Deface::DSL::Loader do
 
     it 'should create a Deface::DSL::Context from a .html.erb.deface file' do
       file = mock('html/erb/deface file')
-      filename = 'example_name.html.erb.deface'
+      filename = 'app/overrides/example_name.html.erb.deface'
       File.should_receive(:open).with(filename).and_yield(file)
 
       override_name = 'example_name'
@@ -42,6 +42,52 @@ describe Deface::DSL::Loader do
 
       context.should_receive(:instance_eval).with('dsl commands')
       context.should_receive(:text).with('text')
+      context.should_receive(:create_override)
+
+      Deface::DSL::Loader.load(filename)
+    end
+
+    it 'should create a Deface::DSL::Context with a virtual_path' do
+      file = mock('deface file')
+      filename = 'app/overrides/path/to/view/example_name.deface'
+      File.should_receive(:open).with(filename).and_yield(file)
+
+      override_name = 'example_name'
+      context = mock('dsl context')
+      Deface::DSL::Context.should_receive(:new).with(override_name).
+        and_return(context)
+
+      file_contents = mock('file contents')
+      file.should_receive(:read).and_return(file_contents)
+
+      context.should_receive(:instance_eval).with(file_contents)
+      context.should_receive(:virtual_path).with('path/to/view')
+      context.should_receive(:create_override)
+
+      Deface::DSL::Loader.load(filename)
+    end
+
+
+    it 'should set the virtual_path for a .html.erb.deface file in a directory below overrides' do
+      file = mock('html/erb/deface file')
+      filename = 'app/overrides/path/to/view/example_name.html.erb.deface'
+      File.should_receive(:open).with(filename).and_yield(file)
+
+      override_name = 'example_name'
+      context = mock('dsl context')
+      Deface::DSL::Context.should_receive(:new).with(override_name).
+        and_return(context)
+
+      file_contents = mock('file contents')
+      file.should_receive(:read).and_return(file_contents)
+
+      Deface::DSL::Loader.should_receive(:extract_dsl_commands).
+        with(file_contents).
+        and_return(['dsl commands', 'text'])
+
+      context.should_receive(:instance_eval).with('dsl commands')
+      context.should_receive(:text).with('text')
+      context.should_receive(:virtual_path).with('path/to/view')
       context.should_receive(:create_override)
 
       Deface::DSL::Loader.load(filename)

@@ -18,10 +18,16 @@ module Deface
             context = Context.new(context_name)
             context.instance_eval(dsl_commands)
             context.text(the_rest)
+            if file_in_dir_below_overrides?(filename)
+              context.virtual_path(determine_virtual_path(filename))
+            end
             context.create_override
           else
             context = Context.new(context_name)
             context.instance_eval(file_contents)
+            if file_in_dir_below_overrides?(filename)
+              context.virtual_path(determine_virtual_path(filename))
+            end
             context.create_override
           end
         end
@@ -57,7 +63,21 @@ module Deface
         line.lstrip.index('<!--') == 0
       end
 
+      def self.file_in_dir_below_overrides?(filename)
+        File.fnmatch?("**/overrides/**/#{File.basename(filename)}", filename)
+      end
 
+      def self.determine_virtual_path(filename)
+        result = ''
+        pathname = Pathname.new(filename)
+        pathname.ascend do |parent|
+          if parent.basename.to_s == 'overrides'
+            result = pathname.sub(parent.to_s + '/', '').dirname.to_s
+            break
+          end
+        end
+        result
+      end
     end
   end
 end

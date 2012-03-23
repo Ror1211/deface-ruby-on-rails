@@ -87,22 +87,22 @@ module Deface
         let(:root) { Pathname.new("/some/path") }
 
         it "should be enumerate default path when none supplied" do
-          Dir.should_receive(:glob).with(root.join "app/overrides", "*.rb")
-          Dir.should_receive(:glob).with(root.join "app/overrides", "*.deface")
+          Dir.should_receive(:glob).with(root.join "app/overrides", "**", "*.rb")
+          Dir.should_receive(:glob).with(root.join "app/overrides", "**", "*.deface")
           Rails.application.config.deface.overrides.send(:enumerate_and_load, nil, root)
         end
 
         it "should be enumerate supplied path" do
-          Dir.should_receive(:glob).with(root.join "app/junk", "*.rb")
-          Dir.should_receive(:glob).with(root.join "app/junk", "*.deface")
+          Dir.should_receive(:glob).with(root.join "app/junk", "**", "*.rb")
+          Dir.should_receive(:glob).with(root.join "app/junk", "**", "*.deface")
           Rails.application.config.deface.overrides.send(:enumerate_and_load, ["app/junk"], root)
         end
 
         it "should be enumerate supplied paths" do
-          Dir.should_receive(:glob).with(root.join "app/junk", "*.rb" )
-          Dir.should_receive(:glob).with(root.join "app/junk", "*.deface" )
-          Dir.should_receive(:glob).with(root.join "app/gold", "*.rb" )
-          Dir.should_receive(:glob).with(root.join "app/gold", "*.deface" )
+          Dir.should_receive(:glob).with(root.join "app/junk", "**", "*.rb" )
+          Dir.should_receive(:glob).with(root.join "app/junk", "**", "*.deface" )
+          Dir.should_receive(:glob).with(root.join "app/gold", "**", "*.rb" )
+          Dir.should_receive(:glob).with(root.join "app/gold", "**", "*.deface" )
           Rails.application.config.deface.overrides.send(:enumerate_and_load, ["app/junk", "app/gold"], root)
         end
 
