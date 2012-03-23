@@ -7,16 +7,57 @@ module Deface
     class Loader
       def self.load(filename, options = nil, &block)
         File.open(filename) do |file|
-          name = File.basename(filename).gsub('.deface', '')
-          context = Context.new(name)
-          context.instance_eval(file.read)
-          context.create_override
+          context_name = File.basename(filename).gsub('.deface', '')
+
+          file_contents = file.read
+
+          if context_name.end_with?('.html.erb')
+            dsl_commands, the_rest = extract_dsl_commands(file_contents)
+
+            context_name = context_name.gsub('.html.erb', '')
+            context = Context.new(context_name)
+            context.instance_eval(dsl_commands)
+            context.text(the_rest)
+            context.create_override
+          else
+            context = Context.new(context_name)
+            context.instance_eval(file_contents)
+            context.create_override
+          end
         end
       end
 
       def self.register
         Polyglot.register('deface', Deface::DSL::Loader)
       end
+
+      def self.extract_dsl_commands(html_file_contents)
+        dsl_commands = ''
+
+        while starts_with_comment?(html_file_contents)
+          first_open_comment_index = html_file_contents.lstrip.index('<!--')
+          first_close_comment_index = html_file_contents.index('-->')
+          if first_close_comment_index.nil?
+
+          else
+            comment = html_file_contents[first_open_comment_index..first_close_comment_index+2]
+          end
+
+          dsl_commands << comment.gsub('<!--', '').gsub('-->', '').strip + "\n"
+
+          html_file_contents = html_file_contents.gsub(comment, '')
+        end
+
+        [dsl_commands, html_file_contents]
+      end
+
+      private 
+
+      def self.starts_with_comment?(line)
+        line.lstrip.index('<!--') == 0
+      end
+
+
     end
   end
 end
