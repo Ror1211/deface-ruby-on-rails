@@ -6,8 +6,8 @@ module Deface
   module DSL
     class Loader
       def self.load(filename, options = nil, &block)
-        unless filename.end_with?('.html.erb.deface')
-          raise "Deface::DSL does not know how to read '#{filename}'. Override files should end with .html.erb.deface"
+        unless filename.end_with?('.html.erb.deface') || filename.end_with?('.html.haml.deface')
+          raise "Deface::DSL does not know how to read '#{filename}'. Override files should end with .html.erb.deface or .html.haml.deface"
         end
 
         unless file_in_dir_below_overrides?(filename)
@@ -20,14 +20,23 @@ module Deface
           file_contents = file.read
 
           if context_name.end_with?('.html.erb')
-            dsl_commands, the_rest = extract_dsl_commands(file_contents)
+            dsl_commands, the_rest = extract_dsl_commands_from_erb(file_contents)
 
             context_name = context_name.gsub('.html.erb', '')
             context = Context.new(context_name)
             context.instance_eval(dsl_commands)
-            context.text(the_rest)
+            context.erb(the_rest)
             context.virtual_path(determine_virtual_path(filename))
             context.create_override
+          elsif context_name.end_with?('.html.haml')
+            dsl_commands, the_rest = extract_dsl_commands_from_haml(file_contents)
+
+            context_name = context_name.gsub('.html.haml', '')
+            context = Context.new(context_name)
+            context.instance_eval(dsl_commands)
+            context.haml(the_rest)
+            context.virtual_path(determine_virtual_path(filename))
+            context.create_override            
           end
         end
       end
@@ -36,15 +45,14 @@ module Deface
         Polyglot.register('deface', Deface::DSL::Loader)
       end
 
-      def self.extract_dsl_commands(html_file_contents)
+      def self.extract_dsl_commands_from_erb(html_file_contents)
         dsl_commands = ''
 
-        while starts_with_comment?(html_file_contents)
+        while starts_with_html_comment?(html_file_contents)
           first_open_comment_index = html_file_contents.lstrip.index('<!--')
           first_close_comment_index = html_file_contents.index('-->')
-          if first_close_comment_index.nil?
 
-          else
+          unless first_close_comment_index.nil?
             comment = html_file_contents[first_open_comment_index..first_close_comment_index+2]
           end
 
@@ -56,10 +64,40 @@ module Deface
         [dsl_commands, html_file_contents]
       end
 
+      def self.extract_dsl_commands_from_haml(file_contents)
+        dsl_commands = ''
+
+        while starts_with_haml_comment?(file_contents)
+          first_open_comment_index = file_contents.lstrip.index('/')
+          first_close_comment_index = file_contents.index("\n")
+          
+          unless first_close_comment_index.nil?
+            comment = file_contents[first_open_comment_index..first_close_comment_index]
+          end
+
+          dsl_commands << comment.gsub('/', '').strip + "\n"
+
+          file_contents = file_contents.gsub(comment, '')
+
+          while file_contents.start_with?(' ')
+            first_newline_index = file_contents.index("\n")
+            comment = file_contents[0..first_newline_index]
+            dsl_commands << comment.gsub('/', '').strip + "\n"
+            file_contents = file_contents.gsub(comment, '')
+          end
+        end
+
+        [dsl_commands, file_contents]
+      end
+
       private 
 
-      def self.starts_with_comment?(line)
+      def self.starts_with_html_comment?(line)
         line.lstrip.index('<!--') == 0
+      end
+
+      def self.starts_with_haml_comment?(line)
+        line.lstrip.index('/') == 0
       end
 
       def self.file_in_dir_below_overrides?(filename)
