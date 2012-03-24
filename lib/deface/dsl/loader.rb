@@ -10,6 +10,10 @@ module Deface
           raise "Deface::DSL does not know how to read '#{filename}'. Override files should end with .html.erb.deface"
         end
 
+        unless file_in_dir_below_overrides?(filename)
+          raise "Deface::DSL overrides must be in a sub-directory that matches the views virtual path. Move '#{filename}' into a sub-directory."
+        end
+
         File.open(filename) do |file|
           context_name = File.basename(filename).gsub('.deface', '')
 
@@ -22,9 +26,7 @@ module Deface
             context = Context.new(context_name)
             context.instance_eval(dsl_commands)
             context.text(the_rest)
-            if file_in_dir_below_overrides?(filename)
-              context.virtual_path(determine_virtual_path(filename))
-            end
+            context.virtual_path(determine_virtual_path(filename))
             context.create_override
           end
         end

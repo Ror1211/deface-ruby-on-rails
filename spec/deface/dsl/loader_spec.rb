@@ -12,28 +12,12 @@ describe Deface::DSL::Loader do
         "Deface::DSL does not know how to read 'app/overrides/example_name.deface'. Override files should end with .html.erb.deface")
     end
 
-    it 'should create a Deface::DSL::Context from a .html.erb.deface file' do
+    it 'should fail if .html.erb.deface file is in the root of app/overrides' do
       file = mock('html/erb/deface file')
       filename = 'app/overrides/example_name.html.erb.deface'
-      File.should_receive(:open).with(filename).and_yield(file)
 
-      override_name = 'example_name'
-      context = mock('dsl context')
-      Deface::DSL::Context.should_receive(:new).with(override_name).
-        and_return(context)
-
-      file_contents = mock('file contents')
-      file.should_receive(:read).and_return(file_contents)
-
-      Deface::DSL::Loader.should_receive(:extract_dsl_commands).
-        with(file_contents).
-        and_return(['dsl commands', 'text'])
-
-      context.should_receive(:instance_eval).with('dsl commands')
-      context.should_receive(:text).with('text')
-      context.should_receive(:create_override)
-
-      Deface::DSL::Loader.load(filename)
+      lambda { Deface::DSL::Loader.load(filename) }.should raise_error(
+        "Deface::DSL overrides must be in a sub-directory that matches the views virtual path. Move 'app/overrides/example_name.html.erb.deface' into a sub-directory.")
     end
 
     it 'should set the virtual_path for a .html.erb.deface file in a directory below overrides' do
