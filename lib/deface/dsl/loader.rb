@@ -6,6 +6,10 @@ module Deface
   module DSL
     class Loader
       def self.load(filename, options = nil, &block)
+        unless filename.end_with?('.html.erb.deface')
+          raise "Deface DSL does not know how to read '#{filename}'. Override files should end with .html.erb.deface"
+        end
+
         File.open(filename) do |file|
           context_name = File.basename(filename).gsub('.deface', '')
 
@@ -18,13 +22,6 @@ module Deface
             context = Context.new(context_name)
             context.instance_eval(dsl_commands)
             context.text(the_rest)
-            if file_in_dir_below_overrides?(filename)
-              context.virtual_path(determine_virtual_path(filename))
-            end
-            context.create_override
-          else
-            context = Context.new(context_name)
-            context.instance_eval(file_contents)
             if file_in_dir_below_overrides?(filename)
               context.virtual_path(determine_virtual_path(filename))
             end

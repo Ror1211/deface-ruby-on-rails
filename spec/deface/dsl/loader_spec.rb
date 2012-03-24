@@ -4,23 +4,12 @@ require 'deface/dsl/loader'
 
 describe Deface::DSL::Loader do
   context '.load' do
-    it 'should create a Deface::DSL::Context and ask it to create a Deface::Override' do
+    it 'should fail if file ends with .deface, but not .html.erb.deface' do
       file = mock('deface file')
       filename = 'app/overrides/example_name.deface'
-      File.should_receive(:open).with(filename).and_yield(file)
 
-      override_name = 'example_name'
-      context = mock('dsl context')
-      Deface::DSL::Context.should_receive(:new).with(override_name).
-        and_return(context)
-
-      file_contents = mock('file contents')
-      file.should_receive(:read).and_return(file_contents)
-
-      context.should_receive(:instance_eval).with(file_contents)
-      context.should_receive(:create_override)
-
-      Deface::DSL::Loader.load(filename)
+      lambda { Deface::DSL::Loader.load(filename) }.should raise_error(
+        "Deface DSL does not know how to read 'app/overrides/example_name.deface'. Override files should end with .html.erb.deface")
     end
 
     it 'should create a Deface::DSL::Context from a .html.erb.deface file' do
@@ -46,27 +35,6 @@ describe Deface::DSL::Loader do
 
       Deface::DSL::Loader.load(filename)
     end
-
-    it 'should create a Deface::DSL::Context with a virtual_path' do
-      file = mock('deface file')
-      filename = 'app/overrides/path/to/view/example_name.deface'
-      File.should_receive(:open).with(filename).and_yield(file)
-
-      override_name = 'example_name'
-      context = mock('dsl context')
-      Deface::DSL::Context.should_receive(:new).with(override_name).
-        and_return(context)
-
-      file_contents = mock('file contents')
-      file.should_receive(:read).and_return(file_contents)
-
-      context.should_receive(:instance_eval).with(file_contents)
-      context.should_receive(:virtual_path).with('path/to/view')
-      context.should_receive(:create_override)
-
-      Deface::DSL::Loader.load(filename)
-    end
-
 
     it 'should set the virtual_path for a .html.erb.deface file in a directory below overrides' do
       file = mock('html/erb/deface file')
