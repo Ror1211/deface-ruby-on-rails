@@ -27,74 +27,12 @@ describe Deface::DSL::Context do
     end
 
     context 'actions' do
-      # * <tt>:remove</tt> - Removes all elements that match the supplied selector
-      it 'should use value set with #remove' do
-        subject.remove('remove/selector')
+      Deface::Override.actions.each do |action|
+        it "should use value set with ##{action}" do
+          subject.send(action, "#{action}/selector")
 
-        override_should_be_created_with(:remove => 'remove/selector')
-      end
-
-      # * <tt>:replace</tt> - Replaces all elements that match the supplied selector
-      it 'should use value set with #replace' do
-        subject.replace('replace/selector')
-
-        override_should_be_created_with(:replace => 'replace/selector')
-      end
-
-      # * <tt>:replace_contents</tt> - Replaces the contents of all elements that match the supplied selector
-      it 'should use value set with #replace_contents' do
-        subject.replace_contents('replace_contents/selector')
-
-        override_should_be_created_with(:replace_contents => 'replace_contents/selector')
-      end
-
-      # * <tt>:surround</tt> - Surrounds all elements that match the supplied selector, expects replacement markup to contain <%= render_original %> placeholder
-      it 'should use value set with #surround' do
-        subject.surround('surround/selector')
-
-        override_should_be_created_with(:surround => 'surroud/selector')
-      end
-
-      # * <tt>:surround_contents</tt> - Surrounds the contents of all elements that match the supplied selector, expects replacement markup to contain <%= render_original %> placeholder
-      it 'should use value set with #surround_contents' do
-        subject.surround_contents('surround_contents/selector')
-
-        override_should_be_created_with(:surround_contents => 'surround_contents/selector')
-      end
-
-      # * <tt>:insert_after</tt> - Inserts after all elements that match the supplied selector
-      it 'should use value set with #insert_after' do
-        subject.insert_after('insert_after/selector')
-
-        override_should_be_created_with(:insert_after => 'insert_after/selector')
-      end
-
-      # * <tt>:insert_before</tt> - Inserts before all elements that match the supplied selector
-      it 'should use value set with #insert_before' do
-        subject.insert_before('insert_before/selector')
-
-        override_should_be_created_with(:insert_before => 'insert_before/selector')
-      end
-
-      # * <tt>:insert_top</tt> - Inserts inside all elements that match the supplied selector, before all existing child
-      it 'should use value set with #insert_top' do
-        subject.insert_top('insert_top/selector')
-
-        override_should_be_created_with(:insert_top => 'insert_top/selector')
-      end
-
-      # * <tt>:insert_bottom</tt> - Inserts inside all elements that match the supplied selector, after all existing child
-      it 'should use value set with #insert_bottom' do
-        subject.insert_bottom('insert_bottom/selector')
-
-        override_should_be_created_with(:insert_bottom => 'insert_bottom/selector')
-      end
-
-      # * <tt>:set_attributes</tt> - Sets (or adds) attributes to all elements that match the supplied selector, expects :attributes option to be passed.
-      it 'should use value set with #set_attributes' do
-        subject.set_attributes('set_attributes/selector')
-
-        override_should_be_created_with(:set_attributes => 'set_attributes/selector')
+          override_should_be_created_with(action => "#{action}/selector")
+        end
       end
 
       it 'should generate a warning if two action values are specified' do
