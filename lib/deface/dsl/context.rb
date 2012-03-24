@@ -19,11 +19,7 @@ module Deface
         @virtual_path = name
       end
 
-      # actions
-      [
-        :remove, :replace, :replace_contents, :surround, :surround_contents,
-        :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes
-      ].each do |action_name|
+      Deface::Override.actions.each do |action_name|
         define_method(action_name) do |selector|
           if @action.present?
             Rails.logger.error "\e[1;32mDeface: [WARNING]\e[0m Multiple action methods have been called. The last one will be used."
@@ -33,8 +29,7 @@ module Deface
         end
       end
 
-      # sources
-      [:text, :partial, :template].each do |source_name|
+      Deface::Override.sources.each do |source_name|
         define_method(source_name) do |value|
           if @source.present?
             Rails.logger.error "\e[1;32mDeface: [WARNING]\e[0m Multiple source methods have been called. The last one will be used."
