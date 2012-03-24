@@ -7,7 +7,7 @@ module Deface
     class Loader
       def self.load(filename, options = nil, &block)
         unless filename.end_with?('.html.erb.deface')
-          raise "Deface DSL does not know how to read '#{filename}'. Override files should end with .html.erb.deface"
+          raise "Deface::DSL does not know how to read '#{filename}'. Override files should end with .html.erb.deface"
         end
 
         File.open(filename) do |file|

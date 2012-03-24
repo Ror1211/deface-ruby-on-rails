@@ -9,7 +9,7 @@ describe Deface::DSL::Loader do
       filename = 'app/overrides/example_name.deface'
 
       lambda { Deface::DSL::Loader.load(filename) }.should raise_error(
-        "Deface DSL does not know how to read 'app/overrides/example_name.deface'. Override files should end with .html.erb.deface")
+        "Deface::DSL does not know how to read 'app/overrides/example_name.deface'. Override files should end with .html.erb.deface")
     end
 
     it 'should create a Deface::DSL::Context from a .html.erb.deface file' do
