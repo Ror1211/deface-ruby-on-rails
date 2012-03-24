@@ -56,25 +56,12 @@ describe Deface::DSL::Context do
     end
 
     context 'sources' do
-      # * <tt>:text</tt> - String containing markup
-      it 'should use value set with #text' do
-        subject.text('text value')
+      Deface::Override.sources.each do |source|
+        it "should use value set with ##{source}" do
+          subject.send(source, "#{source} value")
 
-        override_should_be_created_with(:text => 'text value')
-      end
-
-      # * <tt>:partial</tt> - Relative path to partial
-      it 'should use value set with #partial' do
-        subject.partial('partial name')
-
-        override_should_be_created_with(:partial => 'partial name')
-      end
-
-      # * <tt>:template</tt> - Relative path to template
-      it 'should use value set with #template' do
-        subject.template('template/path')
-
-        override_should_be_created_with(:template => 'template/path')
+          override_should_be_created_with(source => "#{source} value")
+        end
       end
 
       it 'should generate a warning if two sources are specified' do
