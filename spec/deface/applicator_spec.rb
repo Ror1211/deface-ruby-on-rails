@@ -4,6 +4,8 @@ class Dummy
   extend Deface::Applicator::ClassMethods
   extend Deface::Search::ClassMethods
 
+  attr_reader :parsed_document
+
   def self.all
     Rails.application.config.deface.overrides.all
   end
@@ -346,6 +348,26 @@ module Deface
 
       it "should return unmodified source" do
         Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<p>test</p><%= raw(text) %>"
+      end
+    end
+
+    describe "with a single :copy override defined" do
+      before { Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "p", :copy => "h1") }
+      let(:source) { "<h1>World</h1><p>Hello</p>" }
+
+
+      it "should return modified source" do
+        Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<h1>World</h1><p>Hello</p><h1>World</h1>"
+      end
+    end
+
+    describe "with a single :cut override defined" do
+      before { Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "p", :cut => "h1") }
+      let(:source) { "<h1>World</h1><p>Hello</p>" }
+
+
+      it "should return modified source" do
+        Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<p>Hello</p><h1>World</h1>"
       end
     end
 

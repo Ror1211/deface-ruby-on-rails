@@ -70,7 +70,7 @@ module Deface
         while starts_with_haml_comment?(file_contents)
           first_open_comment_index = file_contents.lstrip.index('/')
           first_close_comment_index = file_contents.index("\n")
-          
+
           unless first_close_comment_index.nil?
             comment = file_contents[first_open_comment_index..first_close_comment_index]
           end

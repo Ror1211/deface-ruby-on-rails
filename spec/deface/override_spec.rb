@@ -150,6 +150,35 @@ module Deface
 
     end
 
+    describe "with :copy" do
+
+      let(:parsed) { Deface::Parser.convert("<div><h1>Manage Posts</h1></div>") }
+      before(:each) do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", :copy => "h1")
+        @override.stub(:parsed_document).and_return(parsed)
+      end
+
+      it "should return copy of content from source document" do
+        @override.source.should == "<h1>Manage Posts</h1>"
+        parsed.to_s.should == "<div><h1>Manage Posts</h1></div>"
+      end
+
+    end
+
+    describe "with :cut" do
+      let(:parsed) { Deface::Parser.convert("<div><h1>Manage Posts</h1></div>") }
+      before(:each) do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", :cut => "h1")
+        @override.stub(:parsed_document).and_return(parsed)
+      end
+
+      it "should remove and return content from source document" do
+        @override.source.should == "<h1>Manage Posts</h1>"
+        parsed.to_s.should == "<div></div>"
+      end
+
+    end
+
     describe "with block" do
       before(:each) do
         #stub view paths to be local spec/assets directory

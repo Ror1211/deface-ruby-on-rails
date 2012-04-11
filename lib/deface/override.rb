@@ -6,11 +6,11 @@ module Deface
     extend Search::ClassMethods
 
     cattr_accessor :actions, :sources, :_early
-    attr_accessor :args
+    attr_accessor :args, :parsed_document
 
     @@_early = []
     @@actions = [:remove, :replace, :replace_contents, :surround, :surround_contents, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes, :add_to_attributes, :remove_from_attributes]
-    @@sources = [:text, :erb, :haml, :partial, :template]
+    @@sources = [:text, :erb, :haml, :partial, :template, :cut, :copy]
 
     # Initializes new override, you must supply only one Target, Action & Source
     # parameter for each override (and any number of Optional parameters).
@@ -175,6 +175,11 @@ module Deface
         @args[:text]
       elsif @args.key? :erb
         @args[:erb]
+      elsif @args.key? :cut
+        self.parsed_document.css(@args[:cut]).first.remove.to_s
+      elsif @args.key? :copy
+        parsed_document.css(@args[:copy]).first.to_s
+
       elsif @args.key?(:haml) && Rails.application.config.deface.haml_support
         haml_engine = Deface::HamlConverter.new(@args[:haml])
         haml_engine.render
