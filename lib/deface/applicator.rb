@@ -4,7 +4,6 @@ module Deface
       # applies all applicable overrides to given source
       #
       def apply(source, details, log=true, haml=false)
-        @parsed_document = nil
         overrides = find(details)
 
         if log && overrides.size > 0
@@ -17,7 +16,7 @@ module Deface
             source = Deface::HamlConverter.new(source).result
           end
 
-          parse_document(source)
+          doc = Deface::Parser.convert(source)
 
           overrides.each do |override|
             if override.disabled?
@@ -25,12 +24,12 @@ module Deface
               next
             end
 
-            override.parsed_document = @parsed_document
+            override.parsed_document = doc
 
             if override.end_selector.blank?
               # single css selector
 
-              matches = @parsed_document.css(override.selector)
+              matches = doc.css(override.selector)
 
               if log
                 Rails.logger.send(matches.size == 0 ? :error : :info, "\e[1;32mDeface:\e[0m '#{override.name}' matched #{matches.size} times with '#{override.selector}'")
@@ -122,12 +121,12 @@ module Deface
               end
             else
               # targeting range of elements as end_selector is present
-              starting    = @parsed_document.css(override.selector).first
+              starting    = doc.css(override.selector).first
 
               if starting && starting.parent
                 ending = starting.parent.css(override.end_selector).first
               else
-                ending = @parsed_document.css(override.end_selector).first
+                ending = doc.css(override.end_selector).first
               end
 
               if starting && ending
@@ -162,7 +161,7 @@ module Deface
           #prevents any caching by rails in development mode
           details[:updated_at] = Time.now
 
-          source = @parsed_document.to_s
+          source = doc.to_s
 
           Deface::Parser.undo_erb_markup!(source)
         end
@@ -185,10 +184,6 @@ module Deface
           end
 
           name
-        end
-
-        def parse_document(source)
-          @parsed_document ||= Deface::Parser.convert(source)
         end
     end
   end
