@@ -312,7 +312,12 @@ module Deface
     end
 
     describe "#digest" do
-      before { @digest = @override.digest }
+      before do
+        Deface::Override.all.clear
+
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
+        @digest = @override.digest 
+      end
 
       it "should return hex digest based on override's args" do
         @override.digest.should =~ /[a-f0-9]{32}/
@@ -332,6 +337,9 @@ module Deface
 
     describe "self#digest" do
       before do
+        Deface::Override.all.clear
+
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
         @second = Deface::Override.new(:virtual_path => "posts/index", :name => "second", :insert_after => "p", :text => "<pre>this is code?</pre>")
 
         @digest = Deface::Override.digest(:virtual_path =>  "posts/index")

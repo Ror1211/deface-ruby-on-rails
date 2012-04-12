@@ -206,7 +206,7 @@ module Deface
     end
 
     def digest
-      Digest::MD5.new.update(@args.to_s).hexdigest
+      Digest::MD5.new.update(@args.to_json).hexdigest
     end
 
     def self.all
