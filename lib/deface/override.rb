@@ -176,9 +176,32 @@ module Deface
       elsif @args.key? :erb
         @args[:erb]
       elsif @args.key? :cut
-        Deface::Parser.undo_erb_markup! self.parsed_document.css(@args[:cut]).first.remove.to_s.clone
+        cut = @args[:cut]
+
+        if cut.is_a? Hash
+          starting, ending = self.class.select_endpoints(self.parsed_document, cut[:start], cut[:end])
+
+          range = self.class.select_range(starting, ending)
+          range.map &:remove
+
+          Deface::Parser.undo_erb_markup! range.map(&:to_s).join
+
+        else
+          Deface::Parser.undo_erb_markup! self.parsed_document.css(cut).first.remove.to_s.clone
+        end
+
       elsif @args.key? :copy
-        Deface::Parser.undo_erb_markup! parsed_document.css(@args[:copy]).first.to_s.clone
+        copy = @args[:copy]
+
+        if copy.is_a? Hash
+          starting, ending = self.class.select_endpoints(self.parsed_document, copy[:start], copy[:end])
+
+          range = self.class.select_range(starting, ending)
+
+          Deface::Parser.undo_erb_markup! range.map(&:to_s).join
+        else
+         Deface::Parser.undo_erb_markup! parsed_document.css(copy).first.to_s.clone
+        end
 
       elsif @args.key?(:haml) && Rails.application.config.deface.haml_support
         haml_engine = Deface::HamlConverter.new(@args[:haml])
