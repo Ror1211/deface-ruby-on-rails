@@ -176,6 +176,27 @@ module Deface
 
     end
 
+    describe "with :copy using :start and :end" do
+
+      let(:parsed) { Deface::Parser.convert("<h1>World</h1><% if true %><p>True that!</p><% end %><p>Hello</p>") }
+
+      before(:each) do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", 
+                                         :copy => {:start => "code:contains('if true')", :end => "code:contains('end')"})
+
+        @override.stub(:parsed_document).and_return(parsed)
+      end
+
+      it "should not change original parsed source" do
+        @override.source 
+        parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><code erb-silent> if true </code><p>True that!</p><code erb-silent> end </code><p>Hello</p>"
+      end
+
+      it "should return copy of content from source document" do
+        @override.source.should == "<% if true %><p>True that!</p><% end %>"
+      end
+    end
+
     describe "with :cut" do
       let(:parsed) { Deface::Parser.convert("<div><h1>Manage Posts</h1><%= some_method %></div>") }
       before(:each) do
@@ -198,6 +219,28 @@ module Deface
         @override.source.should == "<%= some_method %>"
       end
 
+    end
+
+
+    describe "with :cut using :start and :end" do
+
+      let(:parsed) { Deface::Parser.convert("<h1>World</h1><% if true %><p>True that!</p><% end %><%= hello %>") }
+
+      before(:each) do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", 
+                                         :cut => {:start => "code:contains('if true')", :end => "code:contains('end')"})
+
+        @override.stub(:parsed_document).and_return(parsed)
+      end
+
+      it "should remove cut element from original parsed source" do
+        @override.source 
+        parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><code erb-loud> hello </code>"
+      end
+
+      it "should return copy of content from source document" do
+        @override.source.should == "<% if true %><p>True that!</p><% end %>"
+      end
     end
 
     describe "with block" do

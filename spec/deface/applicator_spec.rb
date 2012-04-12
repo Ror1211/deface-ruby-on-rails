@@ -361,6 +361,17 @@ module Deface
       end
     end
 
+    describe "with a single :copy using :start and :end" do
+      before { Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_before => "h1", 
+                                    :copy => {:start => "code:contains('if true')", :end => "code:contains('end')"}) }
+      let(:source) { "<h1>World</h1><% if true %><p>True that!</p><% end %><p>Hello</p>" }
+
+
+      it "should return modified source" do
+        Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<% if true %><p>True that!</p><% end %><h1>World</h1><% if true %><p>True that!</p><% end %><p>Hello</p>"
+      end
+    end
+
     describe "with a single :cut override defined" do
       before { Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "p", :cut => "h1") }
       let(:source) { "<h1>World</h1><p>Hello</p>" }
@@ -368,6 +379,17 @@ module Deface
 
       it "should return modified source" do
         Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<p>Hello</p><h1>World</h1>"
+      end
+    end
+
+    describe "with a single :cut using :start and :end" do
+      before { Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", 
+                                    :cut => {:start => "code:contains('if true')", :end => "code:contains('end')"}) }
+      let(:source) { "<h1>World</h1><% if true %><p>True that!</p><% end %><p>Hello</p>" }
+
+
+      it "should return modified source" do
+        Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<% if true %><p>True that!</p><% end %><p>Hello</p>"
       end
     end
 

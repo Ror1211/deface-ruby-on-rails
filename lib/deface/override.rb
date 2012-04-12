@@ -15,56 +15,7 @@ module Deface
     # Initializes new override, you must supply only one Target, Action & Source
     # parameter for each override (and any number of Optional parameters).
     #
-    # ==== Target
-    #
-    # * <tt>:virtual_path</tt> - The path of the template / partial where
-    #   the override should take effect eg: "shared/_person", "admin/posts/new"
-    #   this will apply to all controller actions that use the specified template
-    #
-    # ==== Action
-    #
-    # * <tt>:remove</tt> - Removes all elements that match the supplied selector
-    # * <tt>:replace</tt> - Replaces all elements that match the supplied selector
-    # * <tt>:replace_contents</tt> - Replaces the contents of all elements that match the supplied selector
-    # * <tt>:surround</tt> - Surrounds all elements that match the supplied selector, expects replacement markup to contain <%= render_original %> placeholder
-    # * <tt>:surround_contents</tt> - Surrounds the contents of all elements that match the supplied selector, expects replacement markup to contain <%= render_original %> placeholder
-    # * <tt>:insert_after</tt> - Inserts after all elements that match the supplied selector
-    # * <tt>:insert_before</tt> - Inserts before all elements that match the supplied selector
-    # * <tt>:insert_top</tt> - Inserts inside all elements that match the supplied selector, before all existing child
-    # * <tt>:insert_bottom</tt> - Inserts inside all elements that match the supplied selector, after all existing child
-    # * <tt>:set_attributes</tt> - Sets attributes on all elements that match the supplied selector, replacing existing attribute value if present or adding if not. Expects :attributes option to be passed.
-    # * <tt>:add_to_attributes</tt> - Appends value to attributes on all elements that match the supplied selector, adds attribute if not present. Expects :attributes option to be passed.
-    # * <tt>:remove_from_attributes</tt> - Removes value from attributes on all elements that match the supplied selector. Expects :attributes option to be passed.
-    #
-    # ==== Source
-    #
-    # * <tt>:text</tt> - String containing markup
-    # * <tt>:partial</tt> - Relative path to partial
-    # * <tt>:template</tt> - Relative path to template
-    #
-    # ==== Optional
-    #
-    # * <tt>:name</tt> - Unique name for override so it can be identified and modified later.
-    #   This needs to be unique within the same :virtual_path
-    # * <tt>:disabled</tt> - When set to true the override will not be applied.
-    # * <tt>:original</tt> - String containing original markup that is being overridden.
-    #   If supplied Deface will log when the original markup changes, which helps highlight overrides that need
-    #   attention when upgrading versions of the source application. Only really warranted for :replace overrides.
-    #   NB: All whitespace is stripped before comparsion.
-    # * <tt>:closing_selector</tt> - A second css selector targeting an end element, allowing you to select a range
-    #   of elements to apply an action against. The :closing_selector only supports the :replace, :remove and
-    #   :replace_contents actions, and the end element must be a sibling of the first/starting element. Note the CSS
-    #   general sibling selector (~) is used to match the first element after the opening selector.
-    # * <tt>:sequence</tt> - Used to order the application of an override for a specific virtual path, helpful when
-    #   an override depends on another override being applied first.
-    #   Supports:
-    #   :sequence => n - where n is a positive or negative integer (lower numbers get applied first, default 100).
-    #   :sequence => {:before => "override_name"} - where "override_name" is the name of an override defined for the
-    #                                               same virutal_path, the current override will be appplied before
-    #                                               the named override passed.
-    #   :sequence => {:after => "override_name") - the current override will be applied after the named override passed.
-    # * <tt>:attributes</tt> - A hash containing all the attributes to be set on the matched elements, eg: :attributes => {:class => "green", :title => "some string"}
-    #
+    # See READme for more!
     def initialize(args, &content)
       if Rails.application.try(:config).try(:deface).try(:enabled)
         unless Rails.application.config.deface.try(:overrides)

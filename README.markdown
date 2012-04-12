@@ -73,6 +73,13 @@ Source
 
 * <tt>:template</tt> - Relative path to a template
 
+* <tt>:cut</tt> - Cuts(i.e. copy and remove) an element or a range of elements from the current template as the source, using css selector(s). Supports two versions:
+  * <tt>selector</tt> -  A single string css selector (first match is used).
+  * <tt>{:start => 'selector_a', :end => 'selector_b'}</tt> - select a range of elements using :start and :end css selectors. The end element must be a sibling of the first/starting element.
+
+* <tt>:copy</tt> - Copies an element or a range of elements from the current template as the source, using css selector(s). Supports two versions:
+  * <tt>selector</tt> -  A single string css selector (first match is used).
+  * <tt>{:start => 'selector_a', :end => 'selector_b'}</tt> - select a range of elements using :start and :end css selectors. The end element must be a sibling of the first/starting element.
 
 Optional
 --------
