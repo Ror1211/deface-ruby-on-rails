@@ -32,13 +32,19 @@ module Deface
         haml_to_erb("%meta{'http-equiv' => 'X-UA-Compatible', :content => 'IE=edge,chrome=1'}").should == "<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible' />"
         haml_to_erb("%meta(http-equiv='X-UA-Compatible' content='IE=edge,chrome=1')").should == "<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible' />"
         haml_to_erb('%meta{:name => "author", :content => "Example, Inc."}').should == "<meta content='Example, Inc.' name='author' />"
-        haml_to_erb('%meta{name: "author", content: "Example, Inc."}').should == "<meta content='Example, Inc.' name='author' />"
         haml_to_erb('%meta(name="author" content="Example, Inc.")').should == "<meta content='Example, Inc.' name='author' />"
+
+        if RUBY_VERSION > "1.9"
+          haml_to_erb('%meta{name: "author", content: "Example, Inc."}').should == "<meta content='Example, Inc.' name='author' />"
+        end
       end
 
       it "should handle haml attributes with evaluated values" do
         haml_to_erb("%p{ :alt => hello_world}Hello World!").should == "<p data-erb-alt='&lt;%= hello_world %&gt;'>Hello World!</p>"
-        haml_to_erb("%p{ alt: @hello_world}Hello World!").should == "<p data-erb-alt='&lt;%= @hello_world %&gt;'>Hello World!</p>"
+
+        if RUBY_VERSION > "1.9"
+          haml_to_erb("%p{ alt: @hello_world}Hello World!").should == "<p data-erb-alt='&lt;%= @hello_world %&gt;'>Hello World!</p>"
+        end
 
         haml_to_erb("%p(alt=hello_world)Hello World!").should == "<p data-erb-alt='&lt;%= hello_world %&gt;'>Hello World!</p>"
         haml_to_erb("%p(alt=@hello_world)Hello World!").should == "<p data-erb-alt='&lt;%= @hello_world %&gt;'>Hello World!</p>"
