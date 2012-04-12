@@ -25,11 +25,23 @@ module Deface
 
       it "should handle simple haml attributes" do
         haml_to_erb("%meta{:charset => 'utf-8'}").should == "<meta charset='utf-8' />"
+        haml_to_erb("%p(alt='hello world')Hello World!").should == "<p alt='hello world'>Hello World!</p>"
       end
 
       it "should handle haml attributes with commas" do
         haml_to_erb("%meta{'http-equiv' => 'X-UA-Compatible', :content => 'IE=edge,chrome=1'}").should == "<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible' />"
+        haml_to_erb("%meta(http-equiv='X-UA-Compatible' content='IE=edge,chrome=1')").should == "<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible' />"
         haml_to_erb('%meta{:name => "author", :content => "Example, Inc."}').should == "<meta content='Example, Inc.' name='author' />"
+        haml_to_erb('%meta{name: "author", content: "Example, Inc."}').should == "<meta content='Example, Inc.' name='author' />"
+        haml_to_erb('%meta(name="author" content="Example, Inc.")').should == "<meta content='Example, Inc.' name='author' />"
+      end
+
+      it "should handle haml attributes with evaluated values" do
+        haml_to_erb("%p{ :alt => hello_world}Hello World!").should == "<p data-erb-alt='&lt;%= hello_world %&gt;'>Hello World!</p>"
+        haml_to_erb("%p{ alt: @hello_world}Hello World!").should == "<p data-erb-alt='&lt;%= @hello_world %&gt;'>Hello World!</p>"
+
+        haml_to_erb("%p(alt=hello_world)Hello World!").should == "<p data-erb-alt='&lt;%= hello_world %&gt;'>Hello World!</p>"
+        haml_to_erb("%p(alt=@hello_world)Hello World!").should == "<p data-erb-alt='&lt;%= @hello_world %&gt;'>Hello World!</p>"
       end
 
       it "should handle erb loud" do

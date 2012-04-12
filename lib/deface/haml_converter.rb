@@ -40,25 +40,37 @@ module Deface
       # coverts { attributes into deface compatibily attributes
       def deface_attributes(attrs)
         return if attrs.nil?
-        attrs.gsub! /\{|\}/, ''
-        attrs = attrs.split(',')
 
-        if attrs.join.include? "=>"
-          attrs.map!{|a| a.split("=>").map(&:strip) }
-        else
-          attrs.map!{|a| a.split(": ").map(&:strip) }
+        attrs.gsub! /\{|\}/, ''
+
+        attributes = {}
+        scanner = StringScanner.new(attrs)
+        scanner.scan(/\s+/)
+
+        until scanner.eos?
+          return unless key = scanner.scan(/:(\w*)|(["'])((?![\\#]|\2).|\\.)*\2|(\w*):/) #matches :key, 'key', "key" or key:
+          return unless scanner.scan(/\s*(=>)?\s*/) #match => or just white space
+          return unless value = scanner.scan(/(["'])((?![\\#]|\1).|\\.)*\1|[^\s,]*/) #match 'value', "value", value, @value, some-value
+          return unless scanner.scan(/\s*(?:,|$)\s*/)
+          attributes[key.to_s] = value
         end
 
-        attrs.map! do |a|
-          if a[1][0] != ?' && a[1][0] != ?"
-            a[0] = %Q{"data-erb-#{a[0].gsub(/:|'|"/,'')}"}
-            a[1] = %Q{"<%= #{a[1]} %>"}
+        attrs = []
+        attributes.each do |key, value|
+          #only need to convert non-literal values
+          if value[0] != ?' && value[0] != ?" && value[0] != ?:
+            key = %Q{"data-erb-#{key.gsub(/:|'|"/,'')}"}
+            value = %Q{"<%= #{value} %>"}
           end
 
-          a
+          if key[-1] == ?:
+            attrs << "#{key} #{value}"
+          else
+            attrs << "#{key} => #{value}"
+          end
         end
 
-        attrs.map{ |a| a.join " => " }.join(', ')
+        attrs.join(', ')
       end
 
   end
