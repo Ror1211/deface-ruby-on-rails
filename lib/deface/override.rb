@@ -176,9 +176,9 @@ module Deface
       elsif @args.key? :erb
         @args[:erb]
       elsif @args.key? :cut
-        self.parsed_document.css(@args[:cut]).first.remove.to_s
+        Deface::Parser.undo_erb_markup! self.parsed_document.css(@args[:cut]).first.remove.to_s.clone
       elsif @args.key? :copy
-        parsed_document.css(@args[:copy]).first.to_s
+        Deface::Parser.undo_erb_markup! parsed_document.css(@args[:copy]).first.to_s.clone
 
       elsif @args.key?(:haml) && Rails.application.config.deface.haml_support
         haml_engine = Deface::HamlConverter.new(@args[:haml])

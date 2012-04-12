@@ -152,29 +152,50 @@ module Deface
 
     describe "with :copy" do
 
-      let(:parsed) { Deface::Parser.convert("<div><h1>Manage Posts</h1></div>") }
+      let(:parsed) { Deface::Parser.convert("<div><h1>Manage Posts</h1><%= some_method %></div>") }
+
       before(:each) do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", :copy => "h1")
         @override.stub(:parsed_document).and_return(parsed)
       end
 
+      it "should not change original parsed source" do
+        @override.source 
+        parsed.to_s.gsub(/\n/,'').should == "<div><h1>Manage Posts</h1><code erb-loud> some_method </code></div>"
+      end
+
       it "should return copy of content from source document" do
-        @override.source.should == "<h1>Manage Posts</h1>"
-        parsed.to_s.should == "<div><h1>Manage Posts</h1></div>"
+        @override.source.should == "<h1>Manage Posts</h1>\n"
+      end
+
+      it "should return unescaped content for source document" do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", :copy => "code[erb-loud]:contains('some_method')")
+        @override.stub(:parsed_document).and_return(parsed)
+        @override.source.should == "<%= some_method %>"
       end
 
     end
 
     describe "with :cut" do
-      let(:parsed) { Deface::Parser.convert("<div><h1>Manage Posts</h1></div>") }
+      let(:parsed) { Deface::Parser.convert("<div><h1>Manage Posts</h1><%= some_method %></div>") }
       before(:each) do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", :cut => "h1")
         @override.stub(:parsed_document).and_return(parsed)
       end
 
+      it "should remove cut element from original parsed source" do
+        @override.source
+        parsed.to_s.gsub(/\n/,'').should == "<div><code erb-loud> some_method </code></div>"
+      end
+
       it "should remove and return content from source document" do
         @override.source.should == "<h1>Manage Posts</h1>"
-        parsed.to_s.should == "<div></div>"
+      end
+
+      it "should return unescaped content for source document" do
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", :cut => "code[erb-loud]:contains('some_method')")
+        @override.stub(:parsed_document).and_return(parsed)
+        @override.source.should == "<%= some_method %>"
       end
 
     end
