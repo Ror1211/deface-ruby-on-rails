@@ -121,13 +121,7 @@ module Deface
               end
             else
               # targeting range of elements as end_selector is present
-              starting    = doc.css(override.selector).first
-
-              if starting && starting.parent
-                ending = starting.parent.css(override.end_selector).first
-              else
-                ending = doc.css(override.end_selector).first
-              end
+              starting, ending = select_endpoints(doc, override.selector, override.end_selector)
 
               if starting && ending
                 if log
@@ -176,10 +170,10 @@ module Deface
           finish = "#{start} ~ #{finish}"
           starting    = doc.css(start).first
 
-          if starting && starting.parent
-            ending = starting.parent.css(finish).first
+          ending = if starting && starting.parent
+            starting.parent.css(finish).first
           else
-            ending = doc.css(finish).first
+            doc.css(finish).first
           end
 
           return starting, ending

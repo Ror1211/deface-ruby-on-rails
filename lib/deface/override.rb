@@ -172,7 +172,7 @@ module Deface
 
     def end_selector
       return nil if @args[:closing_selector].blank?
-      "#{self.selector} ~ #{@args[:closing_selector]}"
+      @args[:closing_selector]
     end
 
     def attributes
