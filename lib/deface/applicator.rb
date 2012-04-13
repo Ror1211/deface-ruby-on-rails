@@ -139,6 +139,43 @@ module Deface
                   when :replace_contents
                     elements[1..-2].map &:remove
                     starting.after(override.source_element)
+                  when :surround, :surround_contents
+
+                    new_source = override.source_element.clone(1)
+
+                    if original = new_source.css("code:contains('render_original')").first
+
+                      if override.action == :surround
+                        start = elements[0].clone(1)
+                        original.replace start
+
+                        elements[1..-1].each do |element|
+                          element = element.clone(1)
+                          start.after element
+                          start = element
+                        end
+
+                        starting.before(new_source)
+                        elements.map &:remove
+
+
+                      elsif override.action == :surround_contents
+
+                        start = elements[1].clone(1)
+                        original.replace start
+
+                        elements[2...-1].each do |element|
+                          element = element.clone(1)
+                          start.after element
+                          start = element
+                        end
+
+                        starting.after(new_source)
+                        elements[1...-1].map &:remove
+                      end
+                    else
+                      #maybe we should log that the original wasn't found.
+                    end
                 end
               else
                 if starting.nil?
