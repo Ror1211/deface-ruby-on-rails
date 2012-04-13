@@ -13,4 +13,10 @@ module Deface
   if defined?(Rails)
     require "deface/railtie"
   end
+
+  # Exceptions
+  class DefaceError < StandardError; end
+
+  class NotSupportedError < DefaceError; end
+  
 end

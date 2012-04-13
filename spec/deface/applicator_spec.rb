@@ -429,5 +429,18 @@ module Deface
       end
     end
 
+    describe "with incompatible actions and :closing_selector" do
+      let(:source) { "<ul><li>first</li><li>second</li><li>third</li></ul>" }
+
+      it "should return modified source" do
+        [:insert_before, :insert_after, :insert_top, :insert_bottom, :set_attributes, :remove_from_attributes, :add_to_attributes].each do |action|
+          Deface::Override.all.clear
+          Deface::Override.new(:virtual_path => "posts/index", :name => "first", action => "li", :closing_selector => "p", :text => "<li>first</li>")
+
+          expect { Dummy.apply(source, {:virtual_path => "posts/index"}) }.to raise_error(Deface::NotSupportedError)
+        end
+      end
+    end
+
   end
 end

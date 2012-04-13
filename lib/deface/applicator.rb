@@ -120,6 +120,9 @@ module Deface
 
               end
             else
+              unless [:remove, :replace, :replace_contents, :surround, :surround_contents].include? override.action
+                raise Deface::NotSupportedError, ":#{override.action} action does not support :closing_selector"
+              end
               # targeting range of elements as end_selector is present
               starting, ending = select_endpoints(doc, override.selector, override.end_selector)
 
