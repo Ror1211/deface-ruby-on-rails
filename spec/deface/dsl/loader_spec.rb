@@ -67,9 +67,9 @@ describe Deface::DSL::Loader do
       file_contents = mock('file contents')
       file.should_receive(:read).and_return(file_contents)
 
-      context.should_receive(:instance_eval).with(file_contents)
-      context.should_receive(:virtual_path).with('path/to/view')
-      context.should_receive(:create_override)
+      context.should_receive(:virtual_path).with('path/to/view').ordered
+      context.should_receive(:instance_eval).with(file_contents).ordered
+      context.should_receive(:create_override).ordered
 
       Deface::DSL::Loader.load(filename)
     end
@@ -91,10 +91,10 @@ describe Deface::DSL::Loader do
         with(file_contents).
         and_return(['dsl commands', 'erb'])
 
-      context.should_receive(:instance_eval).with('dsl commands')
-      context.should_receive(:erb).with('erb')
-      context.should_receive(:virtual_path).with('path/to/view')
-      context.should_receive(:create_override)
+      context.should_receive(:virtual_path).with('path/to/view').ordered
+      context.should_receive(:instance_eval).with('dsl commands').ordered
+      context.should_receive(:erb).with('erb').ordered
+      context.should_receive(:create_override).ordered
 
       Deface::DSL::Loader.load(filename)
     end
@@ -116,10 +116,10 @@ describe Deface::DSL::Loader do
         with(file_contents).
         and_return(['dsl commands', 'haml'])
 
-      context.should_receive(:instance_eval).with('dsl commands')
-      context.should_receive(:haml).with('haml')
-      context.should_receive(:virtual_path).with('path/to/view')
-      context.should_receive(:create_override)
+      context.should_receive(:virtual_path).with('path/to/view').ordered
+      context.should_receive(:instance_eval).with('dsl commands').ordered
+      context.should_receive(:haml).with('haml').ordered
+      context.should_receive(:create_override).ordered
 
       Deface::DSL::Loader.load(filename)
     end

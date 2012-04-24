@@ -24,23 +24,23 @@ module Deface
 
             context_name = context_name.gsub('.html.erb', '')
             context = Context.new(context_name)
+            context.virtual_path(determine_virtual_path(filename))
             context.instance_eval(dsl_commands)
             context.erb(the_rest)
-            context.virtual_path(determine_virtual_path(filename))
             context.create_override
           elsif context_name.end_with?('.html.haml')
             dsl_commands, the_rest = extract_dsl_commands_from_haml(file_contents)
 
             context_name = context_name.gsub('.html.haml', '')
             context = Context.new(context_name)
+            context.virtual_path(determine_virtual_path(filename))
             context.instance_eval(dsl_commands)
             context.haml(the_rest)
-            context.virtual_path(determine_virtual_path(filename))
             context.create_override            
           else
             context = Context.new(context_name)
-            context.instance_eval(file_contents)
             context.virtual_path(determine_virtual_path(filename))
+            context.instance_eval(file_contents)
             context.create_override
           end
         end
