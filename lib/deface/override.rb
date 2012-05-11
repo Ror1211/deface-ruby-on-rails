@@ -61,6 +61,9 @@ module Deface
         raise(ArgumentError, ":action is invalid") if self.action.nil?
       end
 
+      #set loaded time (if not already present) for hash invalidation
+      @args[:updated_at] ||= Time.zone.now.to_f
+
       self.class.all[virtual_key][name_key] = self
 
       expire_compiled_template
@@ -118,15 +121,16 @@ module Deface
     end
 
     def source
-      erb = if @args.key? :partial
+      erb = case source_argument
+      when :partial
         load_template_source(@args[:partial], true)
-      elsif @args.key? :template
+      when :template
         load_template_source(@args[:template], false)
-      elsif @args.key? :text
+      when :text
         @args[:text]
-      elsif @args.key? :erb
+      when :erb
         @args[:erb]
-      elsif @args.key? :cut
+      when :cut
         cut = @args[:cut]
 
         if cut.is_a? Hash
@@ -141,7 +145,7 @@ module Deface
           Deface::Parser.undo_erb_markup! self.parsed_document.css(cut).first.remove.to_s.clone
         end
 
-      elsif @args.key? :copy
+      when :copy
         copy = @args[:copy]
 
         if copy.is_a? Hash
@@ -154,12 +158,22 @@ module Deface
          Deface::Parser.undo_erb_markup! parsed_document.css(copy).first.to_s.clone
         end
 
-      elsif @args.key?(:haml) && Rails.application.config.deface.haml_support
-        haml_engine = Deface::HamlConverter.new(@args[:haml])
-        haml_engine.render
+      when :haml
+        if Rails.application.config.deface.haml_support
+          haml_engine = Deface::HamlConverter.new(@args[:haml])
+          haml_engine.render
+        else
+          raise Deface::NotSupportedError, "`#{self.name}` supplies :haml source, but haml_support is not detected."
+        end
       end
 
       erb
+    end
+
+    # Returns a :symbol for the source argument present
+    #
+    def source_argument
+      @@sources.detect { |source| @args.key? source }
     end
 
     def source_element
@@ -179,18 +193,33 @@ module Deface
       @args[:attributes] || []
     end
 
+    # Alters digest of override to force view method
+    # recompilation (when source template/partial changes)
+    #
+    def touch
+      @args[:updated_at] = Time.zone.now.to_f
+    end
+
+    # Creates MD5 hash of args sorted keys and values
+    # used to determine if an override has changed
+    #
     def digest
-      Digest::MD5.new.update(@args.to_json).hexdigest
+      Digest::MD5.new.update(@args.keys.sort.concat(@args.values.map(&:to_s).sort).join).hexdigest
     end
 
-    def self.all
-      Rails.application.config.deface.overrides.all
-    end
-
+    # Creates MD5 of all overrides that apply to a particular
+    # virtual_path, used in CompiledTemplates method name
+    # so we can support re-compiling of compiled method
+    # when overrides change. Only of use in production mode.
+    #
     def self.digest(details)
       overrides = self.find(details)
 
       Digest::MD5.new.update(overrides.inject('') { |digest, override| digest << override.digest }).hexdigest
+    end
+
+    def self.all
+      Rails.application.config.deface.overrides.all
     end
 
     private

@@ -34,6 +34,9 @@ shared_context "mock Rails" do
     Rails.logger.stub(:error)
     Rails.logger.stub(:warning)
     Rails.logger.stub(:info)
+
+    Time.stub :zone => mock('zone')
+    Time.zone.stub(:now).and_return Time.parse('25/5/1979')
   end
 end
 

@@ -24,6 +24,10 @@ module Deface
       @override.selector.should == "h1"
     end
 
+    it "should set default :updated_at" do
+      @override.args[:updated_at].should_not be_nil
+    end
+
     describe "#original_source" do
       it "should return nil with not specified" do
         @override.original_source.should be_nil
@@ -63,18 +67,6 @@ module Deface
       end
     end
 
-    describe "#find" do
-      it "should find by virtual_path" do
-        Deface::Override.find({:virtual_path => "posts/index"}).size.should == 1
-        Deface::Override.find({:virtual_path => "/posts/index"}).size.should == 1
-        Deface::Override.find({:virtual_path => "/posts/index.html"}).size.should == 1
-        Deface::Override.find({:virtual_path => "posts/index.html"}).size.should == 1
-      end
-
-      it "should return empty array when no details hash passed" do
-        Deface::Override.find({}).should == []
-      end
-    end
 
     describe "#new" do
 
@@ -93,17 +85,21 @@ module Deface
 
       it "should return un-convert text as source" do
         @override.source.should == "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>"
+
+        @override.source_argument.should == :text
       end
     end
 
     describe "with :erb" do
 
       before(:each) do
-        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>")
+        @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :erb => "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>")
       end
 
       it "should return un-convert text as source" do
         @override.source.should == "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>"
+
+        @override.source_argument.should == :erb
       end
     end
 
@@ -116,6 +112,8 @@ module Deface
 
       it "should return erb converted from haml as source" do
         @override.source.should == "<strong class='code' id='message'><%= 'Hello, World!' %>\n</strong>\n"
+
+        @override.source_argument.should == :haml
       end
     end
 
@@ -131,6 +129,8 @@ module Deface
 
       it "should return un-convert partial contents as source" do
         @override.source.should == "<p>I'm from shared/post partial</p>\n<%= \"And I've got ERB\" %>\n"
+
+        @override.source_argument.should == :partial
       end
 
     end
@@ -146,6 +146,8 @@ module Deface
 
       it "should return un-convert template contents as source" do
         @override.source.should == "<p>I'm from shared/person template</p>\n<%= \"I've got ERB too\" %>\n"
+
+        @override.source_argument.should == :template
       end
 
     end
@@ -160,8 +162,10 @@ module Deface
       end
 
       it "should not change original parsed source" do
-        @override.source 
+        @override.source
         parsed.to_s.gsub(/\n/,'').should == "<div><h1>Manage Posts</h1><code erb-loud> some_method </code></div>"
+
+        @override.source_argument.should == :copy
       end
 
       it "should return copy of content from source document" do
@@ -188,8 +192,10 @@ module Deface
       end
 
       it "should not change original parsed source" do
-        @override.source 
+        @override.source
         parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><code erb-silent> if true </code><p>True that!</p><code erb-silent> end </code><p>Hello</p>"
+
+        @override.source_argument.should == :copy
       end
 
       it "should return copy of content from source document" do
@@ -207,6 +213,8 @@ module Deface
       it "should remove cut element from original parsed source" do
         @override.source
         parsed.to_s.gsub(/\n/,'').should == "<div><code erb-loud> some_method </code></div>"
+
+        @override.source_argument.should == :cut
       end
 
       it "should remove and return content from source document" do
@@ -236,6 +244,8 @@ module Deface
       it "should remove cut element from original parsed source" do
         @override.source 
         parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><code erb-loud> hello </code>"
+
+        @override.source_argument.should == :cut
       end
 
       it "should return copy of content from source document" do
@@ -375,12 +385,21 @@ module Deface
       end
     end
 
+    describe "#touch" do
+      it "should change the overrides :updated_at value" do
+        before_touch = @override.args[:updated_at]
+        Time.zone.stub(:now).and_return(Time.parse('24/8/2006'))
+        @override.touch
+        @override.args[:updated_at].should_not == before_touch
+      end
+    end
+
     describe "#digest" do
       before do
         Deface::Override.all.clear
 
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
-        @digest = @override.digest 
+        @digest = @override.digest.clone
       end
 
       it "should return hex digest based on override's args" do
