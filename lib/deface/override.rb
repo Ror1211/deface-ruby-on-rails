@@ -204,7 +204,7 @@ module Deface
     # used to determine if an override has changed
     #
     def digest
-      Digest::MD5.new.update(@args.keys.sort.concat(@args.values.map(&:to_s).sort).join).hexdigest
+      Digest::MD5.new.update(@args.keys.map(&:to_s).sort.concat(@args.values.map(&:to_s).sort).join).hexdigest
     end
 
     # Creates MD5 of all overrides that apply to a particular

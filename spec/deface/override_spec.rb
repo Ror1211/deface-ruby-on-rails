@@ -388,7 +388,7 @@ module Deface
     describe "#touch" do
       it "should change the overrides :updated_at value" do
         before_touch = @override.args[:updated_at]
-        Time.zone.stub(:now).and_return(Time.parse('24/8/2006'))
+        Time.zone.stub(:now).and_return(Time.parse('2006-08-24'))
         @override.touch
         @override.args[:updated_at].should_not == before_touch
       end

@@ -51,6 +51,12 @@ module Deface
         paths ||= ["app/overrides"]
 
         paths.each do |path|
+          if Rails.version[0..2] == "3.2"
+            # add path to watchable_dir so Rails will call to_prepare on file changes
+            # allowing overrides to be updated / reloaded in development mode.
+            Rails.application.config.watchable_dirs[root.join(path).to_s] = [:rb, :deface]
+          end
+
           Dir.glob(root.join path, "**/*.rb") do |c|
             Rails.application.config.cache_classes ? require(c) : load(c)
           end

@@ -35,8 +35,8 @@ module Deface
         before do
           Rails.application.stub :root => Pathname.new(File.join(File.dirname(__FILE__), '..', "assets"))
           Rails.application.stub :paths => {}
-          Rails.application.stub_chain :railties, :all => [] 
-          
+          Rails.application.stub_chain :railties, :all => []
+
           Deface::DSL::Loader.should_receive(:register)
         end
 
@@ -92,18 +92,19 @@ module Deface
           Rails.application.config.deface.overrides.send(:enumerate_and_load, nil, root)
         end
 
-        it "should be enumerate supplied path" do
-          Dir.should_receive(:glob).with(root.join "app/junk", "**", "*.rb")
-          Dir.should_receive(:glob).with(root.join "app/junk", "**", "*.deface")
-          Rails.application.config.deface.overrides.send(:enumerate_and_load, ["app/junk"], root)
-        end
-
-        it "should be enumerate supplied paths" do
+        it "should enumerate supplied paths" do
           Dir.should_receive(:glob).with(root.join "app/junk", "**", "*.rb" )
           Dir.should_receive(:glob).with(root.join "app/junk", "**", "*.deface" )
           Dir.should_receive(:glob).with(root.join "app/gold", "**", "*.rb" )
           Dir.should_receive(:glob).with(root.join "app/gold", "**", "*.deface" )
           Rails.application.config.deface.overrides.send(:enumerate_and_load, ["app/junk", "app/gold"], root)
+        end
+
+        it "should add paths to watchable_dir when running Rails 3.2" do
+          if Rails.version[0..2] == '3.2'
+            Rails.application.config.deface.overrides.send(:enumerate_and_load, ["app/gold"], root)
+            Rails.application.config.watchable_dirs.should == {"/some/path/app/gold" => [:rb, :deface] }
+          end
         end
 
       end
