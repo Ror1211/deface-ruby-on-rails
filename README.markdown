@@ -7,7 +7,7 @@
 Deface
 ======
 
-Deface is a library that allows you to customize HTML ERB views in a Rails application without editing the underlying view.
+Deface is a library that allows you to customize HTML (ERB and HAML) views in a Rails application without editing the underlying view.
 
 It allows you to easily target html & erb elements as the hooks for customization using CSS selectors as supported by Nokogiri.
 
@@ -15,16 +15,25 @@ It allows you to easily target html & erb elements as the hooks for customizatio
 Usage
 -----
 
-There are 2 ways of using Deface:
+There are two ways of using Deface:
 
-- use the `Deface::Override` ruby class directly
-- add specially formatted `.deface` files to the app/overrides folder of your app.
+- Using `Deface::Override` - this is the traditional method whereby you define instances of the Deface::Override class directly.
+- Using the Deface DSL (.deface files) - the DSL provides a terser syntax, and better organization of the individual override files.
+
+Both methods are interoperable, so you can use a mix, and redefine overrides defined one-way using the other.
+
 
 
 Using Deface::Override
 ----------------------
 
-A new instance of the Deface::Override class is initialized for each customization you wish to define. When initializing a new override you must supply only one Target, Action & Source parameter and any number of Optional parameters. Note: the source parameter is not required when the "remove" action is specified.
+A new instance of the Deface::Override class is initialized for each customization you wish to define. When initializing a new override you must supply only one Target, Action & Source parameter and any number of Optional parameters. 
+
+**Note:** the source parameter is not required when the ````:remove, :set_attributes, :add_to_attributes, :remove_from_attributes```` actions are specified.
+
+You should save your overrides in the ````app/overrides````, normally one override per file using the same file name as specified in the :name argument. Deface will automatically require these from your application, and any engines installed.
+
+**Note:** You should NOT manually require override files, as this can cause problems for precompiling.
 
 ### Target
 
@@ -50,7 +59,7 @@ A new instance of the Deface::Override class is initialized for each customizati
 
 * <tt>:insert_bottom</tt> - Inserts inside all elements that match the supplied selector, as the last child.
 
-* <tt>:set_attributes</tt> - Sets attributes on all elements that match the supplied selector, replacing existing attribute value if present or adding if not. Expects :attributes option to be passed.
+* <tt>:set_</tt> - Sets attributes on all elements that match the supplied selector, replacing existing attribute value if present or adding if not. Expects :attributes option to be passed.
 
 * <tt>:add_to_attributes</tt> - Appends value to attributes on all elements that match the supplied selector, adds attribute if not present. Expects :attributes option to be passed.
 
@@ -164,28 +173,66 @@ You do not need to resupply all the values originally used, just the ones you wa
                         :disabled => true)
 
 
-Using .deface files
--------------------
+Using the Deface DSL (.deface files)
+------------------------------------
 
-Instead of using Deface::Override directly, you can alternatively add `.deface` files to the `app/overrides` folder and Deface will automatically them pick up. 
+Instead of defining Deface::Override instances directly, you can alternatively add `.deface` files to the `app/overrides` folder and Deface will automatically them pick up.
 The path of each override should match the path of the view template you want to modify, say for example if you have a template at:
-    
+
     app/views/posts/_post.html.erb
-    
+
 Then you can override it by adding a .deface file at:
 
     app/overrides/posts/_post/my_override.html.erb.deface
-    
-The format of a .deface file is a comment showing the action to be performed, followed by any text to be inserted:
+
+The format of a .deface file is a comment showing the action to be performed, followed by any markup that would be normally passed to the :erb, :text, :haml arguments:
 
     <!-- insert_after 'h1' -->
     <h2>These robots are awesome.</h2>
-    
-The same effect can also be achieved with haml:
+
+The same effect can also be achieved with haml, by changing the overrides filename to:
+
+    app/overrides/posts/_post/my_override.html.haml.deface
+
+and including haml source:
 
     /
       insert_after 'h1'
     %h2 These robots are awesome.
+
+
+#### Additional Options
+
+You can include all the additional options you can normally use when defining a Deface::Override manually, a more complex example:
+
+    <!-- replace_contents 'h1'
+         closing_selector 'div#intro'
+         disabled -->
+    <p>This is a complicated example</p>
+
+#### Disabled / Enabled
+
+The DSL does not accept the instance style ````:disabled => boolean```` instead you can simply include either:
+
+    <!-- enabled -->
+
+or
+
+    <!-- disabled -->
+
+### DSL usage for overrides that do not include markup
+
+If your override does not require any markup, for example actions including ````:remove, :set_attributes, :remove_from_attributes, :add_to_attrbiutes```` you can exclude the "html.erb" or "html.haml" from the file name and you do not need to wrap the arguments in a comment.
+
+So the override filename becomes simply:
+
+    app/overrides/posts/_post/my_override.deface
+
+And the contents:
+
+    add_to_attributes 'a#search'
+    attributes :alt => 'Click here to search'
+
 
 
 Rake Tasks
