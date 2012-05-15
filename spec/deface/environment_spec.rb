@@ -59,11 +59,19 @@ module Deface
           Rails.application.config.deface.overrides.load_all(Rails.application)
         end
 
-        it "should enumerate_and_load path when railtie has  app/overrides path set" do
+        it "should enumerate_and_load path when railtie has app/overrides path set" do
           Rails.application.stub_chain :railties, :all => [ mock('railtie', :root => "/some/path", :paths => {"app/overrides" => ["app/some_path"] } )]
 
           Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, Rails.application.root)
           Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(["app/some_path"] , "/some/path")
+          Rails.application.config.deface.overrides.load_all(Rails.application)
+        end
+
+        it "should enumerate_and_load railties first, followed by the application iteslf" do
+          Rails.application.stub_chain :railties, :all => [ mock('railtie', :root => "/some/path", :paths => {"app/overrides" => ["app/some_path"] } )]
+
+          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(["app/some_path"] , "/some/path").ordered
+          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, Rails.application.root).ordered
           Rails.application.config.deface.overrides.load_all(Rails.application)
         end
 
