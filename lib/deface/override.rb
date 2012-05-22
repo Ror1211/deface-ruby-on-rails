@@ -248,6 +248,10 @@ module Deface
       command.new(source_element: safe_source_element, attributes: attributes)
     end
 
+    def compatible_with_end_selector?
+      create_action_command.range_compatible?
+    end
+
     private
 
       # check if method is compiled for the current virtual path
