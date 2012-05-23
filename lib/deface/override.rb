@@ -245,7 +245,7 @@ module Deface
       commands = Rails.application.config.deface.actions
       command = commands.find { |command| command.desired_action? action }
       raise(DefaceError, "Action #{action} not found") unless command
-      command.new(source_element: safe_source_element, attributes: attributes)
+      command.new(:source_element => safe_source_element, :attributes => attributes)
     end
 
     def compatible_with_end_selector?
