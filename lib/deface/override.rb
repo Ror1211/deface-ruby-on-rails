@@ -63,7 +63,7 @@ module Deface
 
       #set loaded time (if not already present) for hash invalidation
       @args[:updated_at] ||= Time.zone.now.to_f
-      @args[:railtie] = self.class.current_railtie
+      @args[:railtie_class] = self.class.current_railtie
 
       self.class.all[virtual_key][name_key] = self
 
@@ -80,8 +80,8 @@ module Deface
       @args[:name]
     end
 
-    def railtie
-      @args[:railtie]
+    def railtie_class
+      @args[:railtie_class]
     end
 
     def sequence

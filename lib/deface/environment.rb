@@ -44,7 +44,7 @@ module Deface
     private
 
       def load_overrides(railtie)
-        Override.current_railtie = railtie
+        Override.current_railtie = railtie.class.to_s
         paths = railtie.respond_to?(:paths) ? railtie.paths["app/overrides"] : nil
         enumerate_and_load(paths, railtie.root)
       end
