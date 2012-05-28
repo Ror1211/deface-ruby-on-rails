@@ -232,13 +232,13 @@ module Deface
       Rails.application.config.deface.overrides.all
     end
 
-    def execute_action target_element
-      validate_original target_element
-      create_action_command.execute target_element
+    def execute_action(target_element)
+      validate_original(target_element)
+      create_action_command.execute(target_element)
     end
 
-    def execute_action_on_range target_range
-      create_action_command.execute_on_range target_range
+    def execute_action_on_range(target_range)
+      create_action_command.execute_on_range(target_range)
     end
 
     def create_action_command
