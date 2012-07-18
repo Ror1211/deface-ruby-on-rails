@@ -171,9 +171,9 @@ describe Deface::DSL::Loader do
     end
 
     it 'should work with multiple commands on one line' do
-      example = "<!-- replace_contents 'h1' closing_selector 'div#intro' disabled namespaced --><h1>Wow!</h1>"
+      example = %q{<!-- replace_contents 'h1 .title' closing_selector "div#intro" disabled namespaced --><h1>Wow!</h1>}
       dsl_commands, the_rest = Deface::DSL::Loader.extract_dsl_commands_from_erb(example)
-      dsl_commands.should == "\nreplace_contents 'h1'\nclosing_selector 'div#intro'\ndisabled\nnamespaced"
+      dsl_commands.should == "\nreplace_contents 'h1 .title'\nclosing_selector \"div#intro\"\ndisabled\nnamespaced"
       the_rest.should == "<h1>Wow!</h1>"
     end
 

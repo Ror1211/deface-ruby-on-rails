@@ -61,8 +61,8 @@ module Deface
             comment = html_file_contents[first_open_comment_index..first_close_comment_index+2]
           end
 
-          comment.gsub('<!--', '').gsub('-->', '').strip.split(' ').each do |part|
-            dsl_commands =~ /('|")\z/ || part =~ /\w\z/ ? dsl_commands << "\n" : ' '
+          comment.gsub('<!--', '').gsub('-->', '').strip.scan(/[^\s"']+|"[^"]*"|'[^']*'/).each do |part|
+            dsl_commands =~ /('|")\z/ || part =~ /\w\z/ ? dsl_commands << "\n" : dsl_commands << ' '
             dsl_commands << part
           end
 
