@@ -1,7 +1,7 @@
 module Deface
 
   class Environment
-    attr_accessor :overrides, :enabled, :haml_support
+    attr_accessor :overrides, :enabled, :haml_support, :namespaced
     def initialize
       @overrides    = Overrides.new
       @enabled      = true
@@ -9,6 +9,7 @@ module Deface
       @actions = [ Actions::Remove, Actions::Replace, Actions::ReplaceContents, Actions::Surround, 
         Actions::SurroundContents, Actions::InsertBefore, Actions::InsertAfter, Actions::InsertTop, 
         Actions::InsertBottom, Actions::SetAttributes, Actions::AddToAttributes, Actions::RemoveFromAttributes ]
+      @namespaced   = false
     end
 
     def register_action(action)
