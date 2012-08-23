@@ -1,4 +1,5 @@
-require 'rubygems'
+require 'simplecov'
+SimpleCov.start 'rails'
 require 'rspec'
 require 'action_view'
 require 'action_controller'
