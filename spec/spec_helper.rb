@@ -59,3 +59,16 @@ shared_context "mock Rails.application" do
     Rails.application.config.deface.haml_support = true
   end
 end
+
+# Dummy Deface instance for testing actions / applicator
+class Dummy
+  extend Deface::Applicator::ClassMethods
+  extend Deface::Search::ClassMethods
+
+  attr_reader :parsed_document
+
+  def self.all
+    Rails.application.config.deface.overrides.all
+  end
+end
+
