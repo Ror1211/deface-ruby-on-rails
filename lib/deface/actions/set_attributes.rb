@@ -5,11 +5,7 @@ module Deface
         target_element.remove_attribute(name)
         target_element.remove_attribute("data-erb-#{name}")
 
-        if target_element.attributes.key?(name)
-          target_element.set_attribute(name, value.to_s)
-        else
-          target_element.set_attribute("data-erb-#{name}", value.to_s)
-        end
+        target_element.set_attribute("data-erb-#{name}", value.to_s)
       end
     end
   end
