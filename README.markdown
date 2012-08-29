@@ -195,9 +195,11 @@ You do not need to resupply all the values originally used, just the ones you wa
 If you want to avoid inadvertently redefining overrides in other engines, you can use the `namespaced` option to have
 an override automatically be namespaced to the engine in which it was defined:
 
+```ruby
     Deface::Override.new(:virtual_path => 'posts/index',
                         :name => 'add_link',
                         :namespaced => true)
+```
 
 So for example if the above override was defined in `MyEngine` it would be automatically named `my_engine_add_link`.
 This can also be activated globally for all DSL overrides in your app's `application.rb` file:
