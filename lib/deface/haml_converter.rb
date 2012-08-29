@@ -74,6 +74,11 @@ module Deface
 
   class HamlConverter < Haml::Engine
 
+    # spec coverage will always be bad on one-side
+    # or the other of this if, travis-ci gemfile takes
+    # care of 3.2 haml side for now (until 3.2 is relased)
+    # then we should reverse to test 3.1 with gemfile
+    #
     if Haml::VERSION >= "3.2"
       class Compiler < Haml::Compiler
         include HamlCompilerMethods
