@@ -5,11 +5,10 @@ module Deface
     extend Applicator::ClassMethods
     extend Search::ClassMethods
 
-    cattr_accessor :actions, :sources, :_early, :current_railtie
+    cattr_accessor :sources, :_early, :current_railtie
     attr_accessor :args, :parsed_document
 
     @@_early = []
-    @@actions = [:remove, :replace, :replace_contents, :surround, :surround_contents, :insert_after, :insert_before, :insert_top, :insert_bottom, :set_attributes, :add_to_attributes, :remove_from_attributes]
     @@sources = [:text, :erb, :haml, :partial, :template, :cut, :copy]
 
     # Initializes new override, you must supply only one Target, Action & Source
@@ -45,8 +44,8 @@ module Deface
         @args = self.class.all[virtual_key][name_key].args
 
         #check if the action is being redefined, and reject old action
-        if (@@actions & args.keys).present?
-          @args.reject!{|key, value| (@@actions & @args.keys).include? key }
+        if (self.class.actions & args.keys).present?
+          @args.reject!{|key, value| (self.class.actions & @args.keys).include? key }
         end
 
         #check if the source is being redefined, and reject old action
@@ -123,7 +122,7 @@ module Deface
     end
 
     def action
-      (@@actions & @args.keys).first
+      (self.class.actions & @args.keys).first
     end
 
     def source
@@ -226,6 +225,10 @@ module Deface
 
     def self.all
       Rails.application.config.deface.overrides.all
+    end
+
+    def self.actions
+      Rails.application.config.deface.actions.map &:to_sym
     end
 
     def execute_action(target_element)

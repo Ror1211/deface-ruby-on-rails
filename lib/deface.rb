@@ -6,7 +6,6 @@ require "deface/applicator"
 require "deface/search"
 require "deface/override"
 require "deface/parser"
-require "deface/environment"
 require "deface/dsl/loader"
 require "deface/actions/action"
 require "deface/actions/element_action"
@@ -26,6 +25,7 @@ require "deface/actions/add_to_attributes"
 require "deface/actions/remove_from_attributes"
 require "deface/matchers/element"
 require "deface/matchers/range"
+require "deface/environment"
 
 module Deface
   if defined?(Rails)

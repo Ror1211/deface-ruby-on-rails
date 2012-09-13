@@ -14,6 +14,10 @@ module Deface
       def range_compatible?
         false
       end
+
+      def self.to_sym
+        self.to_s.demodulize.underscore.to_sym
+      end
     end
   end
 end

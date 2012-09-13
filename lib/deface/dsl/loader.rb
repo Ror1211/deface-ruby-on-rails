@@ -36,7 +36,7 @@ module Deface
             context.virtual_path(determine_virtual_path(filename))
             context.instance_eval(dsl_commands)
             context.haml(the_rest)
-            context.create_override            
+            context.create_override
           else
             context = Context.new(context_name)
             context.virtual_path(determine_virtual_path(filename))

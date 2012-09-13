@@ -1,4 +1,7 @@
 module Deface
+  DEFAULT_ACTIONS = [ Actions::Remove, Actions::Replace, Actions::ReplaceContents, Actions::Surround, 
+        Actions::SurroundContents, Actions::InsertBefore, Actions::InsertAfter, Actions::InsertTop, 
+        Actions::InsertBottom, Actions::SetAttributes, Actions::AddToAttributes, Actions::RemoveFromAttributes ]
 
   class Environment
     attr_accessor :overrides, :enabled, :haml_support, :namespaced
@@ -6,14 +9,16 @@ module Deface
       @overrides    = Overrides.new
       @enabled      = true
       @haml_support = false
-      @actions = [ Actions::Remove, Actions::Replace, Actions::ReplaceContents, Actions::Surround, 
-        Actions::SurroundContents, Actions::InsertBefore, Actions::InsertAfter, Actions::InsertTop, 
-        Actions::InsertBottom, Actions::SetAttributes, Actions::AddToAttributes, Actions::RemoveFromAttributes ]
+      @actions      = []
       @namespaced   = false
+
+
+      Deface::DEFAULT_ACTIONS.each { |action| register_action(action) }
     end
 
     def register_action(action)
       @actions << action
+      Deface::DSL::Context.define_action_method(action.to_sym)
     end
 
     def actions

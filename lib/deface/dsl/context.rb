@@ -19,7 +19,7 @@ module Deface
         @virtual_path = name
       end
 
-      Deface::Override.actions.each do |action_name|
+      def self.define_action_method(action_name)
         define_method(action_name) do |selector|
           if @action.present?
             Rails.logger.error "\e[1;32mDeface: [WARNING]\e[0m Multiple action methods have been called. The last one will be used."

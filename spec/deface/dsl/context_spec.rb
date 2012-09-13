@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'deface/dsl/context'
 
 describe Deface::DSL::Context do
-  include_context "mock Rails"
+  include_context "mock Rails.application"
 
   context '#create_override' do
     subject { context = Deface::DSL::Context.new('sample_name') }
@@ -25,7 +25,8 @@ describe Deface::DSL::Context do
     end
 
     context 'actions' do
-      Deface::Override.actions.each do |action|
+      Deface::DEFAULT_ACTIONS.each do |action|
+        action = action.to_sym
         it "should use value set with ##{action}" do
           subject.send(action, "#{action}/selector")
 
@@ -35,7 +36,7 @@ describe Deface::DSL::Context do
 
       it 'should generate a warning if two action values are specified' do
         subject.insert_top('selector')
-        
+
         logger = mock('logger')
         Rails.should_receive(:logger).and_return(logger)
         logger.should_receive(:error).with("\e[1;32mDeface: [WARNING]\e[0m Multiple action methods have been called. The last one will be used.")
