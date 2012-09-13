@@ -29,7 +29,7 @@ module Deface
         end
       end
 
-      Deface::Override.sources.each do |source_name|
+      def self.define_source_method(source_name)
         define_method(source_name) do |value|
           if @source.present?
             Rails.logger.error "\e[1;32mDeface: [WARNING]\e[0m Multiple source methods have been called. The last one will be used."

@@ -17,7 +17,7 @@ module Deface
     end
 
     it "should have a sources method" do
-      Deface::Override.sources.should include(:text)
+      Deface::DEFAULT_SOURCES.map(&:to_sym).should include(:text)
     end
 
     it "should return correct selector" do
@@ -345,9 +345,9 @@ module Deface
         ActionController::Base.stub(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
 
         Rails.application.config.deface.overrides.all.clear
-        @override    = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :partial => "shared/post", :replace => "h1")
+        @override    = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :partial => "shared/post", :replace => "h1", :text => "<span>I'm text</span>")
         expect {
-          @replacement = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :text => "<p>I do be a pirate!</p>")
+          @replacement = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :erb => "<p>I do be a pirate!</p>")
         }.to change{Rails.application.config.deface.overrides.all.size}.by(0)
       end
 

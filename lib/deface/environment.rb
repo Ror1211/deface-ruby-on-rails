@@ -1,7 +1,9 @@
 module Deface
-  DEFAULT_ACTIONS = [ Actions::Remove, Actions::Replace, Actions::ReplaceContents, Actions::Surround, 
-        Actions::SurroundContents, Actions::InsertBefore, Actions::InsertAfter, Actions::InsertTop, 
+  DEFAULT_ACTIONS = [ Actions::Remove, Actions::Replace, Actions::ReplaceContents, Actions::Surround,
+        Actions::SurroundContents, Actions::InsertBefore, Actions::InsertAfter, Actions::InsertTop,
         Actions::InsertBottom, Actions::SetAttributes, Actions::AddToAttributes, Actions::RemoveFromAttributes ]
+
+  DEFAULT_SOURCES = [ Sources::Text, Sources::Erb, Sources::Haml, Sources::Partial, Sources::Template, Sources::Cut, Sources::Copy]
 
   class Environment
     attr_accessor :overrides, :enabled, :haml_support, :namespaced
@@ -10,10 +12,11 @@ module Deface
       @enabled      = true
       @haml_support = false
       @actions      = []
+      @sources      = []
       @namespaced   = false
 
-
       Deface::DEFAULT_ACTIONS.each { |action| register_action(action) }
+      Deface::DEFAULT_SOURCES.each { |source| register_source(source) }
     end
 
     def register_action(action)
@@ -24,6 +27,16 @@ module Deface
     def actions
       @actions.dup
     end
+
+    def register_source(source)
+      @sources << source
+      Deface::DSL::Context.define_source_method(source.to_sym)
+    end
+
+    def sources
+      @sources.dup
+    end
+
   end
 
   class Environment::Overrides

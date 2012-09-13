@@ -1,15 +1,13 @@
 module Deface
   class Override
-    include TemplateHelper
     include OriginalValidator
     extend Applicator::ClassMethods
     extend Search::ClassMethods
 
-    cattr_accessor :sources, :_early, :current_railtie
+    cattr_accessor :_early, :current_railtie
     attr_accessor :args, :parsed_document
 
     @@_early = []
-    @@sources = [:text, :erb, :haml, :partial, :template, :cut, :copy]
 
     # Initializes new override, you must supply only one Target, Action & Source
     # parameter for each override (and any number of Optional parameters).
@@ -49,8 +47,8 @@ module Deface
         end
 
         #check if the source is being redefined, and reject old action
-        if (@@sources & args.keys).present?
-          @args.reject!{|key, value| (@@sources & @args.keys).include? key }
+        if (Deface::DEFAULT_SOURCES.map(&:to_sym) & args.keys).present?
+          @args.reject!{|key, value| (Deface::DEFAULT_SOURCES.map(&:to_sym) & @args.keys).include? key }
         end
 
         @args.merge!(args)
@@ -125,55 +123,20 @@ module Deface
       (self.class.actions & @args.keys).first
     end
 
+    # Returns the markup to be used as the replacement
+    #
     def source
-      erb = case source_argument
-      when :partial
-        load_template_source(@args[:partial], true)
-      when :template
-        load_template_source(@args[:template], false)
-      when :text
-        @args[:text]
-      when :erb
-        @args[:erb]
-      when :cut
-        cut = @args[:cut]
+      sources = Rails.application.config.deface.sources
+      source = sources.find { |source| source.to_sym == source_argument }
+      raise(DefaceError, "Source #{source} not found.") unless source
 
-        if cut.is_a? Hash
-          range = Deface::Matchers::Range.new('Cut', cut[:start], cut[:end]).matches(self.parsed_document).first
-          range.map &:remove
-
-          Deface::Parser.undo_erb_markup! range.map(&:to_s).join
-
-        else
-          Deface::Parser.undo_erb_markup! self.parsed_document.css(cut).first.remove.to_s.clone
-        end
-
-      when :copy
-        copy = @args[:copy]
-
-        if copy.is_a? Hash
-          range = Deface::Matchers::Range.new('Copy', copy[:start], copy[:end]).matches(self.parsed_document).first
-          Deface::Parser.undo_erb_markup! range.map(&:to_s).join
-        else
-         Deface::Parser.undo_erb_markup! parsed_document.css(copy).first.to_s.clone
-        end
-
-      when :haml
-        if Rails.application.config.deface.haml_support
-          haml_engine = Deface::HamlConverter.new(@args[:haml])
-          haml_engine.render
-        else
-          raise Deface::NotSupportedError, "`#{self.name}` supplies :haml source, but haml_support is not detected."
-        end
-      end
-
-      erb
+      source.execute(self)
     end
 
     # Returns a :symbol for the source argument present
     #
     def source_argument
-      @@sources.detect { |source| @args.key? source }
+      Deface::DEFAULT_SOURCES.detect { |source| @args.key? source.to_sym }.try :to_sym
     end
 
     def source_element
@@ -194,6 +157,8 @@ module Deface
       @args[:closing_selector]
     end
 
+    # returns attributes hash for attribute related actions
+    #
     def attributes
       @args[:attributes] || []
     end
@@ -242,7 +207,7 @@ module Deface
 
     def create_action_command
       commands = Rails.application.config.deface.actions
-      command = commands.find { |command| command.desired_action? action }
+      command = commands.find { |command| command.to_sym == action }
       raise(DefaceError, "Action #{action} not found") unless command
       command.new(:source_element => safe_source_element, :attributes => attributes)
     end

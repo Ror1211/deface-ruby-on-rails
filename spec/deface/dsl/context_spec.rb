@@ -55,7 +55,8 @@ describe Deface::DSL::Context do
     end
 
     context 'sources' do
-      Deface::Override.sources.each do |source|
+      Deface::DEFAULT_SOURCES.each do |source|
+        source = source.to_sym
         it "should use value set with ##{source}" do
           subject.send(source, "#{source} value")
 
