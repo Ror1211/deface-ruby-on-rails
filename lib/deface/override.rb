@@ -1,6 +1,7 @@
 module Deface
   class Override
     include OriginalValidator
+    include Applicator
     extend Applicator::ClassMethods
     extend Search::ClassMethods
 
@@ -123,7 +124,7 @@ module Deface
       (self.class.actions & @args.keys).first
     end
 
-    # Returns the markup to be used as the replacement
+    # Returns the markup to be inserted / used
     #
     def source
       sources = Rails.application.config.deface.sources
@@ -196,37 +197,6 @@ module Deface
       Rails.application.config.deface.actions.map &:to_sym
     end
 
-    def execute_action(target_element)
-      validate_original(target_element)
-      create_action_command.execute(target_element)
-    end
-
-    def execute_action_on_range(target_range)
-      create_action_command.execute_on_range(target_range)
-    end
-
-    def create_action_command
-      commands = Rails.application.config.deface.actions
-      command = commands.find { |command| command.to_sym == action }
-      raise(DefaceError, "Action #{action} not found") unless command
-      command.new(:source_element => safe_source_element, :attributes => attributes)
-    end
-
-    def compatible_with_end_selector?
-      create_action_command.range_compatible?
-    end
-
-    def matcher
-      if end_selector.blank?
-        Deface::Matchers::Element.new(selector) # single css selector
-      else
-        unless compatible_with_end_selector?
-          raise Deface::NotSupportedError, ":#{action} action does not support :closing_selector"
-        end
-        # targeting range of elements as end_selector is present
-        Deface::Matchers::Range.new(name, selector, end_selector)
-      end
-    end
 
     private
 
