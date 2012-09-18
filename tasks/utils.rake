@@ -1,7 +1,10 @@
 require 'deface'
+require 'deface/utils/failure_finder'
+require 'colorize'
 
 namespace :deface do
   include Deface::TemplateHelper
+  include Deface::Utils::FailureFinder
 
   desc 'Applies selectors to given partial/template, and returns match(s) source.'
   task :test_selector, [:virtual_path, :selector] => [:environment] do |t, args|
@@ -56,4 +59,25 @@ namespace :deface do
 
   end
 
+  desc 'Load and apply all overrides, and output results'
+  task :test_all => [:environment] do |t|
+    fail_count = Deface::Override.all.keys.map(&:to_s).inject(0) do |failed, virtual_path|
+      result = output_results_by_virtual_path(virtual_path)
+
+      failed += result
+    end
+
+    if fail_count == 0
+      puts "\nEverything's looking good!".green
+      exit(0)
+    else
+      puts "\nYou had a total of #{fail_count} failures.".red
+      exit(1)
+    end
+  end
+
+  desc 'Report on failing overrides for a partial/template'
+  task :failures_by_virtual_path, [:virtual_path] => [:environment] do |t,args|
+    output_results_by_virtual_path(args[:virtual_path])
+  end
 end

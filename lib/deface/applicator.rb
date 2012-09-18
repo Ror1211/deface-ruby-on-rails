@@ -31,7 +31,12 @@ module Deface
               Rails.logger.send(matches.size == 0 ? :error : :info, "\e[1;32mDeface:\e[0m '#{override.name}' matched #{matches.size} times with '#{override.selector}'")
             end
 
-            matches.each {|match| override.execute_action match } unless matches.empty?
+            if matches.empty?
+              override.failure = "failed to match :#{override.action} selector '#{override.selector}'"
+            else
+              override.failure = nil
+              matches.each {|match| override.execute_action match }
+            end
           end
 
           #prevents any caching by rails in development mode

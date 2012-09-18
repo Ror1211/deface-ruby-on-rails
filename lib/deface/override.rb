@@ -6,7 +6,7 @@ module Deface
     extend Search::ClassMethods
 
     cattr_accessor :_early, :current_railtie
-    attr_accessor :args, :parsed_document
+    attr_accessor :args, :parsed_document, :failure
 
     @@_early = []
 
@@ -131,7 +131,7 @@ module Deface
       source = sources.find { |source| source.to_sym == source_argument }
       raise(DefaceError, "Source #{source} not found.") unless source
 
-      source.execute(self)
+      source.execute(self) || ''
     end
 
     # Returns a :symbol for the source argument present
