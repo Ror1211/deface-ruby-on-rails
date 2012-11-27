@@ -53,7 +53,7 @@ describe Deface::DSL::Loader do
       lambda { Deface::DSL::Loader.load(filename) }.should raise_error(
         "Deface::DSL overrides must be in a sub-directory that matches the views virtual path. Move 'app/overrides/example_name.html.erb.deface' into a sub-directory.")
     end
- 
+
     it 'should set the virtual_path for a .deface file in a directory below overrides' do
       file = mock('deface file')
       filename = 'app/overrides/path/to/view/example_name.deface'
@@ -177,6 +177,19 @@ describe Deface::DSL::Loader do
       the_rest.should == "<h1>Wow!</h1>"
     end
 
+    it 'should work with multiple commands on one line when command argument is not a string' do
+      example = %q{<!-- replace_contents 'h1 .title' closing_selector %q{div#intro} disabled namespaced --><h1>Wow!</h1>}
+      dsl_commands, the_rest = Deface::DSL::Loader.extract_dsl_commands_from_erb(example)
+      dsl_commands.should == "\nreplace_contents 'h1 .title'\nclosing_selector %q{div#intro}\ndisabled\nnamespaced"
+      the_rest.should == "<h1>Wow!</h1>"
+    end
+
+    it 'should work with multiple commands on one line when command argument is a hash' do
+      example = %q{<!-- add_to_attributes 'h1 .title' attributes :class => 'pretty'--><h1>Wow!</h1>}
+      dsl_commands, the_rest = Deface::DSL::Loader.extract_dsl_commands_from_erb(example)
+      dsl_commands.should == "\nadd_to_attributes 'h1 .title'\nattributes :class => 'pretty'"
+      the_rest.should == "<h1>Wow!</h1>"
+    end
   end
 
   context '.extract_dsl_commands_from_haml' do
