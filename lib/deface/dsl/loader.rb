@@ -63,7 +63,7 @@ module Deface
 
           comment.gsub('<!--', '').gsub('-->', '').strip.scan(/[^\s"']+|"[^"]*"|'[^']*'/).each do |part|
 
-            dsl_commands =~ /('|")\z/ || part =~ /\A[^:='"%]/ ? dsl_commands << "\n" : dsl_commands << ' '
+            dsl_commands =~ /('|")\z/ || part =~ /\A[^\d:='"%]/ ? dsl_commands << "\n" : dsl_commands << ' '
             dsl_commands << part
           end
 
