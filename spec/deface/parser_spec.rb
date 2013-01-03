@@ -75,8 +75,14 @@ module Deface
       end
 
       it "should convert multiple <% ... %> inside html tag" do
-        Deface::Parser.convert(%q{<p <%= method_name %> alt="<% x = 'y' + 
-                               \"2\" %>" title='<% method_name %>' <%= other_method %></p>}).to_s.should == "<p data-erb-0=\"&lt;%= method_name %&gt;\" data-erb-alt=\"&lt;% x = 'y' + \n                               \\&quot;2\\&quot; %&gt;\" data-erb-title=\"&lt;% method_name %&gt;\" data-erb-1=\"&lt;%= other_method %&gt;\"></p>"
+        tag = Deface::Parser.convert(%q{<p <%= method_name %> alt="<% x = 'y' + 
+                               \"2\" %>" title='<% method_name %>' <%= other_method %></p>})
+
+        tag = tag.css('p').first
+        tag.attributes['data-erb-0'].value.should == "<%= method_name %>"
+        tag.attributes['data-erb-1'].value.should == "<%= other_method %>"
+        tag.attributes['data-erb-alt'].value.should == "<% x = 'y' + \n                               \\\"2\\\" %>"
+        tag.attributes['data-erb-title'].value.should == "<% method_name %>"
       end
 
       it "should convert <%= ... %> including href attribute" do
