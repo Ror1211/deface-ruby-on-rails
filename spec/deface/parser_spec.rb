@@ -40,7 +40,7 @@ module Deface
         end
 
         #accounting for qwerks in Nokogir between ruby versions / platforms
-        if RUBY_VERSION < "1.9"
+        if RUBY_VERSION < "1.9" || RUBY_PLATFORM == 'java'
           parsed.should == ["<html><head><title>test</title></head></html>"]
         else
           parsed.should == "<html><head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<title>test</title>\n</head></html>".split("\n")
