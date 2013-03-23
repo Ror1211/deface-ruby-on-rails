@@ -54,7 +54,10 @@ module Deface
         let(:source) { "<div><img class=\"<%= hello_moon %>\" src=\"path/to/button.png\"></div>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", "").should == "<div><img src=\"path/to/button.png\" class=\"<%= hello_world %>\"></div>"
+          tag = Nokogiri::HTML::DocumentFragment.parse(Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", ""))
+          tag = tag.css('img').first
+          tag.attributes['src'].value.should eq "path/to/button.png"
+          tag.attributes['class'].value.should eq "<%= hello_world %>"
         end
       end
     end

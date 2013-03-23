@@ -24,7 +24,6 @@ module Deface
           replace_line
         end
 
-
         i = -1
         #catch all <% %> inside tags id <p <%= test %>> , not inside attrs
         replace_line.scan(/(<%.*?%>)/m).each do |match|

@@ -79,8 +79,8 @@ module Deface
 
     describe "element_source" do
       it "should return array of matches elements" do
-        element_source('<div><p class="pirate">Arrgh!</p><img src="/some/image.jpg"></div>', 'p.pirate').should == ["<p class=\"pirate\">Arrgh!</p>\n"]
-        element_source('<div><p class="pirate">Arrgh!</p><p>No pirates here...</p></div>', 'p').should ==  ["<p class=\"pirate\">Arrgh!</p>\n", "<p>No pirates here...</p>"]
+        element_source('<div><p class="pirate">Arrgh!</p><img src="/some/image.jpg"></div>', 'p.pirate').map(&:strip).should == ["<p class=\"pirate\">Arrgh!</p>"]
+        element_source('<div><p class="pirate">Arrgh!</p><p>No pirates here...</p></div>', 'p').map(&:strip).should ==  ["<p class=\"pirate\">Arrgh!</p>", "<p>No pirates here...</p>"]
       end
 
       it "should return empty array for no matches" do

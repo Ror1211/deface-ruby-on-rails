@@ -36,7 +36,12 @@ module Deface
       it "should return parsed nokogiri document when present" do
         @original = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>", :original => "<p><%= something %></p>")
         @original.original_source.should be_an_instance_of Nokogiri::HTML::DocumentFragment
-        @original.original_source.to_s.should == "<p><code erb-loud> something </code></p>"
+
+        if RUBY_PLATFORM == 'java'
+          @original.original_source.to_s.should == "<p><code erb-loud=\"\"> something </code></p>"
+        else
+          @original.original_source.to_s.should == "<p><code erb-loud> something </code></p>"
+        end
       end
     end
 
@@ -58,8 +63,13 @@ module Deface
       end
 
       it "should return true when input contains similar (ignoring whitespace)" do
-        @original.validate_original("<p><code erb-loud> something </code></p>").should be_true
-        @original.validate_original("<p><code erb-loud>something\n</code>  </p>").should be_true
+        if RUBY_PLATFORM == 'java'
+          @original.validate_original("<p><code erb-loud=\"\"> something </code></p>").should be_true
+          @original.validate_original("<p><code erb-loud=\"\">something\n</code>  </p>").should be_true
+        else
+          @original.validate_original("<p><code erb-loud> something </code></p>").should be_true
+          @original.validate_original("<p><code erb-loud>something\n</code>  </p>").should be_true
+        end
       end
 
       it "should return false when and input contains different string" do
@@ -163,13 +173,18 @@ module Deface
 
       it "should not change original parsed source" do
         @override.source
-        parsed.to_s.gsub(/\n/,'').should == "<div><h1>Manage Posts</h1><code erb-loud> some_method </code></div>"
+
+        if RUBY_PLATFORM == 'java'
+          parsed.to_s.gsub(/\n/,'').should == "<div><h1>Manage Posts</h1><code erb-loud=\"\"> some_method </code></div>"
+        else
+          parsed.to_s.gsub(/\n/,'').should == "<div><h1>Manage Posts</h1><code erb-loud> some_method </code></div>"
+        end
 
         @override.source_argument.should == :copy
       end
 
       it "should return copy of content from source document" do
-        @override.source.should == "<h1>Manage Posts</h1>\n"
+        @override.source.to_s.strip.should == "<h1>Manage Posts</h1>"
       end
 
       it "should return unescaped content for source document" do
@@ -193,7 +208,12 @@ module Deface
 
       it "should not change original parsed source" do
         @override.source
-        parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><code erb-silent> if true </code><p>True that!</p><code erb-silent> end </code><p>Hello</p>"
+
+        if RUBY_PLATFORM == 'java'
+          parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><code erb-silent=\"\"> if true </code><p>True that!</p><code erb-silent=\"\"> end </code><p>Hello</p>"
+        else
+          parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><code erb-silent> if true </code><p>True that!</p><code erb-silent> end </code><p>Hello</p>"
+        end
 
         @override.source_argument.should == :copy
       end
@@ -212,7 +232,11 @@ module Deface
 
       it "should remove cut element from original parsed source" do
         @override.source
-        parsed.to_s.gsub(/\n/,'').should == "<div><code erb-loud> some_method </code></div>"
+        if RUBY_PLATFORM == 'java'
+          parsed.to_s.gsub(/\n/,'').should == "<div><code erb-loud=\"\"> some_method </code></div>"
+        else
+          parsed.to_s.gsub(/\n/,'').should == "<div><code erb-loud> some_method </code></div>"
+        end
 
         @override.source_argument.should == :cut
       end
@@ -243,7 +267,11 @@ module Deface
 
       it "should remove cut element from original parsed source" do
         @override.source 
-        parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><code erb-loud> hello </code>"
+        if RUBY_PLATFORM == 'java'
+          parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><code erb-loud=\"\"> hello </code>"
+        else
+          parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><code erb-loud> hello </code>"
+        end
 
         @override.source_argument.should == :cut
       end
@@ -298,9 +326,18 @@ module Deface
 
       it "should return escaped source" do
         @override.source_element.should be_an_instance_of Nokogiri::HTML::DocumentFragment
-        @override.source_element.to_s.should == "<code erb-loud> method :opt =&gt; 'x' &amp; 'y' </code>"
-        #do it twice to ensure it doesn't change as it's destructive
-        @override.source_element.to_s.should == "<code erb-loud> method :opt =&gt; 'x' &amp; 'y' </code>"
+
+        if RUBY_PLATFORM == 'java'
+          source = "<code erb-loud=\"\"> method :opt =&gt; 'x' &amp; 'y' </code>"
+          @override.source_element.to_s.should ==  source
+          #do it twice to ensure it doesn't change as it's destructive
+          @override.source_element.to_s.should == source
+        else
+          source = "<code erb-loud> method :opt =&gt; 'x' &amp; 'y' </code>"
+          @override.source_element.to_s.should == source
+          #do it twice to ensure it doesn't change as it's destructive
+          @override.source_element.to_s.should == source
+        end
       end
     end
 
