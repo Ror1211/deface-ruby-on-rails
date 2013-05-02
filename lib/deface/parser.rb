@@ -71,6 +71,14 @@ module Deface
         source.gsub!("#{match[0]}#{match[1]}#{match[2]}") { |m| m = "#{match[0]}#{ CGI.unescapeHTML match[1] }#{match[2]}" }
       end
 
+      if RUBY_PLATFORM == 'java'
+        #un-escapes changes from Nokogiri under Java, where " are converted to %22 when in an attribute of an element
+        #
+        source.scan(/(<%.*?)((?:(?!%>)[\s\S])*)(%>)/).each do |match|
+          source.gsub!("#{match[0]}#{match[1]}#{match[2]}") { |m| m = "#{match[0]}#{ match[1].gsub('%22', '"') }#{match[2]}" }
+        end
+      end
+
       source
     end
 
