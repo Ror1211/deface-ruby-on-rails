@@ -90,8 +90,10 @@ module Deface
         Deface::Parser.convert("<p id=\"<% method_name %>\"></p>").to_s.should == "<p data-erb-id=\"&lt;% method_name %&gt;\"></p>"
       end
 
-      it "should convert <% ... %> contains double quoted  value" do
-        Deface::Parser.convert("<p <% method_name \"test\" %>></p>").to_s.should == "<p data-erb-0=\"&lt;% method_name %22test%22 %&gt;\"></p>"
+      if RUBY_PLATFORM == 'java'
+        it "should convert <% ... %> contains double quoted  value" do
+          Deface::Parser.convert("<p <% method_name \"test\" %>></p>").to_s.should == "<p data-erb-0=\"&lt;% method_name %22test%22 %&gt;\"></p>"
+        end
       end
 
       it "should convert <% ... %> inside single quoted attr value" do
@@ -190,8 +192,10 @@ module Deface
         Deface::Parser.undo_erb_markup!("<a data-erb-href=\"&lt;%= x 'y' + &quot;z&quot; %&gt;\">A Link</a>").should == %(<a href="<%= x 'y' + \"z\" %>">A Link</a>)
       end
 
-      it "should revert data-erb-x containing double quoted value" do
-        Deface::Parser.undo_erb_markup!("<p data-erb-0=\"&lt;% method_name %22test%22 %&gt;\"></p>").should == %(<p <% method_name \"test\" %>></p>)
+      if RUBY_PLATFORM == 'java'
+        it "should revert data-erb-x containing double quoted value" do
+          Deface::Parser.undo_erb_markup!("<p data-erb-0=\"&lt;% method_name %22test%22 %&gt;\"></p>").should == %(<p <% method_name \"test\" %>></p>)
+        end
       end
 
       it "should unescape contents of code tags" do
