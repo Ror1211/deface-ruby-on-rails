@@ -2,13 +2,16 @@ ActionView::Template.class_eval do
   alias_method :initialize_without_deface, :initialize
 
   def initialize(source, identifier, handler, details)
-    if Rails.application.config.deface.enabled && should_be_defaced?(handler)
-      haml = handler.to_s == "Haml::Plugin"
-      slim = handler.class.to_s == "Slim::RailsTemplate"
+    syntax = determine_syntax(handler)
 
-      processed_source = Deface::Override.apply(source, details, true, haml, slim)
+    if Rails.application.config.deface.enabled && should_be_defaced?(syntax)
 
-      if haml && processed_source != source || slim && processed_source != source
+      processed_source = Deface::Override.apply(source, details, true, syntax)
+
+      # force change in handler before continuing to original Rails method
+      # as we've just converted some other template language into ERB!
+      #
+      if [:slim, :haml].include?(syntax) && processed_source != source
         handler = ActionView::Template::Handlers::ERB
       end
     else
@@ -54,9 +57,20 @@ ActionView::Template.class_eval do
 
   private
 
-    def should_be_defaced?(handler)
-      handler.to_s.demodulize == "ERB" || handler.class.to_s.demodulize == "ERB" ||
-      handler.to_s == "Haml::Plugin" || handler.class.to_s == 'Slim::RailsTemplate'
+    def should_be_defaced?(syntax)
+      syntax != :unknown
+    end
+
+    def determine_syntax(handler)
+      if handler.to_s == "Haml::Plugin"
+        :haml
+      elsif handler.class.to_s == "Slim::RailsTemplate"
+        :slim
+      elsif handler.to_s.demodulize == "ERB" || handler.class.to_s.demodulize == "ERB"
+        :erb
+      else
+        :unknown
+      end
     end
 end
 

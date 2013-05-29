@@ -86,7 +86,8 @@ module ActionView
         expectations.each do |handler, expected|
           @template = ActionView::Template.new("xml.post => :blah", "/some/path/to/file.erb", handler, {:virtual_path=>"posts/index", :format=>:xml, :updated_at => (Time.now - 100)})
           @template.is_a?(ActionView::Template).should == true
-          @template.send(:should_be_defaced?, handler).should eq(expected), "unexpected result for handler "+handler.to_s
+          syntax = @template.send(:determine_syntax, handler)
+          @template.send(:should_be_defaced?, syntax).should eq(expected), "unexpected result for handler "+handler.to_s
         end
       end
     end
