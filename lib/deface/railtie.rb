@@ -39,7 +39,7 @@ module Deface
       app.config.eager_load_paths.reject! {|path| path  =~ /app\/overrides\z/ }
 
       # railites / engines / extensions
-      app.railties.all.each do |railtie|
+      app.railties._all.each do |railtie|
         next unless railtie.respond_to? :root
 
         railtie.config.eager_load_paths.reject! {|path| path  =~ /app\/overrides\z/ }

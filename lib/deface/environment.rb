@@ -51,16 +51,15 @@ module Deface
     end
 
     def load_all(app)
-      #clear overrides before reloading them
+      # clear overrides before reloading them
       app.config.deface.overrides.all.clear
       Deface::DSL::Loader.register
 
       # check all railties / engines / extensions / application for overrides
-      app.railties.all.dup.push(app).each do |railtie|
+      app.railties._all.dup.push(app).each do |railtie|
         next unless railtie.respond_to? :root
         load_overrides(railtie)
       end
-
     end
 
     def early_check
