@@ -149,26 +149,23 @@ module Deface
         tag.text.should eq " method_name( :key => 'value' ) "
       end
 
-      if "".encoding_aware?
-        it "should respect valid encoding tag" do
-          source = %q{<%# encoding: ISO-8859-1 %>Can you say ümlaut?}
-          Deface::Parser.convert(source)
-          source.encoding.name.should == 'ISO-8859-1'
-        end
-
-        it "should force default encoding" do
-          source = %q{Can you say ümlaut?}
-          source.force_encoding('ISO-8859-1')
-          Deface::Parser.convert(source)
-          source.encoding.should == Encoding.default_external
-        end
-
-        it "should force default encoding" do
-          source = %q{<%# encoding: US-ASCII %>Can you say ümlaut?}
-          lambda { Deface::Parser.convert(source) }.should raise_error(ActionView::WrongEncodingError)
-        end
+      it "should respect valid encoding tag" do
+        source = %q{<%# encoding: ISO-8859-1 %>Can you say ümlaut?}
+        Deface::Parser.convert(source)
+        source.encoding.name.should == 'ISO-8859-1'
       end
 
+      it "should force default encoding" do
+        source = %q{Can you say ümlaut?}
+        source.force_encoding('ISO-8859-1')
+        Deface::Parser.convert(source)
+        source.encoding.should == Encoding.default_external
+      end
+
+      it "should force default encoding" do
+        source = %q{<%# encoding: US-ASCII %>Can you say ümlaut?}
+        lambda { Deface::Parser.convert(source) }.should raise_error(ActionView::WrongEncodingError)
+      end
     end
 
     describe "#undo_erb_markup" do

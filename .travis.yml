@@ -1,16 +1,12 @@
 script: "bundle exec rake"
 rvm:
-  - 1.8.7
-  - 1.9.2
   - 1.9.3
   - 2.0.0
-#  - jruby-18mode
-#  - jruby-19mode
 gemfile:
   - gemfiles/rails3_1.gemfile
   - gemfiles/rails3_2.gemfile
+  - gemfiles/rails4_0.gemfile
   - gemfiles/haml4_0.gemfile
-
 notifications:
   email:
     - brian@spreecommerce.com

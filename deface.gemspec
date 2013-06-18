@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.summary = "Deface is a library that allows you to customize ERB, Haml and Slim views in Rails"
 
   s.add_dependency('nokogiri', '~> 1.6.0')
-  s.add_dependency('rails', '~> 3.1')
+  s.add_dependency('rails', '>= 3.1')
   s.add_dependency('colorize', '>= 0.5.8')
 
   s.add_development_dependency('rspec', '>= 2.11.0')
