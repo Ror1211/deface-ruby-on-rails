@@ -68,13 +68,13 @@ module Deface
 
       it "should convert <% ... %>" do
         tag = Deface::Parser.convert("<% method_name %>")
-        tag = tag.css('code').first
+        tag = tag.css('erb').first
         tag.attributes['erb-silent'].value.should eq ''
       end
 
       it "should convert <%= ... %>" do
         tag = Deface::Parser.convert("<%= method_name %>")
-        tag = tag.css('code').first
+        tag = tag.css('erb').first
         tag.attributes['erb-loud'].value.should eq ''
       end
 
@@ -129,22 +129,22 @@ module Deface
         tag.text.should eq 'A Link'
       end
 
-      it "should escape contents code tags" do
+      it "should escape contents erb tags" do
         tag = Deface::Parser.convert("<% method_name :key => 'value' %>")
-        tag = tag.css('code').first
+        tag = tag.css('erb').first
         tag.attributes.key?('erb-silent').should be_true
         tag.text.should eq " method_name :key => 'value' "
       end
 
-      it "should handle round brackets in code tags" do
+      it "should handle round brackets in erb tags" do
         # commented out line below will fail as : adjacent to ( causes Nokogiri parser issue on jruby
         tag = Deface::Parser.convert("<% method_name(:key => 'value') %>")
-        tag = tag.css('code').first
+        tag = tag.css('erb').first
         tag.attributes.key?('erb-silent').should be_true
         tag.text.should eq " method_name(:key => 'value') "
 
         tag = Deface::Parser.convert("<% method_name( :key => 'value' ) %>")
-        tag = tag.css('code').first
+        tag = tag.css('erb').first
         tag.attributes.key?('erb-silent').should be_true
         tag.text.should eq " method_name( :key => 'value' ) "
       end
@@ -169,12 +169,12 @@ module Deface
     end
 
     describe "#undo_erb_markup" do
-      it "should revert <code erb-silent>" do
-        Deface::Parser.undo_erb_markup!("<code erb-silent> method_name </code>").should == "<% method_name %>"
+      it "should revert <erb erb-silent>" do
+        Deface::Parser.undo_erb_markup!("<erb erb-silent> method_name </erb>").should == "<% method_name %>"
       end
 
-      it "should revert <code erb-loud>" do
-        Deface::Parser.undo_erb_markup!("<code erb-loud> method_name </code>").should == "<%= method_name %>"
+      it "should revert <erb erb-loud>" do
+        Deface::Parser.undo_erb_markup!("<erb erb-loud> method_name </erb>").should == "<%= method_name %>"
       end
 
       it "should revert data-erb-x attrs inside html tag" do
@@ -195,7 +195,7 @@ module Deface
         end
       end
 
-      it "should unescape contents of code tags" do
+      it "should unescape contents of erb tags" do
         Deface::Parser.undo_erb_markup!("<% method(:key =&gt; 'value' %>").should == "<% method(:key => 'value' %>"
         Deface::Parser.undo_erb_markup!("<% method(:key =&gt; 'value'\n %>").should == "<% method(:key => 'value'\n %>"
       end
