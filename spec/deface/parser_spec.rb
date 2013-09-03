@@ -58,6 +58,20 @@ module Deface
         end
       end
 
+      # Regression test for #84, #100
+      it "should parse html document with erb in the head" do
+        parsed = Deface::Parser.convert("<html><head><%= method_name %></head><body></body></html>")
+        parsed.should be_an_instance_of(Nokogiri::HTML::Document)
+        parsed = parsed.to_s.split("\n")
+
+        if RUBY_PLATFORM == 'java'
+          parsed.should == ["<html><head><erb erb-loud=\"\"> method_name </erb></head><body></body></html>"]
+        else
+          parsed = parsed[1..-1]
+          parsed.should == "<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<erb erb-loud> method_name </erb>\n</head>\n<body></body>\n</html>".split("\n")
+        end
+      end
+
       it "should parse body tag" do
         tag = Deface::Parser.convert("<body id=\"body\" <%= something %>>test</body>")
         tag.should be_an_instance_of(Nokogiri::XML::Element)
