@@ -144,7 +144,7 @@ Removes any ERB block containing the string `helper_method` in the `posts/new.ht
 ```ruby
 Deface::Override.new(:virtual_path => "posts/new", 
                      :name => "example-4", 
-                     :remove => "erb[erb-loud]:contains('helper_method')",
+                     :remove => "erb[loud]:contains('helper_method')",
                      :original => "<%= helper_method %>")
 ```
 
@@ -171,8 +171,8 @@ Remove an entire ERB if statement (and all it's contents) in the 'admin/products
 ```ruby
 Deface::Override.new(:virtual_path => 'admin/products/index',
                      :name => "remove_if_statement",
-                     :remove => "erb[erb-silent]:contains('if @product.sold?')",
-                     :closing_selector => "erb[erb-silent]:contains('end')"
+                     :remove => "erb[silent]:contains('if @product.sold?')",
+                     :closing_selector => "erb[silent]:contains('end')"
 ```
 
 ### Scope
@@ -354,7 +354,7 @@ Deface temporarily converts ERB files into a pseudo HTML markup that can be pars
 becomes:
 
 ```html
-<erb erb-loud> some ruby code </erb>
+<erb loud> some ruby code </erb>
 ```
 
 and 
@@ -366,7 +366,7 @@ and
 becomes:
 
 ```html
-<erb erb-silent> other ruby code </erb>
+<erb silent> other ruby code </erb>
 ```
 
 ERB that is contained inside a HTML tag definition is converted slightly differently to ensure a valid HTML document that Nokogiri can parse:
