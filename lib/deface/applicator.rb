@@ -32,6 +32,12 @@ module Deface
 
             if log
               Rails.logger.send(matches.size == 0 ? :error : :debug, "\e[1;32mDeface:\e[0m '#{override.name}' matched #{matches.size} times with '#{override.selector}'")
+
+              # temporarily check and notify on use of old selector styles.
+              #
+              if matches.empty? && override.selector.match(/code|erb-loud|erb-silent/)
+                Rails.logger.error "\e[1;32mDeface: [WARNING]\e[0m Override '#{override.name}' may be using an invalid selector of '#{override.selector}', <code erb-loud|silent> tags are now <erb loud|silent>"
+              end
             end
 
             if matches.empty?
