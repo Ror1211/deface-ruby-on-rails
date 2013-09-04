@@ -17,7 +17,7 @@ Upgrading from 0.9 to 1.0
 
 If you are updating from 0.9.x to 1.0.0 or higher, there's a major internal change you should be aware of.
 
-Previously, erb blocks (i.e. <%= some_method %>) where converted as:
+Previously, erb blocks (i.e. <%= some_method %>) were converted as:
 
 ```html
   <code erb-loud> some_method </code>
@@ -28,7 +28,7 @@ They are now converted to:
   <erb loud> some_method </erb>
 ```
 
-This change will affect any Override that uses a selector that matches on "code" or "code[erb-loud]" or "code[erb-silent]" etc, they should be updated to "erb", "erb[loud]" or "erb[silent]", etc.
+This change will affect any Override that uses a selector that matches on `code` or `code[erb-loud]` or `code[erb-silent]` etc, they should be updated to `erb`, `erb[loud]` or `erb[silent]`, etc.
 
 Note: HAML & SLIM are preconverted to ERB before Deface parsers them, so the same conversions are happening there.
 
