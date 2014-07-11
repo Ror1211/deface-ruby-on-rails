@@ -24,7 +24,6 @@ require 'slim'
 require 'deface/haml_converter'
 require 'generators/deface/override_generator'
 require 'time'
-require 'pry'
 
 if defined?(Haml::Options)
   # Haml 3.2 changes the default output format to HTML5
