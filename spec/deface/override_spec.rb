@@ -64,17 +64,32 @@ module Deface
 
       it "should return true when input contains similar (ignoring whitespace)" do
         if RUBY_PLATFORM == 'java'
-          @original.validate_original("<p><erb loud=\"\"> something </erb></p>").should be_true
-          @original.validate_original("<p><erb loud=\"\">something\n</erb>  </p>").should be_true
+          expect( @original.validate_original("<p><erb loud=\"\"> something </erb></p>") ).to eql true
+          expect( @original.validate_original("<p><erb loud=\"\">something\n</erb>  </p>") ).to eql true
         else
-          @original.validate_original("<p><erb loud> something </erb></p>").should be_true
-          @original.validate_original("<p><erb loud>something\n</erb>  </p>").should be_true
+          expect( @original.validate_original("<p><erb loud> something </erb></p>") ).to eql true
+          expect( @original.validate_original("<p><erb loud>something\n</erb>  </p>") ).to eql true
+        end
+      end
+
+      it  "should return true when input is an array" do
+        if RUBY_PLATFORM == 'java'
+          expect( @original.validate_original(["<p><erb loud=\"\"> something ","</erb></p>"]) ).to eql true
+          expect( @original.validate_original(["<p><erb loud=\"\">something\n","</erb>  </p>"]) ).to eql true
+        else
+          expect( @original.validate_original(["<p><erb loud> something"," </erb></p>"]) ).to eql true
+          expect( @original.validate_original(["<p><erb loud>something\n","</erb>  </p>"]) ).to eql true
         end
       end
 
       it "should return false when and input contains different string" do
-        @original.validate_original("wrong").should be_false
+        expect( @original.validate_original("wrong") ).to eql false
       end
+
+      it "should return false with input being an array and is a different string" do
+        expect( @original.validate_original(["wrong", "again"]) ).to eql false
+      end
+
     end
 
 
@@ -385,7 +400,7 @@ module Deface
       end
 
       it "should remove old action" do
-        @replacement.args.has_key?(:replace).should be_false
+        expect( @replacement.args.has_key?(:replace)).to eql false
       end
 
     end
