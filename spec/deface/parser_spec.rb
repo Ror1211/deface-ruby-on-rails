@@ -146,7 +146,7 @@ module Deface
       it "should escape contents erb tags" do
         tag = Deface::Parser.convert("<% method_name :key => 'value' %>")
         tag = tag.css('erb').first
-        tag.attributes.key?('silent').should be_true
+        tag.attributes.key?('silent').should be_truthy
         tag.text.should eq " method_name :key => 'value' "
       end
 
@@ -154,12 +154,12 @@ module Deface
         # commented out line below will fail as : adjacent to ( causes Nokogiri parser issue on jruby
         tag = Deface::Parser.convert("<% method_name(:key => 'value') %>")
         tag = tag.css('erb').first
-        tag.attributes.key?('silent').should be_true
+        tag.attributes.key?('silent').should be_truthy
         tag.text.should eq " method_name(:key => 'value') "
 
         tag = Deface::Parser.convert("<% method_name( :key => 'value' ) %>")
         tag = tag.css('erb').first
-        tag.attributes.key?('silent').should be_true
+        tag.attributes.key?('silent').should be_truthy
         tag.text.should eq " method_name( :key => 'value' ) "
       end
 

@@ -10,7 +10,7 @@ module Deface
 
       before do
         #stub view paths to be local spec/assets directory
-        ActionController::Base.stub(:view_paths).and_return([File.join(File.dirname(__FILE__), '../..', "assets")])
+        allow(ActionController::Base).to receive(:view_paths).and_return([File.join(File.dirname(__FILE__), '../..', "assets")])
       end
 
       context "given failing overrides" do
@@ -24,15 +24,15 @@ module Deface
             fails = overrides_by_virtual_path('shared/_post')
             count = fails.group_by{ |o| !o.failure.nil? }
 
-            count[true].size.should == 1
-            count[true].first.name.should == 'bad'
-            count[false].size.should == 1
-            count[false].first.name.should == 'good'
+            expect(count[true].size).to eq 1
+            expect(count[true].first.name).to eq 'bad'
+            expect(count[false].size).to eq 1
+            expect(count[false].first.name).to eq 'good'
           end
 
           it "should return nil for path virtual_path value" do
             silence_stream(STDOUT) do
-              overrides_by_virtual_path('shared/_poster').should be_nil
+              expect(overrides_by_virtual_path('shared/_poster')).to be_nil
             end
           end
         end
@@ -40,7 +40,7 @@ module Deface
         context "output_results_by_virtual_path" do
           it "should return count of failed overrides for given path" do
             silence_stream(STDOUT) do
-              output_results_by_virtual_path('shared/_post').should == 1
+              expect(output_results_by_virtual_path('shared/_post')).to eq 1
             end
           end
         end
@@ -56,9 +56,9 @@ module Deface
             fails = overrides_by_virtual_path('shared/_post')
             count = fails.group_by{ |o| !o.failure.nil? }
 
-            count.key?('true').should be_false 
-            count[false].size.should == 1
-            count[false].first.name.should == 'good'
+            expect(count.key?('true')).to be_falsy
+            expect(count[false].size).to eq 1
+            expect(count[false].first.name).to eq 'good'
           end
 
         end
@@ -66,7 +66,7 @@ module Deface
         context "output_results_by_virtual_path" do
           it "should return count of failed overrides for given path" do
             silence_stream(STDOUT) do
-              output_results_by_virtual_path('shared/_post').should == 0
+              expect(output_results_by_virtual_path('shared/_post')).to eq 0
             end
           end
         end

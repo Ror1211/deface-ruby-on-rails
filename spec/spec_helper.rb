@@ -19,6 +19,12 @@ module Rails
   end
 end
 
+begin
+  I18n.enforce_available_locales = false
+rescue
+  #shut the hell up
+end
+
 require 'haml'
 require 'slim'
 require 'deface/haml_converter'
@@ -47,28 +53,28 @@ shared_context "mock Rails" do
       Rails = double 'Rails'
     end
 
-    Rails.stub :version => rails_version
+    allow(Rails).to receive(:version).and_return rails_version
 
-    Rails.stub :application => double('application')
-    Rails.application.stub :config => double('config')
-    Rails.application.config.stub :cache_classes => true
-    Rails.application.config.stub :deface => ActiveSupport::OrderedOptions.new
+    allow(Rails).to receive(:application).and_return double('application')
+    allow(Rails.application).to receive(:config).and_return double('config')
+    allow(Rails.application.config).to receive(:cache_classes).and_return true
+    allow(Rails.application.config).to receive(:deface).and_return ActiveSupport::OrderedOptions.new
     Rails.application.config.deface.enabled = true
 
     if Rails.version[0..2] == '3.2'
-      Rails.application.config.stub :watchable_dirs => {}
+      allow(Rails.application.config).to receive(:watchable_dirs).and_return({})
     end
 
-    Rails.stub :root => Pathname.new('spec/dummy')
+    allow(Rails).to receive(:root).and_return Pathname.new('spec/dummy')
 
-    Rails.stub :logger => double('logger')
-    Rails.logger.stub(:error)
-    Rails.logger.stub(:warning)
-    Rails.logger.stub(:info)
-    Rails.logger.stub(:debug)
+    allow(Rails).to receive(:logger).and_return double('logger')
+    allow(Rails.logger).to receive :error
+    allow(Rails.logger).to receive :warning
+    allow(Rails.logger).to receive :info
+    allow(Rails.logger).to receive :debug
 
-    Time.stub :zone => double('zone')
-    Time.zone.stub(:now).and_return Time.parse('1979-05-25')
+    allow(Time).to receive(:zone).and_return double('zone')
+    allow(Time.zone).to receive(:now).and_return Time.parse('1979-05-25')
 
     require "haml/template/plugin"
     require 'slim/erb_converter'
@@ -79,7 +85,7 @@ shared_context "mock Rails.application" do
   include_context "mock Rails"
 
   before(:each) do
-    Rails.application.config.stub :deface => Deface::Environment.new
+    allow(Rails.application.config).to receive(:deface).and_return Deface::Environment.new
     Rails.application.config.deface.haml_support = true
     Rails.application.config.deface.slim_support = true
   end

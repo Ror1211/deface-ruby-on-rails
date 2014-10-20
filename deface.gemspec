@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency('colorize', '>= 0.5.8')
   s.add_dependency('polyglot')
 
-  s.add_development_dependency('rspec', '>= 2.11.0')
+  s.add_development_dependency('rspec', '>= 3.1.0')
   s.add_development_dependency('haml', '>= 3.1.4')
   s.add_development_dependency('slim', '2.0.0') # 2.0.1 breaks slim loader specs
   s.add_development_dependency('simplecov', '>= 0.6.4')

@@ -12,7 +12,7 @@ module Deface
 
         it "should return modified source" do
           Dummy.apply(source, {:virtual_path => "posts/index"}).should  == "<h1>Argh!</h1>"
-          @override.failure.should be_false
+          @override.failure.should be_falsy
         end
       end
 
@@ -22,7 +22,7 @@ module Deface
 
         it "should return modified source" do
           Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<span>Argh!</span>"
-          @override.failure.should be_false
+          @override.failure.should be_falsy
         end
       end
 
@@ -33,7 +33,7 @@ module Deface
         it "should log error and return unmodified source" do
           Rails.logger.should_receive(:info).with(/failed to match with end selector/)
           Dummy.apply(source, {:virtual_path => "posts/index"}).should == source
-          @override.failure.should be_true
+          @override.failure.should be_truthy
         end
       end
 
@@ -44,7 +44,7 @@ module Deface
         it "should log error and return unmodified source" do
           Rails.logger.should_receive(:info).with(/failed to match with starting selector/)
           Dummy.apply(source, {:virtual_path => "posts/index"}).should == source
-          @override.failure.should be_true
+          @override.failure.should be_truthy
         end
       end
     end
