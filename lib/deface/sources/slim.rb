@@ -3,7 +3,7 @@ module Deface
     class Slim < Source
       def self.execute(override)
         if Rails.application.config.deface.slim_support
-          ::Slim::ERBConverter.new.call(override.args[:slim])
+          Deface::SlimConverter.new(override.args[:slim]).result
         else
           raise Deface::NotSupportedError, "`#{override.name}` supplies :slim source, but slim_support is not detected."
         end

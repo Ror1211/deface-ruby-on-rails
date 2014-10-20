@@ -21,7 +21,7 @@ module Deface
         end
 
         it "should return converted source for partial containing slim" do
-          expect(load_template_source("shared/hi", true)).to eq "<div class=\"some\" id=\"message\"><%= ::Temple::Utils.escape_html_safe((\"Hi, World!\")) %><%\n%></div>"
+          expect(load_template_source("shared/hi", true)).to eq "<div class=\"some\" id=\"message\"><%= ::Temple::Utils.escape_html_safe((\"Hi, World!\")) %></div>"
         end
 
         it "should return source for template" do
@@ -33,7 +33,7 @@ module Deface
         end
 
         it "should return converted source for template containing slim" do
-          result = "<divid=\"content\"><%%><divclass=\"left\"><%%><p><%=::Temple::Utils.escape_html_safe((print_information))%><%%></p></div><divclass=\"right\"<%_slim_codeattributes1=@right;case(_slim_codeattributes1);whentrue%>id=\"id\"<%whenfalse,nil;else%>id=\"<%=::Temple::Utils.escape_html_safe((_slim_codeattributes1))%>\"<%end%>><%%><%=::Temple::Utils.escape_html_safe((render:partial=>\"sidebar\"))%><%%></div></div>"
+          result = "<divid=\"content\"><divclass=\"left\"><p><%=::Temple::Utils.escape_html_safe((print_information))%></p></div><divclass=\"right\"<%_slim_codeattributes1=@right;case(_slim_codeattributes1);whentrue%>id=\"\"<%whenfalse,nil;else%>id=\"<%=::Temple::Utils.escape_html_safe((_slim_codeattributes1))%>\"<%end%>><%=::Temple::Utils.escape_html_safe((render:partial=>\"sidebar\"))%></div></div>"
           expect(load_template_source("shared/public", false).gsub(/\s/, '')).to eq result
         end
 
@@ -67,7 +67,7 @@ module Deface
         end
 
         it "should return converted and overridden source for partial containing slim" do
-          expect(load_template_source("shared/hi", true)).to eq "<div class=\"some\" id=\"message\"><%= ::Temple::Utils.escape_html_safe((\"Hi, World!\")) %><%\n%></div>"
+          expect(load_template_source("shared/hi", true)).to eq "<div class=\"some\" id=\"message\"><%= ::Temple::Utils.escape_html_safe((\"Hi, World!\")) %></div>"
         end
 
         it "should return overridden source for partial excluding overrides" do
@@ -83,7 +83,7 @@ module Deface
         end
 
         it "should return converted and overridden source for template containing slim" do
-          result = "<divid=\"content\"><%%><divclass=\"left\"><%%><p><%=::Temple::Utils.escape_html_safe((print_information))%><%%></p></div><divclass=\"right\"<%_slim_codeattributes1=@right;case(_slim_codeattributes1);whentrue%>id=\"id\"<%whenfalse,nil;else%>id=\"<%=::Temple::Utils.escape_html_safe((_slim_codeattributes1))%>\"<%end%>><%%><%=::Temple::Utils.escape_html_safe((render:partial=>\"sidebar\"))%><%%></div></div>"
+          result = "<divid=\"content\"><divclass=\"left\"><p><%=::Temple::Utils.escape_html_safe((print_information))%></p></div><divclass=\"right\"<%_slim_codeattributes1=@right;case(_slim_codeattributes1);whentrue%>id=\"\"<%whenfalse,nil;else%>id=\"<%=::Temple::Utils.escape_html_safe((_slim_codeattributes1))%>\"<%end%>><%=::Temple::Utils.escape_html_safe((render:partial=>\"sidebar\"))%></div></div>"
           expect(load_template_source("shared/public", false).gsub(/\s/, '')).to eq result
         end
 

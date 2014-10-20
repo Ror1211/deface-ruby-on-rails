@@ -16,7 +16,7 @@ module Deface
             #convert haml to erb before parsing before
             source = Deface::HamlConverter.new(source).result
           when :slim
-            source = Slim::ERBConverter.new.call(source)
+            source = Deface::SlimConverter.new(source).result
           end
 
           doc = Deface::Parser.convert(source)

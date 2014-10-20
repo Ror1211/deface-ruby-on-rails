@@ -26,8 +26,10 @@ rescue
 end
 
 require 'haml'
-require 'slim'
 require 'deface/haml_converter'
+
+require 'slim'
+require 'deface/slim_converter'
 require 'generators/deface/override_generator'
 require 'time'
 

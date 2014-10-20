@@ -70,7 +70,7 @@ module Deface
 
         if defined?(Slim)
           app.config.deface.slim_support = true
-          require 'slim/erb_converter'
+          require 'deface/slim_converter'
         end
 
         # catchs any overrides that we required manually
