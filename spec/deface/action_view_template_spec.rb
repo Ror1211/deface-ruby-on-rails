@@ -10,20 +10,20 @@ module ActionView
         @template = ActionView::Template.new("<p>test</p>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html, :updated_at => @updated_at})
         #stub for Rails < 3.1
         unless defined?(@template.updated_at)
-          @template.stub(:updated_at).and_return(@updated_at)
+          allow(@template).to receive(:updated_at).and_return(@updated_at)
         end
       end
 
       it "should initialize new template object" do
-        @template.is_a?(ActionView::Template).should == true
+        expect(@template.is_a?(ActionView::Template)).to eq(true)
       end
 
       it "should return unmodified source" do
-        @template.source.should == "<p>test</p>"
+        expect(@template.source).to eq("<p>test</p>")
       end
 
       it "should not change updated_at" do
-        @template.updated_at.should == @updated_at
+        expect(@template.updated_at).to eq(@updated_at)
       end
 
     end
@@ -35,16 +35,16 @@ module ActionView
         @template = ActionView::Template.new("<p>test</p><%= raw(text) %>", "/some/path/to/file.erb", ActionView::Template::Handlers::ERB, {:virtual_path=>"posts/index", :format=>:html, :updated_at => @updated_at})
         #stub for Rails < 3.1
         unless defined?(@template.updated_at)
-          @template.stub(:updated_at).and_return(@updated_at + 500)
+          allow(@template).to receive(:updated_at).and_return(@updated_at + 500)
         end
       end
 
       it "should return modified source" do
-        @template.source.should == "<%= raw(text) %>"
+        expect(@template.source).to eq("<%= raw(text) %>")
       end
 
       it "should change updated_at" do
-        @template.updated_at.should > @updated_at
+        expect(@template.updated_at).to be > @updated_at
       end
     end
 
@@ -54,11 +54,11 @@ module ActionView
       it "should return hash of overrides plus original method_name " do
         deface_hash = Deface::Override.digest(:virtual_path => 'posts/index')
 
-        template.send(:method_name).should == "_#{Digest::MD5.new.update("#{deface_hash}_#{template.send(:method_name_without_deface)}").hexdigest}"
+        expect(template.send(:method_name)).to eq("_#{Digest::MD5.new.update("#{deface_hash}_#{template.send(:method_name_without_deface)}").hexdigest}")
       end
 
       it "should alias original method_name method" do
-        template.send(:method_name_without_deface).should match /\A__some_path_to_file_erb_+[0-9]+_+[0-9]+\z/
+        expect(template.send(:method_name_without_deface)).to match /\A__some_path_to_file_erb_+[0-9]+_+[0-9]+\z/
       end
     end
 
@@ -70,7 +70,7 @@ module ActionView
 
       it "should return unmodified source" do
         #if processed, source would include "=&gt;"
-        @template.source.should == "xml.post => :blah"
+        expect(@template.source).to eq("xml.post => :blah")
       end
     end
 
@@ -85,9 +85,9 @@ module ActionView
                          ActionView::Template::Handlers::Builder => false }
         expectations.each do |handler, expected|
           @template = ActionView::Template.new("xml.post => :blah", "/some/path/to/file.erb", handler, {:virtual_path=>"posts/index", :format=>:xml, :updated_at => (Time.now - 100)})
-          @template.is_a?(ActionView::Template).should == true
+          expect(@template.is_a?(ActionView::Template)).to eq(true)
           syntax = @template.send(:determine_syntax, handler)
-          @template.send(:should_be_defaced?, syntax).should eq(expected), "unexpected result for handler "+handler.to_s
+          expect(@template.send(:should_be_defaced?, syntax)).to eq(expected), "unexpected result for handler "+handler.to_s
         end
       end
     end

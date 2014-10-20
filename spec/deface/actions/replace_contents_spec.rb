@@ -11,7 +11,7 @@ module Deface
         let(:source) { "<p><span>Hello</span>I am not a <em>pirate</em></p>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<p><h1>Argh!</h1></p>"
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<p><h1>Argh!</h1></p>")
         end
       end
 
@@ -20,7 +20,7 @@ module Deface
         let(:source) { "<h1>start</h1><p>some junk</p><div>more junk</div><h2>end</h2>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<h1>start</h1><span>Argh!</span><h2>end</h2>"
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<h1>start</h1><span>Argh!</span><h2>end</h2>")
         end
       end
     end

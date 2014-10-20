@@ -12,35 +12,35 @@ module Deface
       Deface::Override.actions.each do |action|
         Rails.application.config.deface.overrides.all.clear
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", action => "h1", :text => "<h1>Argh!</h1>")
-        @override.action.should == action
+        expect(@override.action).to eq(action)
       end
     end
 
     it "should have a sources method" do
-      Deface::DEFAULT_SOURCES.map(&:to_sym).should include(:text)
+      expect(Deface::DEFAULT_SOURCES.map(&:to_sym)).to include(:text)
     end
 
     it "should return correct selector" do
-      @override.selector.should == "h1"
+      expect(@override.selector).to eq("h1")
     end
 
     it "should set default :updated_at" do
-      @override.args[:updated_at].should_not be_nil
+      expect(@override.args[:updated_at]).not_to be_nil
     end
 
     describe "#original_source" do
       it "should return nil with not specified" do
-        @override.original_source.should be_nil
+        expect(@override.original_source).to be_nil
       end
 
       it "should return parsed nokogiri document when present" do
         @original = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>", :original => "<p><%= something %></p>")
-        @original.original_source.should be_an_instance_of Nokogiri::HTML::DocumentFragment
+        expect(@original.original_source).to be_an_instance_of Nokogiri::HTML::DocumentFragment
 
         if RUBY_PLATFORM == 'java'
-          @original.original_source.to_s.should == "<p><erb loud=\"\"> something </erb></p>"
+          expect(@original.original_source.to_s).to eq("<p><erb loud=\"\"> something </erb></p>")
         else
-          @original.original_source.to_s.should == "<p><erb loud> something </erb></p>"
+          expect(@original.original_source.to_s).to eq("<p><erb loud> something </erb></p>")
         end
       end
     end
@@ -51,8 +51,8 @@ module Deface
       end
 
       it "should warn but not validate" do
-        Rails.logger.should_receive(:info).once
-        @override.validate_original("<p>this gets ignored</p>").should be_nil
+        expect(Rails.logger).to receive(:info).once
+        expect(@override.validate_original("<p>this gets ignored</p>")).to be_nil
       end
 
     end
@@ -109,9 +109,9 @@ module Deface
       end
 
       it "should return un-convert text as source" do
-        @override.source.should == "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>"
+        expect(@override.source).to eq("<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>")
 
-        @override.source_argument.should == :text
+        expect(@override.source_argument).to eq(:text)
       end
     end
 
@@ -122,9 +122,9 @@ module Deface
       end
 
       it "should return un-convert text as source" do
-        @override.source.should == "<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>"
+        expect(@override.source).to eq("<h1 id=\"<%= dom_id @pirate %>\">Argh!</h1>")
 
-        @override.source_argument.should == :erb
+        expect(@override.source_argument).to eq(:erb)
       end
     end
 
@@ -136,9 +136,9 @@ module Deface
       end
 
       it "should return erb converted from haml as source" do
-        @override.source.should == "<strong class='erb' id='message'><%= 'Hello, World!' %>\n</strong>\n"
+        expect(@override.source).to eq("<strong class='erb' id='message'><%= 'Hello, World!' %>\n</strong>\n")
 
-        @override.source_argument.should == :haml
+        expect(@override.source_argument).to eq(:haml)
       end
     end
 
@@ -150,9 +150,9 @@ module Deface
       end
 
       it "should return erb converted from slim as source" do
-        @override.source.should == "<strong class=\"erb\" id=\"message\"><%= ::Temple::Utils.escape_html_safe(('Hello, World!')) %><%\n%></strong>"
+        expect(@override.source).to eq("<strong class=\"erb\" id=\"message\"><%= ::Temple::Utils.escape_html_safe(('Hello, World!')) %><%\n%></strong>")
 
-        @override.source_argument.should == :slim
+        expect(@override.source_argument).to eq(:slim)
       end
     end
 
@@ -161,15 +161,15 @@ module Deface
 
       before(:each) do
         #stub view paths to be local spec/assets directory
-        ActionController::Base.stub(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
+        allow(ActionController::Base).to receive(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
 
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :partial => "shared/post")
       end
 
       it "should return un-convert partial contents as source" do
-        @override.source.should == "<p>I'm from shared/post partial</p>\n<%= \"And I've got ERB\" %>\n"
+        expect(@override.source).to eq("<p>I'm from shared/post partial</p>\n<%= \"And I've got ERB\" %>\n")
 
-        @override.source_argument.should == :partial
+        expect(@override.source_argument).to eq(:partial)
       end
 
     end
@@ -178,15 +178,15 @@ module Deface
 
       before(:each) do
         #stub view paths to be local spec/assets directory
-        ActionController::Base.stub(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
+        allow(ActionController::Base).to receive(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
 
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :template => "shared/person")
       end
 
       it "should return un-convert template contents as source" do
-        @override.source.should == "<p>I'm from shared/person template</p>\n<%= \"I've got ERB too\" %>\n"
+        expect(@override.source).to eq("<p>I'm from shared/person template</p>\n<%= \"I've got ERB too\" %>\n")
 
-        @override.source_argument.should == :template
+        expect(@override.source_argument).to eq(:template)
       end
 
     end
@@ -197,29 +197,29 @@ module Deface
 
       before(:each) do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", :copy => "h1")
-        @override.stub(:parsed_document).and_return(parsed)
+        allow(@override).to receive(:parsed_document).and_return(parsed)
       end
 
       it "should not change original parsed source" do
         @override.source
 
         if RUBY_PLATFORM == 'java'
-          parsed.to_s.gsub(/\n/,'').should == "<div><h1>Manage Posts</h1><erb loud=\"\"> some_method </erb></div>"
+          expect(parsed.to_s.gsub(/\n/,'')).to eq("<div><h1>Manage Posts</h1><erb loud=\"\"> some_method </erb></div>")
         else
-          parsed.to_s.gsub(/\n/,'').should == "<div><h1>Manage Posts</h1><erb loud> some_method </erb></div>"
+          expect(parsed.to_s.gsub(/\n/,'')).to eq("<div><h1>Manage Posts</h1><erb loud> some_method </erb></div>")
         end
 
-        @override.source_argument.should == :copy
+        expect(@override.source_argument).to eq(:copy)
       end
 
       it "should return copy of content from source document" do
-        @override.source.to_s.strip.should == "<h1>Manage Posts</h1>"
+        expect(@override.source.to_s.strip).to eq("<h1>Manage Posts</h1>")
       end
 
       it "should return unescaped content for source document" do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", :copy => "erb[loud]:contains('some_method')")
-        @override.stub(:parsed_document).and_return(parsed)
-        @override.source.should == "<%= some_method %>"
+        allow(@override).to receive(:parsed_document).and_return(parsed)
+        expect(@override.source).to eq("<%= some_method %>")
       end
 
     end
@@ -232,23 +232,23 @@ module Deface
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1",
                                          :copy => {:start => "erb:contains('if true')", :end => "erb:contains('end')"})
 
-        @override.stub(:parsed_document).and_return(parsed)
+        allow(@override).to receive(:parsed_document).and_return(parsed)
       end
 
       it "should not change original parsed source" do
         @override.source
 
         if RUBY_PLATFORM == 'java'
-          parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><erb silent=\"\"> if true </erb><p>True that!</p><erb silent=\"\"> end </erb><p>Hello</p>"
+          expect(parsed.to_s.gsub(/\n/,'')).to eq("<h1>World</h1><erb silent=\"\"> if true </erb><p>True that!</p><erb silent=\"\"> end </erb><p>Hello</p>")
         else
-          parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><erb silent> if true </erb><p>True that!</p><erb silent> end </erb><p>Hello</p>"
+          expect(parsed.to_s.gsub(/\n/,'')).to eq("<h1>World</h1><erb silent> if true </erb><p>True that!</p><erb silent> end </erb><p>Hello</p>")
         end
 
-        @override.source_argument.should == :copy
+        expect(@override.source_argument).to eq(:copy)
       end
 
       it "should return copy of content from source document" do
-        @override.source.should == "<% if true %><p>True that!</p><% end %>"
+        expect(@override.source).to eq("<% if true %><p>True that!</p><% end %>")
       end
     end
 
@@ -256,28 +256,28 @@ module Deface
       let(:parsed) { Deface::Parser.convert("<div><h1>Manage Posts</h1><%= some_method %></div>") }
       before(:each) do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", :cut => "h1")
-        @override.stub(:parsed_document).and_return(parsed)
+        allow(@override).to receive(:parsed_document).and_return(parsed)
       end
 
       it "should remove cut element from original parsed source" do
         @override.source
         if RUBY_PLATFORM == 'java'
-          parsed.to_s.gsub(/\n/,'').should == "<div><erb loud=\"\"> some_method </erb></div>"
+          expect(parsed.to_s.gsub(/\n/,'')).to eq("<div><erb loud=\"\"> some_method </erb></div>")
         else
-          parsed.to_s.gsub(/\n/,'').should == "<div><erb loud> some_method </erb></div>"
+          expect(parsed.to_s.gsub(/\n/,'')).to eq("<div><erb loud> some_method </erb></div>")
         end
 
-        @override.source_argument.should == :cut
+        expect(@override.source_argument).to eq(:cut)
       end
 
       it "should remove and return content from source document" do
-        @override.source.should == "<h1>Manage Posts</h1>"
+        expect(@override.source).to eq("<h1>Manage Posts</h1>")
       end
 
       it "should return unescaped content for source document" do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1", :cut => "erb[loud]:contains('some_method')")
-        @override.stub(:parsed_document).and_return(parsed)
-        @override.source.should == "<%= some_method %>"
+        allow(@override).to receive(:parsed_document).and_return(parsed)
+        expect(@override.source).to eq("<%= some_method %>")
       end
 
     end
@@ -291,29 +291,29 @@ module Deface
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :insert_after => "h1",
                                          :cut => {:start => "erb:contains('if true')", :end => "erb:contains('end')"})
 
-        @override.stub(:parsed_document).and_return(parsed)
+        allow(@override).to receive(:parsed_document).and_return(parsed)
       end
 
       it "should remove cut element from original parsed source" do
         @override.source
         if RUBY_PLATFORM == 'java'
-          parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><erb loud=\"\"> hello </erb>"
+          expect(parsed.to_s.gsub(/\n/,'')).to eq("<h1>World</h1><erb loud=\"\"> hello </erb>")
         else
-          parsed.to_s.gsub(/\n/,'').should == "<h1>World</h1><erb loud> hello </erb>"
+          expect(parsed.to_s.gsub(/\n/,'')).to eq("<h1>World</h1><erb loud> hello </erb>")
         end
 
-        @override.source_argument.should == :cut
+        expect(@override.source_argument).to eq(:cut)
       end
 
       it "should return copy of content from source document" do
-        @override.source.should == "<% if true %><p>True that!</p><% end %>"
+        expect(@override.source).to eq("<% if true %><p>True that!</p><% end %>")
       end
     end
 
     describe "with block" do
       before(:each) do
         #stub view paths to be local spec/assets directory
-        ActionController::Base.stub(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
+        allow(ActionController::Base).to receive(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
 
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1") do
           "This is replacement text for the h1"
@@ -321,7 +321,7 @@ module Deface
       end
 
       it "should set source to block content" do
-        @override.source.should == "This is replacement text for the h1"
+        expect(@override.source).to eq("This is replacement text for the h1")
       end
     end
 
@@ -332,7 +332,7 @@ module Deface
       end
 
       it "should namespace the override's name" do
-        @override.name.should == 'spree_engine_sample_name'
+        expect(@override.name).to eq('spree_engine_sample_name')
       end
     end
 
@@ -344,7 +344,7 @@ module Deface
       end
 
       it "should namespace the override's name" do
-        @override.name.should == 'spree_engine_sample_name'
+        expect(@override.name).to eq('spree_engine_sample_name')
       end
     end
 
@@ -354,18 +354,18 @@ module Deface
       end
 
       it "should return escaped source" do
-        @override.source_element.should be_an_instance_of Nokogiri::HTML::DocumentFragment
+        expect(@override.source_element).to be_an_instance_of Nokogiri::HTML::DocumentFragment
 
         if RUBY_PLATFORM == 'java'
           source = "<erb loud=\"\"> method :opt =&gt; 'x' &amp; 'y' </erb>"
-          @override.source_element.to_s.should ==  source
+          expect(@override.source_element.to_s).to eq(source)
           #do it twice to ensure it doesn't change as it's destructive
-          @override.source_element.to_s.should == source
+          expect(@override.source_element.to_s).to eq(source)
         else
           source = "<erb loud> method :opt =&gt; 'x' &amp; 'y' </erb>"
-          @override.source_element.to_s.should == source
+          expect(@override.source_element.to_s).to eq(source)
           #do it twice to ensure it doesn't change as it's destructive
-          @override.source_element.to_s.should == source
+          expect(@override.source_element.to_s).to eq(source)
         end
       end
     end
@@ -380,8 +380,8 @@ module Deface
       end
 
       it "should return new source" do
-        @replacement.source.should_not == "<h1>Argh!</h1>"
-        @replacement.source.should == "<h1>Arrrr!</h1>"
+        expect(@replacement.source).not_to eq("<h1>Argh!</h1>")
+        expect(@replacement.source).to eq("<h1>Arrrr!</h1>")
       end
 
     end
@@ -396,7 +396,7 @@ module Deface
       end
 
       it "should return new action" do
-        @replacement.action.should == :insert_after
+        expect(@replacement.action).to eq(:insert_after)
       end
 
       it "should remove old action" do
@@ -408,7 +408,7 @@ module Deface
     describe "when redefining an override when changing source type" do
       before(:each) do
         #stub view paths to be local spec/assets directory
-        ActionController::Base.stub(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
+        allow(ActionController::Base).to receive(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
 
         Rails.application.config.deface.overrides.all.clear
         @override    = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :partial => "shared/post", :replace => "h1", :text => "<span>I'm text</span>")
@@ -418,7 +418,7 @@ module Deface
       end
 
       it "should return new source" do
-        @override.source.should == "<p>I do be a pirate!</p>"
+        expect(@override.source).to eq("<p>I do be a pirate!</p>")
       end
 
     end
@@ -430,56 +430,56 @@ module Deface
         @second = Deface::Override.new(:virtual_path => "posts/index", :name => "second", :insert_after => "li", :text => "<li>second</li>", :sequence => {:after => "first"})
         @first = Deface::Override.new(:virtual_path => "posts/index", :name => "first", :replace => "li", :text => "<li>first</li>")
 
-        @third.sequence.should == 102
-        @second.sequence.should == 101
-        @first.sequence.should == 100
+        expect(@third.sequence).to eq(102)
+        expect(@second.sequence).to eq(101)
+        expect(@first.sequence).to eq(100)
       end
 
       it "should calculate correct before sequences" do
         @second = Deface::Override.new(:virtual_path => "posts/index", :name => "second", :insert_after => "li", :text => "<li>second</li>", :sequence => 99)
         @first = Deface::Override.new(:virtual_path => "posts/index", :name => "first", :replace => "li", :text => "<li>first</li>", :sequence => {:before => "second"})
 
-        @second.sequence.should == 99
-        @first.sequence.should == 98
+        expect(@second.sequence).to eq(99)
+        expect(@first.sequence).to eq(98)
       end
 
       it "should calculate correct sequences with invalid hash" do
         @second = Deface::Override.new(:virtual_path => "posts/index", :name => "second", :insert_after => "li", :text => "<li>second</li>", :sequence => {})
         @first = Deface::Override.new(:virtual_path => "posts/show", :name => "first", :replace => "li", :text => "<li>first</li>", :sequence => {:before => "second"})
 
-        @second.sequence.should == 100
-        @first.sequence.should == 100
+        expect(@second.sequence).to eq(100)
+        expect(@first.sequence).to eq(100)
       end
 
     end
 
     describe "#end_selector" do
       it "should return nil when closing_selector is not defined" do
-        @override.end_selector.should be_nil
+        expect(@override.end_selector).to be_nil
       end
 
       it "should return nil when closing_selector is an empty string" do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :closing_selector => "", :text => "<h1>Argh!</h1>")
-        @override.end_selector.should be_nil
+        expect(@override.end_selector).to be_nil
       end
 
       it "should return nil when closing_selector is nil" do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :closing_selector => nil, :text => "<h1>Argh!</h1>")
-        @override.end_selector.should be_nil
+        expect(@override.end_selector).to be_nil
       end
 
       it "should return closing_selector is present" do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :closing_selector => "h4", :text => "<h1>Argh!</h1>")
-        @override.end_selector.should == "h4"
+        expect(@override.end_selector).to eq("h4")
       end
     end
 
     describe "#touch" do
       it "should change the overrides :updated_at value" do
         before_touch = @override.args[:updated_at]
-        Time.zone.stub(:now).and_return(Time.parse('2006-08-24'))
+        allow(Time.zone).to receive(:now).and_return(Time.parse('2006-08-24'))
         @override.touch
-        @override.args[:updated_at].should_not == before_touch
+        expect(@override.args[:updated_at]).not_to eq(before_touch)
       end
     end
 
@@ -492,18 +492,18 @@ module Deface
       end
 
       it "should return hex digest based on override's args" do
-        @override.digest.should =~ /[a-f0-9]{32}/
+        expect(@override.digest).to match(/[a-f0-9]{32}/)
       end
 
       it "should change the digest when any args change" do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h2", :text => "<h1>Argh!</h1>")
-        @override.digest.should_not == @digest
+        expect(@override.digest).not_to eq(@digest)
 
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
-        @override.digest.should == @digest
+        expect(@override.digest).to eq(@digest)
 
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h2", :text => "<h1>I'm a pirate!</h1>")
-        @override.digest.should_not == @digest
+        expect(@override.digest).not_to eq(@digest)
       end
     end
 
@@ -518,28 +518,28 @@ module Deface
       end
 
       it "should return hex digest based on all applicable overrides" do
-        Deface::Override.digest(:virtual_path =>  "posts/index").should =~ /[a-f0-9]{32}/
+        expect(Deface::Override.digest(:virtual_path =>  "posts/index")).to match(/[a-f0-9]{32}/)
       end
 
       it "should change the digest when any args change for any override" do
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h2", :text => "<h1>Argh!</h1>")
-        Deface::Override.digest(:virtual_path =>  "posts/index").should_not == @digest
+        expect(Deface::Override.digest(:virtual_path =>  "posts/index")).not_to eq(@digest)
 
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
-        Deface::Override.digest(:virtual_path =>  "posts/index").should == @digest
+        expect(Deface::Override.digest(:virtual_path =>  "posts/index")).to eq(@digest)
 
         @second = Deface::Override.new(:virtual_path => "posts/index", :name => "2nd", :insert_after => "p", :text => "<pre>this is erb?</pre>")
-        Deface::Override.digest(:virtual_path =>  "posts/index").should_not == @digest
+        expect(Deface::Override.digest(:virtual_path =>  "posts/index")).not_to eq(@digest)
       end
 
       it "should change the digest when overrides are removed / added" do
         Deface::Override.all.clear
 
         @new_digest = Deface::Override.digest(:virtual_path =>  "posts/index")
-        @new_digest.should_not == @digest
+        expect(@new_digest).not_to eq(@digest)
 
         @override = Deface::Override.new(:virtual_path => "posts/index", :name => "Posts#index", :replace => "h1", :text => "<h1>Argh!</h1>")
-        Deface::Override.digest(:virtual_path =>  "posts/index").should_not == @new_digest
+        expect(Deface::Override.digest(:virtual_path =>  "posts/index")).not_to eq(@new_digest)
       end
     end
 
@@ -564,9 +564,9 @@ module Deface
 
         end
 
-        ActionView::CompiledTemplates.instance_methods.size.should == 2
+        expect(ActionView::CompiledTemplates.instance_methods.size).to eq(2)
         @override.send(:expire_compiled_template)
-        ActionView::CompiledTemplates.instance_methods.size.should == 1
+        expect(ActionView::CompiledTemplates.instance_methods.size).to eq(1)
       end
 
       it "should not remove compiled method when virtual path and digest matach" do
@@ -577,11 +577,11 @@ module Deface
           end
         end
 
-        Deface::Override.should_receive(:digest).and_return('e235fa404c3c2281d4f6791162b1c638')
+        expect(Deface::Override).to receive(:digest).and_return('e235fa404c3c2281d4f6791162b1c638')
 
-        ActionView::CompiledTemplates.instance_methods.size.should == 1
+        expect(ActionView::CompiledTemplates.instance_methods.size).to eq(1)
         @override.send(:expire_compiled_template)
-        ActionView::CompiledTemplates.instance_methods.size.should == 1
+        expect(ActionView::CompiledTemplates.instance_methods.size).to eq(1)
       end
     end
 

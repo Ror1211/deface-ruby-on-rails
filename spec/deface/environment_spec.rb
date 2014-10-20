@@ -24,70 +24,70 @@ module Deface
     describe ".overrides" do
 
       it "should return all overrides" do
-        Rails.application.config.deface.overrides.all.size.should == 2
-        Rails.application.config.deface.overrides.all.should == Deface::Override.all
+        expect(Rails.application.config.deface.overrides.all.size).to eq(2)
+        expect(Rails.application.config.deface.overrides.all).to eq(Deface::Override.all)
       end
 
       it "should find overrides" do
-        Rails.application.config.deface.overrides.find(:virtual_path => "posts/new").size.should == 1
+        expect(Rails.application.config.deface.overrides.find(:virtual_path => "posts/new").size).to eq(1)
       end
 
       describe "load_all" do
 
         before do
-          Rails.application.stub :root => Pathname.new(File.join(File.dirname(__FILE__), '..', "assets"))
-          Rails.application.stub :paths => {}
-          Rails.application.stub_chain :railties, railties_collection_accessor => []
+          allow(Rails.application).to receive_messages :root => Pathname.new(File.join(File.dirname(__FILE__), '..', "assets"))
+          allow(Rails.application).to receive_messages :paths => {}
+          allow(Rails.application).to receive_message_chain :railties, railties_collection_accessor => []
 
-          Deface::DSL::Loader.should_receive(:register)
+          expect(Deface::DSL::Loader).to receive(:register)
         end
 
         it "should enumerate_and_load nil when app has no app/overrides path set" do
-          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, Rails.application.root)
+          expect(Rails.application.config.deface.overrides).to receive(:enumerate_and_load).with(nil, Rails.application.root)
           Rails.application.config.deface.overrides.load_all(Rails.application)
         end
 
         it "should enumerate_and_load path when app has app/overrides path set" do
-          Rails.application.stub :paths => {"app/overrides" => ["app/some_path"] }
-          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(["app/some_path"] , Rails.application.root)
+          allow(Rails.application).to receive_messages :paths => {"app/overrides" => ["app/some_path"] }
+          expect(Rails.application.config.deface.overrides).to receive(:enumerate_and_load).with(["app/some_path"] , Rails.application.root)
           Rails.application.config.deface.overrides.load_all(Rails.application)
         end
 
         it "should enumerate_and_load nil when railtie has no app/overrides path set" do
-          Rails.application.stub_chain :railties, railties_collection_accessor => [double('railtie', :root => "/some/path")]
+          allow(Rails.application).to receive_message_chain :railties, railties_collection_accessor => [double('railtie', :root => "/some/path")]
 
-          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, Rails.application.root)
-          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, "/some/path")
+          expect(Rails.application.config.deface.overrides).to receive(:enumerate_and_load).with(nil, Rails.application.root)
+          expect(Rails.application.config.deface.overrides).to receive(:enumerate_and_load).with(nil, "/some/path")
           Rails.application.config.deface.overrides.load_all(Rails.application)
         end
 
         it "should enumerate_and_load path when railtie has app/overrides path set" do
-          Rails.application.stub_chain :railties, railties_collection_accessor => [ double('railtie', :root => "/some/path", :paths => {"app/overrides" => ["app/some_path"] } )]
+          allow(Rails.application).to receive_message_chain :railties, railties_collection_accessor => [ double('railtie', :root => "/some/path", :paths => {"app/overrides" => ["app/some_path"] } )]
 
-          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, Rails.application.root)
-          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(["app/some_path"] , "/some/path")
+          expect(Rails.application.config.deface.overrides).to receive(:enumerate_and_load).with(nil, Rails.application.root)
+          expect(Rails.application.config.deface.overrides).to receive(:enumerate_and_load).with(["app/some_path"] , "/some/path")
           Rails.application.config.deface.overrides.load_all(Rails.application)
         end
 
         it "should enumerate_and_load railties first, followed by the application iteslf" do
-          Rails.application.stub_chain :railties, railties_collection_accessor => [ double('railtie', :root => "/some/path", :paths => {"app/overrides" => ["app/some_path"] } )]
+          allow(Rails.application).to receive_message_chain :railties, railties_collection_accessor => [ double('railtie', :root => "/some/path", :paths => {"app/overrides" => ["app/some_path"] } )]
 
-          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(["app/some_path"] , "/some/path").ordered
-          Rails.application.config.deface.overrides.should_receive(:enumerate_and_load).with(nil, Rails.application.root).ordered
+          expect(Rails.application.config.deface.overrides).to receive(:enumerate_and_load).with(["app/some_path"] , "/some/path").ordered
+          expect(Rails.application.config.deface.overrides).to receive(:enumerate_and_load).with(nil, Rails.application.root).ordered
           Rails.application.config.deface.overrides.load_all(Rails.application)
         end
 
         it "should ignore railtie with no root" do
           railtie = double('railtie')
-          Rails.application.stub_chain :railties, railties_collection_accessor => [railtie]
+          allow(Rails.application).to receive_message_chain :railties, railties_collection_accessor => [railtie]
 
-          railtie.should_receive(:respond_to?).with(:root)
-          railtie.should_not_receive(:respond_to?).with(:paths)
+          expect(railtie).to receive(:respond_to?).with(:root)
+          expect(railtie).not_to receive(:respond_to?).with(:paths)
           Rails.application.config.deface.overrides.load_all(Rails.application)
         end
 
         it "should clear any previously loaded overrides" do
-          Rails.application.config.deface.overrides.all.should_receive(:clear)
+          expect(Rails.application.config.deface.overrides.all).to receive(:clear)
           Rails.application.config.deface.overrides.load_all(Rails.application)
         end
 
@@ -97,15 +97,15 @@ module Deface
       describe 'load_overrides' do
         let(:assets_path) { Pathname.new(File.join(File.dirname(__FILE__), '..', "assets")) }
         let(:engine) { double('railtie', :root => assets_path, :class => "DummyEngine", :paths => {"app/overrides" => ["dummy_engine"]}) }
-        before { Rails.application.stub(:class => 'RailsAppl') }
+        before { allow(Rails.application).to receive_messages(:class => 'RailsAppl') }
 
         it "should keep a reference to which railtie/app defined the override" do
-          Rails.application.stub :root => assets_path, :paths => {"app/overrides" => ["dummy_app"] }
-          Rails.application.stub_chain :railties, railties_collection_accessor => [ engine ]
+          allow(Rails.application).to receive_messages :root => assets_path, :paths => {"app/overrides" => ["dummy_app"] }
+          allow(Rails.application).to receive_message_chain :railties, railties_collection_accessor => [ engine ]
 
           Rails.application.config.deface.overrides.load_all(Rails.application)
 
-          Deface::Override.all.values.map(&:values).flatten.map(&:railtie_class).should include('RailsAppl', 'DummyEngine')
+          expect(Deface::Override.all.values.map(&:values).flatten.map(&:railtie_class)).to include('RailsAppl', 'DummyEngine')
         end
       end
 
@@ -113,23 +113,23 @@ module Deface
         let(:root) { Pathname.new("/some/path") }
 
         it "should be enumerate default path when none supplied" do
-          Dir.should_receive(:glob).with(root.join "app/overrides", "**", "*.rb")
-          Dir.should_receive(:glob).with(root.join "app/overrides", "**", "*.deface")
+          expect(Dir).to receive(:glob).with(root.join "app/overrides", "**", "*.rb")
+          expect(Dir).to receive(:glob).with(root.join "app/overrides", "**", "*.deface")
           Rails.application.config.deface.overrides.send(:enumerate_and_load, nil, root)
         end
 
         it "should enumerate supplied paths" do
-          Dir.should_receive(:glob).with(root.join "app/junk", "**", "*.rb" )
-          Dir.should_receive(:glob).with(root.join "app/junk", "**", "*.deface" )
-          Dir.should_receive(:glob).with(root.join "app/gold", "**", "*.rb" )
-          Dir.should_receive(:glob).with(root.join "app/gold", "**", "*.deface" )
+          expect(Dir).to receive(:glob).with(root.join "app/junk", "**", "*.rb" )
+          expect(Dir).to receive(:glob).with(root.join "app/junk", "**", "*.deface" )
+          expect(Dir).to receive(:glob).with(root.join "app/gold", "**", "*.rb" )
+          expect(Dir).to receive(:glob).with(root.join "app/gold", "**", "*.deface" )
           Rails.application.config.deface.overrides.send(:enumerate_and_load, ["app/junk", "app/gold"], root)
         end
 
         it "should add paths to watchable_dir when running Rails 3.2" do
           if Rails.version[0..2] == '3.2'
             Rails.application.config.deface.overrides.send(:enumerate_and_load, ["app/gold"], root)
-            Rails.application.config.watchable_dirs.should == {"/some/path/app/gold" => [:rb, :deface] }
+            expect(Rails.application.config.watchable_dirs).to eq({"/some/path/app/gold" => [:rb, :deface] })
           end
         end
 
@@ -138,15 +138,15 @@ module Deface
 
     describe "#_early" do
       it "should contain one override" do
-        Deface::Override._early.size.should == 1
+        expect(Deface::Override._early.size).to eq(1)
       end
 
       it "should initialize override and be emtpy after early_check" do
         before_count = Rails.application.config.deface.overrides.all.size
         Rails.application.config.deface.overrides.early_check
 
-         Deface::Override._early.size.should == 0
-         Rails.application.config.deface.overrides.all.size.should == (before_count + 1)
+         expect(Deface::Override._early.size).to eq(0)
+         expect(Rails.application.config.deface.overrides.all.size).to eq(before_count + 1)
       end
     end
 

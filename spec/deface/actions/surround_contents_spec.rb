@@ -11,7 +11,7 @@ module Deface
         let(:source) { "<h4>yay!</h4><div><p>test</p></div>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<h4>yay!</h4><div><span><p>test</p></span></div>"
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<h4>yay!</h4><div><span><p>test</p></span></div>")
         end
       end
 
@@ -20,7 +20,7 @@ module Deface
         let(:source) { "<p>test</p>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<p><% if 1==1 %>test<% end %></p>"
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<p><% if 1==1 %>test<% end %></p>")
         end
       end
 
@@ -30,7 +30,7 @@ module Deface
         let(:source) { "<div><h1>Start</h1><h2>middle</h2><h3>child</h3><p><span>This is the</span> end.</p></div>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", '').should == "<div><h1>Start</h1><% if 1==1 %><h2>middle</h2><h3>child</h3><% end %><p><span>This is the</span> end.</p></div>"
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", '')).to eq("<div><h1>Start</h1><% if 1==1 %><h2>middle</h2><h3>child</h3><% end %><p><span>This is the</span> end.</p></div>")
         end
       end
 
@@ -39,7 +39,7 @@ module Deface
         let(:source) { "<p>test</p>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<p><% if 1==1 %>test<% else %>test<% end %></p>"
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<p><% if 1==1 %>test<% else %>test<% end %></p>")
         end
       end
 
@@ -49,7 +49,7 @@ module Deface
         let(:source) { "<div><h1>Start</h1><h2>middle</h2><h3>child</h3><p><span>This is the</span> end.</p></div>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", '').should == "<div><h1>Start</h1><% if 1==1 %><h2>middle</h2><h3>child</h3><% else %><h2>middle</h2><h3>child</h3><% end %><p><span>This is the</span> end.</p></div>"
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", '')).to eq("<div><h1>Start</h1><% if 1==1 %><h2>middle</h2><h3>child</h3><% else %><h2>middle</h2><h3>child</h3><% end %><p><span>This is the</span> end.</p></div>")
         end
       end
     end

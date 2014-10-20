@@ -14,9 +14,9 @@ module Deface
         it "should return modified source" do
           attrs = attributes_to_sorted_array(Dummy.apply(source, {:virtual_path => "posts/index"}))
 
-          attrs["class"].value.should == "pretty"
-          attrs["alt"].value.should == "something interesting"
-          attrs["src"].value.should == "path/to/button.png"
+          expect(attrs["class"].value).to eq("pretty")
+          expect(attrs["alt"].value).to eq("something interesting")
+          expect(attrs["src"].value).to eq("path/to/button.png")
         end
       end
 
@@ -28,9 +28,9 @@ module Deface
         it "should return modified source" do
           attrs = attributes_to_sorted_array(Dummy.apply(source, {:virtual_path => "posts/index"}))
 
-          attrs["class"].value.should == "pretty"
-          attrs["alt"].value.should == "<%= something_interesting %>"
-          attrs["src"].value.should == "path/to/button.png"
+          expect(attrs["class"].value).to eq("pretty")
+          expect(attrs["alt"].value).to eq("<%= something_interesting %>")
+          expect(attrs["src"].value).to eq("path/to/button.png")
         end
       end
 
@@ -42,9 +42,9 @@ module Deface
         it "should return modified source" do
           attrs = attributes_to_sorted_array(Dummy.apply(source, {:virtual_path => "posts/index"}))
 
-          attrs["class"].value.should == "<%= get_some_other_class %>"
-          attrs["alt"].value.should == "something interesting"
-          attrs["src"].value.should == "path/to/button.png"
+          expect(attrs["class"].value).to eq("<%= get_some_other_class %>")
+          expect(attrs["alt"].value).to eq("something interesting")
+          expect(attrs["src"].value).to eq("path/to/button.png")
         end
       end
 
@@ -56,8 +56,8 @@ module Deface
         it "should return modified source" do
           tag = Nokogiri::HTML::DocumentFragment.parse(Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", ""))
           tag = tag.css('img').first
-          tag.attributes['src'].value.should eq "path/to/button.png"
-          tag.attributes['class'].value.should eq "<%= hello_world %>"
+          expect(tag.attributes['src'].value).to eq "path/to/button.png"
+          expect(tag.attributes['class'].value).to eq "<%= hello_world %>"
         end
       end
     end

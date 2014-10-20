@@ -11,7 +11,7 @@ module Deface
         let(:source) { "<ul><li>first</li><li>second</li><li>third</li></ul>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", "").should == "<ul><li>first</li><li>second</li><li>third</li><%= help %></ul>"
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", "")).to eq("<ul><li>first</li><li>second</li><li>third</li><%= help %></ul>")
         end
       end
     end

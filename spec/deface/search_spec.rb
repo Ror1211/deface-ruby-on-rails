@@ -11,14 +11,14 @@ module Deface
 
     describe "#find" do
       it "should find by virtual_path" do
-        Deface::Override.find({:virtual_path => "posts/index"}).size.should == 1
-        Deface::Override.find({:virtual_path => "/posts/index"}).size.should == 1
-        Deface::Override.find({:virtual_path => "/posts/index.html"}).size.should == 1
-        Deface::Override.find({:virtual_path => "posts/index.html"}).size.should == 1
+        expect(Deface::Override.find({:virtual_path => "posts/index"}).size).to eq(1)
+        expect(Deface::Override.find({:virtual_path => "/posts/index"}).size).to eq(1)
+        expect(Deface::Override.find({:virtual_path => "/posts/index.html"}).size).to eq(1)
+        expect(Deface::Override.find({:virtual_path => "posts/index.html"}).size).to eq(1)
       end
 
       it "should return empty array when no details hash passed" do
-        Deface::Override.find({}).should == []
+        expect(Deface::Override.find({})).to eq([])
       end
     end
 
@@ -32,8 +32,8 @@ module Deface
       end
 
       it "should find by virtual_path" do
-        Deface::Override.find_using("shared/post").size.should == 1
-        Deface::Override.find_using("shared/person").size.should == 1
+        expect(Deface::Override.find_using("shared/post").size).to eq(1)
+        expect(Deface::Override.find_using("shared/person").size).to eq(1)
       end
 
     end

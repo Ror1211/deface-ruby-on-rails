@@ -9,7 +9,7 @@ describe Deface::DSL::Context do
     subject { context = Deface::DSL::Context.new('sample_name') }
 
     def override_should_be_created_with(expected_hash)
-      Deface::Override.should_receive(:new).with hash_including(expected_hash.reverse_merge(:name => 'sample_name'))
+      expect(Deface::Override).to receive(:new).with hash_including(expected_hash.reverse_merge(:name => 'sample_name'))
 
       subject.create_override
     end
@@ -38,14 +38,14 @@ describe Deface::DSL::Context do
         subject.insert_top('selector')
 
         logger = double('logger')
-        Rails.should_receive(:logger).and_return(logger)
-        logger.should_receive(:error).with("\e[1;32mDeface: [WARNING]\e[0m Multiple action methods have been called. The last one will be used.")
+        expect(Rails).to receive(:logger).and_return(logger)
+        expect(logger).to receive(:error).with("\e[1;32mDeface: [WARNING]\e[0m Multiple action methods have been called. The last one will be used.")
 
         subject.insert_bottom('selector')
       end
 
       it 'should use the last action that is specified' do
-        Rails.stub_chain(:logger, :error)
+        allow(Rails).to receive_message_chain(:logger, :error)
 
         subject.insert_top('insert_top/selector')
         subject.insert_bottom('insert_bottom/selector')
@@ -68,14 +68,14 @@ describe Deface::DSL::Context do
         subject.partial('partial name')
 
         logger = double('logger')
-        Rails.should_receive(:logger).and_return(logger)
-        logger.should_receive(:error).with("\e[1;32mDeface: [WARNING]\e[0m Multiple source methods have been called. The last one will be used.")
+        expect(Rails).to receive(:logger).and_return(logger)
+        expect(logger).to receive(:error).with("\e[1;32mDeface: [WARNING]\e[0m Multiple source methods have been called. The last one will be used.")
 
         subject.template('template/path')
       end
 
       it 'should use the last source that is specified' do
-        Rails.stub_chain(:logger, :error)
+        allow(Rails).to receive_message_chain(:logger, :error)
 
         subject.partial('partial name')
         subject.template('template/path')

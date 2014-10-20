@@ -10,14 +10,14 @@ module Deface
       FileUtils.rm_rf('spec/dummy/app/compiled_views')
       environment = Deface::Environment.new
       overrides = Deface::Environment::Overrides.new
-      overrides.stub(:all => {}) # need to do this before creating an override
-      overrides.stub(:all => {"posts/precompileme".to_sym => {"precompileme".parameterize => Deface::Override.new(:virtual_path => "posts/precompileme", :name => "precompileme", :insert_bottom => 'li', :text => "Added to li!")}})
-      environment.stub(:overrides => overrides)
+      allow(overrides).to receive_messages(:all => {}) # need to do this before creating an override
+      allow(overrides).to receive_messages(:all => {"posts/precompileme".to_sym => {"precompileme".parameterize => Deface::Override.new(:virtual_path => "posts/precompileme", :name => "precompileme", :insert_bottom => 'li', :text => "Added to li!")}})
+      allow(environment).to receive_messages(:overrides => overrides)
 
-      Rails.application.config.stub :deface => environment
+      allow(Rails.application.config).to receive_messages :deface => environment
 
       #stub view paths to be local spec/assets directory
-      ActionController::Base.stub(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
+      allow(ActionController::Base).to receive(:view_paths).and_return([File.join(File.dirname(__FILE__), '..', "assets")])
 
       Precompiler.precompile()
     end
@@ -36,7 +36,7 @@ module Deface
       file = File.open(filename, "rb")
       contents = file.read
 
-      contents.should =~ /precompile/
+      expect(contents).to match(/precompile/)
     end
   end
 end

@@ -11,8 +11,8 @@ module Deface
         let(:source) { "<p>test</p>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should  == "<h1>Argh!</h1>"
-          @override.failure.should be_falsy
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to  eq("<h1>Argh!</h1>")
+          expect(@override.failure).to be_falsy
         end
       end
 
@@ -21,8 +21,8 @@ module Deface
         let(:source) { "<h1>start</h1><p>some junk</p><div>more junk</div><h2>end</h2>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<span>Argh!</span>"
-          @override.failure.should be_falsy
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<span>Argh!</span>")
+          expect(@override.failure).to be_falsy
         end
       end
 
@@ -31,9 +31,9 @@ module Deface
         let(:source) { "<h1>start</h1><p>some junk</p><div>more junk</div><h2>end</h2>" }
 
         it "should log error and return unmodified source" do
-          Rails.logger.should_receive(:info).with(/failed to match with end selector/)
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should == source
-          @override.failure.should be_truthy
+          expect(Rails.logger).to receive(:info).with(/failed to match with end selector/)
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq(source)
+          expect(@override.failure).to be_truthy
         end
       end
 
@@ -42,9 +42,9 @@ module Deface
         let(:source) { "<h1>start</h1><p>some junk</p><div>more junk</div><h2>end</h2>" }
 
         it "should log error and return unmodified source" do
-          Rails.logger.should_receive(:info).with(/failed to match with starting selector/)
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should == source
-          @override.failure.should be_truthy
+          expect(Rails.logger).to receive(:info).with(/failed to match with starting selector/)
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq(source)
+          expect(@override.failure).to be_truthy
         end
       end
     end

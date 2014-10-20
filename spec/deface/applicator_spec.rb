@@ -15,7 +15,7 @@ module Deface
 
 
       it "should return unmodified source" do
-        Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<p>test</p><%= raw(text) %>"
+        expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<p>test</p><%= raw(text) %>")
       end
     end
 
@@ -25,7 +25,7 @@ module Deface
 
 
       it "should return modified source" do
-        Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<h1>World</h1><p>Hello</p><h1>World</h1>"
+        expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<h1>World</h1><p>Hello</p><h1>World</h1>")
       end
     end
 
@@ -36,7 +36,7 @@ module Deface
 
 
       it "should return modified source" do
-        Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<% if true %><p>True that!</p><% end %><h1>World</h1><% if true %><p>True that!</p><% end %><p>Hello</p>"
+        expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<% if true %><p>True that!</p><% end %><h1>World</h1><% if true %><p>True that!</p><% end %><p>Hello</p>")
       end
     end
 
@@ -46,7 +46,7 @@ module Deface
 
 
       it "should return modified source" do
-        Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<p>Hello</p><h1>World</h1>"
+        expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<p>Hello</p><h1>World</h1>")
       end
     end
 
@@ -57,7 +57,7 @@ module Deface
 
 
       it "should return modified source" do
-        Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<% if true %><p>True that!</p><% end %><p>Hello</p>"
+        expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<% if true %><p>True that!</p><% end %><p>Hello</p>")
       end
     end
 
@@ -71,7 +71,7 @@ module Deface
       let(:source) { "<ul><li>replaced</li></ul>" }
 
       it "should return modified source" do
-        Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", "").should == "<ul><li>first</li><li>second</li><li>third</li></ul>"
+        expect(Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", "")).to eq("<ul><li>first</li><li>second</li><li>third</li></ul>")
       end
     end
 

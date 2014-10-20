@@ -11,7 +11,7 @@ module Deface
         let(:source) { "<div><img class=\"button\" src=\"path/to/button.png\"></div>" }
 
         it "should return modified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", "").should == "<div><img class=\"button\" src=\"path/to/button.png\"><% help %></div>"
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"}).gsub("\n", "")).to eq("<div><img class=\"button\" src=\"path/to/button.png\"><% help %></div>")
         end
       end
     end

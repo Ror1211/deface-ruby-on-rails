@@ -42,7 +42,7 @@ module Deface
         end
 
         it "should raise exception for non-existing file" do
-          lambda { load_template_source("tester/post", true) }.should raise_error(ActionView::MissingTemplate)
+          expect { load_template_source("tester/post", true) }.to raise_error(ActionView::MissingTemplate)
         end
 
       end

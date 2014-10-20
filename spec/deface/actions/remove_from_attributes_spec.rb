@@ -14,7 +14,7 @@ module Deface
         it "should return modified source" do
           attrs = attributes_to_sorted_array(Dummy.apply(source, {:virtual_path => "posts/index"}))
 
-          attrs["class"].value.should == "button"
+          expect(attrs["class"].value).to eq("button")
         end
       end
 
@@ -26,8 +26,8 @@ module Deface
         it "should return modified source" do
           attrs = attributes_to_sorted_array(Dummy.apply(source, {:virtual_path => "posts/index"}))
 
-          attrs["class"].value.should == "button"
-          attrs["src"].value.should == "path/to/button.png"
+          expect(attrs["class"].value).to eq("button")
+          expect(attrs["src"].value).to eq("path/to/button.png")
         end
       end
 
@@ -39,8 +39,8 @@ module Deface
         it "should return modified source" do
           attrs = attributes_to_sorted_array(Dummy.apply(source, {:virtual_path => "posts/index"}))
 
-          attrs["class"].value.should == "button"
-          attrs["src"].value.should == "path/to/button.png"
+          expect(attrs["class"].value).to eq("button")
+          expect(attrs["src"].value).to eq("path/to/button.png")
         end
       end
 
@@ -50,7 +50,7 @@ module Deface
         let(:source) { "<img class=\"button\" src=\"path/to/button.png\">" }
 
         it "should return unmodified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<img class=\"button\" src=\"path/to/button.png\">" 
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<img class=\"button\" src=\"path/to/button.png\">") 
         end
       end
 
@@ -60,7 +60,7 @@ module Deface
         let(:source) { "<img src=\"path/to/button.png\">" }
 
         it "should return unmodified source" do
-          Dummy.apply(source, {:virtual_path => "posts/index"}).should == "<img src=\"path/to/button.png\">" 
+          expect(Dummy.apply(source, {:virtual_path => "posts/index"})).to eq("<img src=\"path/to/button.png\">") 
         end
       end
 
@@ -72,8 +72,8 @@ module Deface
         it "should return modified source" do
           attrs = attributes_to_sorted_array(Dummy.apply(source, {:virtual_path => "posts/index"}))
 
-          attrs["class"].value.should == "<%= get_class %>"
-          attrs["src"].value.should == "path/to/button.png"
+          expect(attrs["class"].value).to eq("<%= get_class %>")
+          expect(attrs["src"].value).to eq("path/to/button.png")
         end
       end
     end
