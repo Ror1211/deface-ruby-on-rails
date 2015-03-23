@@ -150,7 +150,7 @@ module Deface
       end
 
       it "should return erb converted from slim as source" do
-        expect(@override.source).to eq("<strong class=\"erb\" id=\"message\"><%= ::Temple::Utils.escape_html_safe(('Hello, World!')) %></strong>")
+        expect(@override.source).to eq("<strong class=\"erb\" id=\"message\"><%= ::Temple::Utils.escape_html_safe(('Hello, World!')) %>\n</strong>")
 
         expect(@override.source_argument).to eq(:slim)
       end
