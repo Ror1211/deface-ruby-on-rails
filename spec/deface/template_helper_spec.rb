@@ -21,7 +21,7 @@ module Deface
         end
 
         it "should return converted source for partial containing slim" do
-          expect(load_template_source("shared/hi", true)).to eq "<div class=\"some\" id=\"message\"><%= ::Temple::Utils.escape_html_safe((\"Hi, World!\")) %></div>"
+          expect(load_template_source("shared/hi", true)).to eq "<div class=\"some\" id=\"message\"><%= ::Temple::Utils.escape_html_safe((\"Hi, World!\")) %>\n</div>"
         end
 
         it "should return source for template" do
@@ -67,7 +67,7 @@ module Deface
         end
 
         it "should return converted and overridden source for partial containing slim" do
-          expect(load_template_source("shared/hi", true)).to eq "<div class=\"some\" id=\"message\"><%= ::Temple::Utils.escape_html_safe((\"Hi, World!\")) %></div>"
+          expect(load_template_source("shared/hi", true)).to eq "<div class=\"some\" id=\"message\"><%= ::Temple::Utils.escape_html_safe((\"Hi, World!\")) %>\n</div>"
         end
 
         it "should return overridden source for partial excluding overrides" do

@@ -127,7 +127,7 @@ module Deface
         end
 
         it "should add paths to watchable_dir when running Rails 3.2" do
-          if Rails.version[0..2] == '3.2'
+          if Rails.version[0..2] >= '3.2'
             Rails.application.config.deface.overrides.send(:enumerate_and_load, ["app/gold"], root)
             expect(Rails.application.config.watchable_dirs).to eq({"/some/path/app/gold" => [:rb, :deface] })
           end
