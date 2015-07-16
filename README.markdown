@@ -308,7 +308,7 @@ allowing overrides in different engines with identical filenames to co-exist.
 
 ### DSL usage for overrides that do not include markup
 
-If your override does not require any markup, for example actions including ````:remove, :set_attributes, :remove_from_attributes, :add_to_attrbiutes```` you can exclude the "html.erb" or "html.haml" from the file name and you do not need to wrap the arguments in a comment.
+If your override does not require any markup, for example actions including ````:remove, :set_attributes, :remove_from_attributes, :add_to_attributes```` you can exclude the "html.erb" or "html.haml" from the file name and you do not need to wrap the arguments in a comment.
 
 So the override filename becomes simply:
 
