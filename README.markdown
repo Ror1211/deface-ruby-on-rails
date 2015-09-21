@@ -412,11 +412,7 @@ Deface uses the amazing Nokogiri library (and in turn libxml) for parsing HTML /
 
 1. Ensure that your layout views include doctype, html, head and body tags in a single file, as Nokogiri will create such elements if it detects any of these tags have been incorrectly nested.
 
-2. Parsing will fail and result in invalid output if ERB blocks are responsible for closing an HTML tag that was opened normally, i.e. don't do this:
-
-```html
-&lt;div <%= ">" %>
-```
+2. Parsing will fail and result in invalid output if ERB blocks are responsible for closing an HTML tag that was opened normally, i.e. don't do this: `&lt;div <%= ">" %>`
 
 3. Gems or Spree Extensions that add overrides to your application will load them in the order they are added to your Gemfile.
 
