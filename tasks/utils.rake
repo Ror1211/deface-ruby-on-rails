@@ -1,6 +1,6 @@
 require 'deface'
 require 'deface/utils/failure_finder'
-require 'colorize'
+require 'console-colors'
 
 namespace :deface do
   include Deface::TemplateHelper
