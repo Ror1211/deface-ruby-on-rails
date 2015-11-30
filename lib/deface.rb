@@ -36,7 +36,7 @@ require "deface/matchers/element"
 require "deface/matchers/range"
 require "deface/environment"
 require "deface/precompiler"
-require "colorize"
+require "console-colors"
 
 module Deface
   if defined?(Rails)
