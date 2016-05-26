@@ -1,11 +1,14 @@
 require 'spec_helper'
 require 'deface/utils/failure_finder'
 
+require 'active_support/testing/stream' if Rails::VERSION::MAJOR >= 5
+
 module Deface
   module Utils
     describe FailureFinder do
       include Deface::Utils::FailureFinder
       include Deface::TemplateHelper
+      include ActiveSupport::Testing::Stream if Rails::VERSION::MAJOR >= 5
       include_context "mock Rails.application"
 
       before do
