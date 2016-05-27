@@ -33,7 +33,7 @@ module Deface
         end
 
         it "should return converted source for template containing slim" do
-          result = "<divid=\"content\"><divclass=\"left\"><p><%=::Temple::Utils.escape_html_safe((print_information))%></p></div><divclass=\"right\"<%_slim_codeattributes1=@right;case(_slim_codeattributes1);whentrue%>id=\"\"<%whenfalse,nil;else%>id=\"<%=::Temple::Utils.escape_html_safe((_slim_codeattributes1))%>\"<%end%>><%=::Temple::Utils.escape_html_safe((render:partial=>\"sidebar\"))%></div></div>"
+          result = "<divid=\"content\"><divclass=\"left\"><p><%=::Temple::Utils.escape_html_safe((print_information))%></p></div><divclass=\"right\"<%_slim_codeattributes1=@right;if_slim_codeattributes1;if_slim_codeattributes1==true%>id=\"\"<%else%>id=\"<%=::Temple::Utils.escape_html_safe((_slim_codeattributes1))%>\"<%end;end%>><%=::Temple::Utils.escape_html_safe((render:partial=>\"sidebar\"))%></div></div>"
           expect(load_template_source("shared/public", false).gsub(/\s/, '')).to eq result
         end
 
@@ -83,7 +83,7 @@ module Deface
         end
 
         it "should return converted and overridden source for template containing slim" do
-          result = "<divid=\"content\"><divclass=\"left\"><p><%=::Temple::Utils.escape_html_safe((print_information))%></p></div><divclass=\"right\"<%_slim_codeattributes1=@right;case(_slim_codeattributes1);whentrue%>id=\"\"<%whenfalse,nil;else%>id=\"<%=::Temple::Utils.escape_html_safe((_slim_codeattributes1))%>\"<%end%>><%=::Temple::Utils.escape_html_safe((render:partial=>\"sidebar\"))%></div></div>"
+          result = "<divid=\"content\"><divclass=\"left\"><p><%=::Temple::Utils.escape_html_safe((print_information))%></p></div><divclass=\"right\"<%_slim_codeattributes1=@right;if_slim_codeattributes1;if_slim_codeattributes1==true%>id=\"\"<%else%>id=\"<%=::Temple::Utils.escape_html_safe((_slim_codeattributes1))%>\"<%end;end%>><%=::Temple::Utils.escape_html_safe((render:partial=>\"sidebar\"))%></div></div>"
           expect(load_template_source("shared/public", false).gsub(/\s/, '')).to eq result
         end
 
