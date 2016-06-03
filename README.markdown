@@ -109,7 +109,7 @@ You should save your overrides in the ````app/overrides````, normally one overri
 
 * <tt>:disabled</tt> - When set to true the override will not be applied.
 
-* <tt>:original</tt> - String containing original markup that is being overridden. If supplied Deface will log when the original markup changes, which helps highlight overrides that need attention when upgrading versions of the source application. Only really warranted for :replace overrides. NB: All whitespace is stripped before comparison.
+* <tt>:original</tt> - Either a string containing the original markup that is being overridden, or a string that is the SHA1 digest of the original markup. If supplied Deface will log when the original markup changes, which helps highlight overrides that need attention when upgrading versions of the source application. Only really warranted for :replace overrides. NB: All whitespace is stripped before comparison. To generate the SHA1 digest do: `Digest::SHA1.hexdigest(original_markup_string.gsub(/\s/, ''))`
 
 * <tt>:closing_selector</tt> - A second css selector targeting an end element, allowing you to select a range of elements to apply an action against. The :closing_selector only supports the :replace, :remove and :replace_contents actions, and the end element must be a sibling of the first/starting element. Note the CSS general sibling selector (~) is used to match the first element after the opening selector (see below for an example).
 
