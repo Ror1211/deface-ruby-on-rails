@@ -348,15 +348,36 @@ Production & Precompiling
 
 Deface now supports precompiling where all overrides are loaded and applied to the original views and the resulting templates are then saved to your application's `app/compiled_views` directory. To precompile run:
 
-     bundle exec rake deface:precompile
+     DEFACE_ENABLED=true bundle exec rake deface:precompile
 
 It's important to disable Deface once precompiling is used to prevent overrides getting applied twice. To disable add the following line to your application's `production.rb` file:
 
 ```ruby
-config.deface.enabled = false
+config.deface.enabled = ENV['DEFACE_ENABLED'] == 'true'
 ```
 
 NOTE: You can also use precompiling in development mode.
+
+### Adding to Capistrano
+
+Adding the following to your `deploy.rb` will automatically compile the views during deploy
+
+```ruby
+namespace :deface do
+  desc "Pre-compile Deface overrides into templates"
+  task :precompile do
+    on roles(:app) do
+      within release_path do
+        with rails_env: fetch(:rails_env), deface_enabled: true do
+          execute :rake, 'deface:precompile'
+        end
+      end
+    end
+  end
+end
+
+after 'deploy:updated', 'deface:precompile'
+```
 
 
 Demo & Testing
