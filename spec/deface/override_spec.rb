@@ -100,6 +100,22 @@ module Deface
           Deface::Override.new(:virtual_path => "posts/new", :name => "Posts#new", :replace => "h1", :text => "<h1>argh!</h1>")
         }.to change{Deface::Override.all.size}.by(1)
       end
+
+      it "should default :name when none is given" do
+        override = Deface::Override.new(:virtual_path => "posts/new", :replace => "h1", :text => "<h1>Derp!</h1>")
+        expect(override.name).not_to be_empty
+      end
+
+      it "should default :name to caller's file name and a line number" do
+        override = Deface::Override.new(:virtual_path => "posts/new", :replace => "h1", :text => "<h1>Derp!</h1>")
+        expect(override.name).to match Regexp.new("#{Regexp.escape(File.basename(__FILE__, '.rb'))}_\\d+")
+      end
+
+      it "should use :name argument when given" do
+        name = "Posts#new"
+        override = Deface::Override.new(:virtual_path => "posts/new", :name => name, :replace => "h1", :text => "<h1>Derp!</h1>")
+        expect(override.name).to eq(name)
+      end
     end
 
     describe "with :text" do
