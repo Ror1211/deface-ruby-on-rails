@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency('polyglot')
 
   s.add_development_dependency('appraisal')
+  s.add_development_dependency('erubis')
   s.add_development_dependency('rspec', '>= 3.1.0')
   s.add_development_dependency('haml', '~> 4.0')
   s.add_development_dependency('slim', '~> 3.0')
