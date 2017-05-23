@@ -26,6 +26,16 @@ module Deface
         return
       end
 
+      # If no name was specified, use the filename and line number of the caller
+      # Including the line number ensure unique names if multiple overrides
+      # are defined in the same file
+      unless args.key? :name
+        parts = caller[0].split(':')
+        file_name = File.basename(parts[0], '.rb')
+        line_number = parts[1]
+        args[:name] = "#{file_name}_#{line_number}"
+      end
+
       raise(ArgumentError, ":name must be defined") unless args.key? :name
       raise(ArgumentError, ":virtual_path must be defined") if args[:virtual_path].blank?
 
