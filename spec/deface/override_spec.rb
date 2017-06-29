@@ -152,7 +152,7 @@ module Deface
       end
 
       it "should return erb converted from haml as source" do
-        expect(@override.source).to eq("<strong class='erb' id='message'><%= 'Hello, World!' %>\n</strong>\n")
+        expect(@override.source).to eq("<strong class='erb' id='message'><%= 'Hello, World!' %></strong>\n")
 
         expect(@override.source_argument).to eq(:haml)
       end

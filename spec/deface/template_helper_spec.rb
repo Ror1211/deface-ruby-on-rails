@@ -17,7 +17,7 @@ module Deface
         end
 
         it "should return converted source for partial containing haml" do
-          expect(load_template_source("shared/hello", true)).to eq "<div class='<%= @some %>' id='message'><%= 'Hello, World!' %>\n</div>\n"
+          expect(load_template_source("shared/hello", true)).to eq "<div class='<%= @some %>' id='message'><%= 'Hello, World!' %></div>\n"
         end
 
         it "should return converted source for partial containing slim" do

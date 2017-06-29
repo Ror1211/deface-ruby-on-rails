@@ -20,22 +20,22 @@ module Deface
     %h2 Welcome to our site!
     %p= print_information
   .right.column
-    = render :partial => "sidebar"})).to eq("<div id='content'>  <div class='left column'>    <h2>Welcome to our site!</h2>    <p>    <%= print_information %></p>  </div>  <div class='right column'>    <%= render :partial => \"sidebar\" %>  </div></div>")
+    = render :partial => "sidebar"})).to eq("<div id='content'><div class='left column'><h2>Welcome to our site!</h2><p><%= print_information %></p></div><div class='right column'><%= render :partial => \"sidebar\" %></div></div>")
       end
 
       it "should handle simple haml attributes" do
-        expect(haml_to_erb("%meta{:charset => 'utf-8'}")).to eq("<meta charset='utf-8' />")
+        expect(haml_to_erb("%meta{:charset => 'utf-8'}")).to eq("<meta charset='utf-8'>")
         expect(haml_to_erb("%p(alt='hello world')Hello World!")).to eq("<p alt='hello world'>Hello World!</p>")
       end
 
       it "should handle haml attributes with commas" do
-        expect(haml_to_erb("%meta{'http-equiv' => 'X-UA-Compatible', :content => 'IE=edge,chrome=1'}")).to eq("<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible' />")
-        expect(haml_to_erb("%meta(http-equiv='X-UA-Compatible' content='IE=edge,chrome=1')")).to eq("<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible' />")
-        expect(haml_to_erb('%meta{:name => "author", :content => "Example, Inc."}')).to eq("<meta content='Example, Inc.' name='author' />")
-        expect(haml_to_erb('%meta(name="author" content="Example, Inc.")')).to eq("<meta content='Example, Inc.' name='author' />")
+        expect(haml_to_erb("%meta{'http-equiv' => 'X-UA-Compatible', :content => 'IE=edge,chrome=1'}")).to eq("<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible'>")
+        expect(haml_to_erb("%meta(http-equiv='X-UA-Compatible' content='IE=edge,chrome=1')")).to eq("<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible'>")
+        expect(haml_to_erb('%meta{:name => "author", :content => "Example, Inc."}')).to eq("<meta content='Example, Inc.' name='author'>")
+        expect(haml_to_erb('%meta(name="author" content="Example, Inc.")')).to eq("<meta content='Example, Inc.' name='author'>")
 
         if RUBY_VERSION > "1.9"
-          expect(haml_to_erb('%meta{name: "author", content: "Example, Inc."}')).to eq("<meta content='Example, Inc.' name='author' />")
+          expect(haml_to_erb('%meta{name: "author", content: "Example, Inc."}')).to eq("<meta content='Example, Inc.' name='author'>")
         end
       end
 
@@ -73,7 +73,7 @@ module Deface
       it "should handle blocks passed to erb loud" do
         expect(haml_to_erb("= form_for Post.new do |f|
   %p
-    = f.text_field :name")).to eq("<%= form_for Post.new do |f| %><p>  <%= f.text_field :name %></p><% end %>")
+    = f.text_field :name")).to eq("<%= form_for Post.new do |f| %><p><%= f.text_field :name %></p><% end %>")
 
       end
 
@@ -81,7 +81,7 @@ module Deface
        it "should handle blocks passed to erb silent" do
         expect(haml_to_erb("- @posts.each do |post|
   %p
-    = post.name")).to eq("<% @posts.each do |post| %><p>  <%= post.name %></p><% end %>")
+    = post.name")).to eq("<% @posts.each do |post| %><p><%= post.name %></p><% end %>")
 
       end
     end
