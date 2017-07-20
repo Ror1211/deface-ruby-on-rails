@@ -20,7 +20,7 @@ module Deface
     def parse_old_attributes(line)
       attributes_hash, rest, last_line = super(line)
 
-      attributes_hash = deface_attributes(attributes_hash)
+      attributes_hash = "{#{deface_attributes(attributes_hash)}}"
 
       return attributes_hash, rest, last_line
     end
@@ -34,7 +34,6 @@ module Deface
       return attributes, rest, last_line
     end
     private
-
       # coverts { attributes into deface compatibily attributes
       def deface_attributes(attrs)
         return if attrs.nil?

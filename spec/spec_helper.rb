@@ -78,7 +78,7 @@ shared_context "mock Rails" do
     allow(Time).to receive(:zone).and_return double('zone')
     allow(Time.zone).to receive(:now).and_return Time.parse('1979-05-25')
 
-    require "haml/template/plugin"
+    require "haml/template"
     require 'slim/erb_converter'
   end
 end
